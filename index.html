@@ -14,7 +14,7 @@
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
-<title>QuestMode</title>
+<title>QUESTY</title>
 
 
 <style>
@@ -2075,11 +2075,7 @@ render();
 
 function changeTheme(theme) {
 
-  document.body.className = "";
-
-  document.body.classList.add(
-    "theme-" + theme
-  );
+  document.body.className = "theme-" + theme;
 
   localStorage.setItem(
     "questModeTheme",
@@ -2099,9 +2095,7 @@ if (themeSelect) {
     "change",
     function() {
 
-      changeTheme(
-        this.value
-      );
+      changeTheme(this.value);
 
     }
   );
@@ -2120,10 +2114,7 @@ if (savedTheme) {
   changeTheme(savedTheme);
 
   if (themeSelect) {
-
-    themeSelect.value =
-      savedTheme;
-
+    themeSelect.value = savedTheme;
   }
 
 } else {
