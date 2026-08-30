@@ -1,0 +1,80 @@
+/* =========================
+   THEMES
+========================= */
+
+body.theme-dark {
+  --bg: #15151c;
+  --card: #202029;
+  --border: #32323e;
+  --input: #15151c;
+  --text: #f4f4f5;
+  --muted: #888894;
+  --button: #ffffff;
+  --button-text: #111111;
+  --accent: #a855f7;
+}
+
+
+body.theme-purple {
+  --bg: #160d20;
+  --card: #251536;
+  --border: #4b2c63;
+  --input: #190e24;
+  --text: #faf5ff;
+  --muted: #b7a2c4;
+  --button: #d8b4fe;
+  --button-text: #1d1028;
+  --accent: #a855f7;
+}
+
+
+body.theme-blue {
+  --bg: #08131c;
+  --card: #10222f;
+  --border: #24475c;
+  --input: #0a1721;
+  --text: #edfaff;
+  --muted: #829daa;
+  --button: #67e8f9;
+  --button-text: #07151b;
+  --accent: #22d3ee;
+}
+
+
+body.theme-pink {
+  --bg: #211923;
+  --card: #30232f;
+  --border: #594052;
+  --input: #241a23;
+  --text: #fff5fb;
+  --muted: #bda5b4;
+  --button: #f9b4d5;
+  --button-text: #291522;
+  --accent: #ec72aa;
+}
+
+
+body.theme-green {
+  --bg: #0d1813;
+  --card: #17271e;
+  --border: #304b3a;
+  --input: #101c16;
+  --text: #f1fff5;
+  --muted: #91a99a;
+  --button: #9be6b4;
+  --button-text: #102017;
+  --accent: #4ade80;
+}
+
+
+body.theme-fire {
+  --bg: #1c0d08;
+  --card: #2d1710;
+  --border: #603024;
+  --input: #200e09;
+  --text: #fff5ef;
+  --muted: #c09a8c;
+  --button: #ffb36b;
+  --button-text: #281108;
+  --accent: #f97316;
+}
