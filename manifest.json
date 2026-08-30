@@ -1,0 +1,23 @@
+{
+  "name": "QuestMode",
+  "short_name": "QuestMode",
+  "description": "Dein Leben. Deine Quests.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#15151c",
+  "theme_color": "#15151c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
