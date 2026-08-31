@@ -593,7 +593,7 @@ button {
 
     <div class="subtitle">
 
-      Dein Leben. Deine Quests.
+      Gamification deiner To-Doˋs
 
     </div>
 
@@ -648,7 +648,7 @@ button {
 <div class="card">
 
   <h1>
-    ⚔️ Was steht heute an?
+    Was steht heute an?
   </h1>
 
 
@@ -692,7 +692,7 @@ button {
         </option>
 
         <option value="4">
-          ⭐⭐⭐⭐ Boss
+          ⭐⭐⭐⭐ Überwindung sein Vater
         </option>
 
       </select>
@@ -710,19 +710,19 @@ button {
       <select id="questType">
 
         <option value="normal">
-          ⚔️ Quest
+          Quest
         </option>
 
         <option value="daily">
-          🟢 Daily
+          Daily
         </option>
 
         <option value="side">
-          🟣 Side Quest
+          Side Quest
         </option>
 
         <option value="boss">
-          🐉 Boss Quest
+          Hard Quest
         </option>
 
       </select>
@@ -737,7 +737,7 @@ button {
     class="primary"
   >
 
-    ⚔️ QUEST ERSTELLEN
+    QUEST ERSTELLEN
 
   </button>
 
@@ -760,7 +760,7 @@ button {
   <p>
 
     Keine Lust zu entscheiden?
-    Lass das Schicksal ran.
+    Lass den Zufall entscheiden.
 
   </p>
 
@@ -797,7 +797,7 @@ button {
     class="accept-random"
   >
 
-    ⚔️ ALS QUEST ANNEHMEN
+    ALS QUEST ANNEHMEN
 
   </button>
 
@@ -824,7 +824,7 @@ button {
 
   <h2>
 
-    📜 Aktive Quests
+    Aktive Quests
 
     <span id="questCount">
       0
@@ -899,7 +899,7 @@ button {
 <div class="card">
 
   <h2>
-    📜 Quest-Historie
+    Quest-Historie
   </h2>
 
 
@@ -943,6 +943,8 @@ JSON.parse(
     "Eine Schublade aufräumen",
 
     "Ein Glas Wasser trinken",
+
+    "Staubwischen"
 
     "5 Minuten dehnen",
 
@@ -1066,7 +1068,7 @@ const achievements = [
     name: "Drachenbezwinger",
 
     description:
-      "Schließe eine Boss Quest ab.",
+      "Schließe eine Hard Quest ab.",
 
     check: () =>
       data.history.some(
@@ -1142,7 +1144,7 @@ function addQuest() {
   if (!text) {
 
     alert(
-      "Du brauchst erst eine Quest 😄"
+      "Du brauchst erst eine Quest..."
     );
 
     return;
