@@ -5,10 +5,10 @@
 
 <link rel="manifest" href="manifest.json">
 
-<meta name="theme-color" content="#15151c">
+<meta name="theme-color" content="#4D71B5">
 
 <link rel="apple-touch-icon" href="icon-192.png">
-   
+
 <meta charset="UTF-8">
 
 <meta name="viewport"
@@ -19,121 +19,197 @@ content="width=device-width, initial-scale=1.0">
 
 <style>
 
-/* =========================
+/* =====================================================
    GRUNDLAYOUT
-========================= */
+===================================================== */
 
 :root {
-  --bg: #15151c;
-  --card: #202029;
-  --border: #32323e;
-  --input: #15151c;
-  --text: #f4f4f5;
-  --muted: #888894;
-  --button: #ffffff;
-  --button-text: #111111;
-  --accent: #a855f7;
+
+  --bg: #10182b;
+  --card: #192643;
+  --border: #314a78;
+  --input: #111b30;
+
+  --text: #f8faff;
+  --muted: #aab8d1;
+
+  --button: #FFC94C;
+  --button-text: #17130a;
+
+  --accent: #4D71B5;
+  --accent-light: #7597dc;
+
+  --danger: #ef6262;
+
 }
-   
+
+
 * {
   box-sizing: border-box;
 }
 
-/* =========================
-   THEMES
-========================= */
 
-body.theme-dark {
-  --bg: #15151c;
-  --card: #202029;
-  --border: #32323e;
-  --input: #15151c;
-  --text: #f4f4f5;
-  --muted: #888894;
-  --button: #ffffff;
-  --button-text: #111111;
-  --accent: #a855f7;
-}
-
-
-body.theme-purple {
-  --bg: #160d20;
-  --card: #251536;
-  --border: #4b2c63;
-  --input: #190e24;
-  --text: #faf5ff;
-  --muted: #b7a2c4;
-  --button: #d8b4fe;
-  --button-text: #1d1028;
-  --accent: #a855f7;
-}
-
-
-body.theme-blue {
-  --bg: #08131c;
-  --card: #10222f;
-  --border: #24475c;
-  --input: #0a1721;
-  --text: #edfaff;
-  --muted: #829daa;
-  --button: #67e8f9;
-  --button-text: #07151b;
-  --accent: #22d3ee;
-}
-
-
-body.theme-pink {
-  --bg: #211923;
-  --card: #30232f;
-  --border: #594052;
-  --input: #241a23;
-  --text: #fff5fb;
-  --muted: #bda5b4;
-  --button: #f9b4d5;
-  --button-text: #291522;
-  --accent: #ec72aa;
-}
-
-
-body.theme-green {
-  --bg: #0d1813;
-  --card: #17271e;
-  --border: #304b3a;
-  --input: #101c16;
-  --text: #f1fff5;
-  --muted: #91a99a;
-  --button: #9be6b4;
-  --button-text: #102017;
-  --accent: #4ade80;
-}
-
-
-body.theme-fire {
-  --bg: #1c0d08;
-  --card: #2d1710;
-  --border: #603024;
-  --input: #200e09;
-  --text: #fff5ef;
-  --muted: #c09a8c;
-  --button: #ffb36b;
-  --button-text: #281108;
-  --accent: #f97316;
-}
-
-   
 body {
 
   margin: 0;
 
   font-family:
-    "Lucida Bright", serif;
+    "Lucida Bright",
+    Georgia,
+    serif;
 
-  background: var(--bg);
+  background:
+    radial-gradient(
+      circle at top right,
+      #263d6b 0%,
+      var(--bg) 45%
+    );
+
+  background-attachment: fixed;
 
   color: var(--text);
 
+  min-height: 100vh;
+
 }
 
+
+/* =====================================================
+   THEMES
+===================================================== */
+
+
+/* ----- STANDARD ----- */
+
+body.theme-dark {
+
+  --bg: #10182b;
+  --card: #192643;
+  --border: #314a78;
+  --input: #111b30;
+
+  --text: #f8faff;
+  --muted: #aab8d1;
+
+  --button: #FFC94C;
+  --button-text: #17130a;
+
+  --accent: #4D71B5;
+  --accent-light: #7597dc;
+
+  --danger: #ef6262;
+
+}
+
+
+/* ----- PURPLE ----- */
+
+body.theme-purple {
+
+  --bg: #160d20;
+  --card: #251536;
+  --border: #5b3678;
+  --input: #190e24;
+
+  --text: #faf5ff;
+  --muted: #c2a9d0;
+
+  --button: #d8b4fe;
+  --button-text: #1d1028;
+
+  --accent: #a855f7;
+  --accent-light: #c084fc;
+
+}
+
+
+/* ----- BLUE ----- */
+
+body.theme-blue {
+
+  --bg: #07151f;
+  --card: #102a3a;
+  --border: #28516a;
+  --input: #091923;
+
+  --text: #edfaff;
+  --muted: #8eaebb;
+
+  --button: #67e8f9;
+  --button-text: #07151b;
+
+  --accent: #22d3ee;
+  --accent-light: #67e8f9;
+
+}
+
+
+/* ----- PINK ----- */
+
+body.theme-pink {
+
+  --bg: #211923;
+  --card: #30232f;
+  --border: #68495e;
+  --input: #241a23;
+
+  --text: #fff5fb;
+  --muted: #c7aaba;
+
+  --button: #f9b4d5;
+  --button-text: #291522;
+
+  --accent: #ec72aa;
+  --accent-light: #f59bc4;
+
+}
+
+
+/* ----- GREEN ----- */
+
+body.theme-green {
+
+  --bg: #0d1813;
+  --card: #17271e;
+  --border: #385443;
+  --input: #101c16;
+
+  --text: #f1fff5;
+  --muted: #91aa9a;
+
+  --button: #9be6b4;
+  --button-text: #102017;
+
+  --accent: #4ade80;
+  --accent-light: #86efac;
+
+}
+
+
+/* ----- FIRE ----- */
+
+body.theme-fire {
+
+  --bg: #1c0d08;
+  --card: #2d1710;
+  --border: #673526;
+  --input: #200e09;
+
+  --text: #fff5ef;
+  --muted: #cba094;
+
+  --button: #ffb36b;
+  --button-text: #281108;
+
+  --accent: #f97316;
+  --accent-light: #fb923c;
+
+}
+
+
+/* =====================================================
+   APP
+===================================================== */
 
 .app {
 
@@ -146,9 +222,9 @@ body {
 }
 
 
-/* =========================
+/* =====================================================
    HEADER
-========================= */
+===================================================== */
 
 header {
 
@@ -169,27 +245,29 @@ header {
 
 .logo {
 
-  font-size: 28px;
+  font-size: 30px;
 
   font-weight: 900;
 
-  letter-spacing: 2px;
+  letter-spacing: 3px;
 
 }
 
 
 .logo span {
 
-  opacity: .5;
+  opacity: .45;
 
 }
 
 
 .subtitle {
 
-  color: #888894;
+  color: var(--muted);
 
   font-size: 13px;
+
+  margin-top: 4px;
 
 }
 
@@ -207,13 +285,13 @@ header {
 
 .xp-bar {
 
-  height: 8px;
+  height: 10px;
 
-  background: #30303a;
+  background: rgba(255,255,255,.12);
 
   border-radius: 20px;
 
-  margin: 5px 0;
+  margin: 6px 0;
 
   overflow: hidden;
 
@@ -226,7 +304,12 @@ header {
 
   width: 0%;
 
-  background: white;
+  background:
+    linear-gradient(
+      90deg,
+      var(--accent),
+      var(--button)
+    );
 
   transition:
     width .4s ease;
@@ -234,9 +317,9 @@ header {
 }
 
 
-/* =========================
+/* =====================================================
    CARDS
-========================= */
+===================================================== */
 
 .card {
 
@@ -251,12 +334,23 @@ header {
 
   margin-bottom: 18px;
 
+  box-shadow:
+    0 8px 25px rgba(0,0,0,.12);
+
 }
 
 
-/* =========================
+.card h1,
+.card h2 {
+
+  margin-top: 0;
+
+}
+
+
+/* =====================================================
    INPUTS
-========================= */
+===================================================== */
 
 input,
 select {
@@ -275,6 +369,18 @@ select {
   color: var(--text);
 
   font-size: 15px;
+
+  font-family: inherit;
+
+}
+
+
+input:focus,
+select:focus {
+
+  outline: 2px solid var(--accent);
+
+  outline-offset: 2px;
 
 }
 
@@ -297,7 +403,7 @@ label {
 
   display: block;
 
-  color: #9999a5;
+  color: var(--muted);
 
   font-size: 12px;
 
@@ -306,9 +412,9 @@ label {
 }
 
 
-/* =========================
+/* =====================================================
    BUTTONS
-========================= */
+===================================================== */
 
 button {
 
@@ -323,6 +429,26 @@ button {
   font-weight: bold;
 
   cursor: pointer;
+
+  font-family: inherit;
+
+  transition:
+    transform .12s ease,
+    filter .12s ease;
+
+}
+
+
+button:hover {
+
+  filter: brightness(1.08);
+
+}
+
+
+button:active {
+
+  transform: scale(.97);
 
 }
 
@@ -344,9 +470,22 @@ button {
 
   margin-top: 10px;
 
-  background: #30303b;
+  background: var(--accent);
 
   color: white;
+
+}
+
+
+.print-button {
+
+  background:
+    rgba(255,255,255,.10);
+
+  color: var(--text);
+
+  border:
+    1px solid var(--border);
 
 }
 
@@ -355,25 +494,80 @@ button {
 
   width: 100%;
 
-  background: white;
+  background:
+    linear-gradient(
+      135deg,
+      var(--button),
+      #ffdf78
+    );
 
-  color: #111;
+  color: #17130a;
 
   margin-top: 15px;
 
 }
 
 
-/* =========================
-   QUESTS
-========================= */
+.accept-random {
+
+  width: 100%;
+
+  margin-top: 10px;
+
+  background: var(--accent);
+
+  color: white;
+
+}
+
+
+/* =====================================================
+   RANDOM QUEST
+===================================================== */
+
+.random-result {
+
+  min-height: 100px;
+
+  margin-top: 15px;
+
+  border:
+    2px dashed var(--accent);
+
+  border-radius: 14px;
+
+  display: flex;
+
+  justify-content:
+    center;
+
+  align-items:
+    center;
+
+  text-align: center;
+
+  padding: 18px;
+
+  font-size: 20px;
+
+  font-weight: bold;
+
+  background:
+    rgba(77,113,181,.10);
+
+}
+
+
+/* =====================================================
+   ACTIVE QUESTS
+===================================================== */
 
 .quest {
 
-  background: #202029;
+  background: var(--card);
 
   border:
-    1px solid #32323e;
+    1px solid var(--border);
 
   border-radius: 15px;
 
@@ -385,7 +579,7 @@ button {
 
   align-items: center;
 
-  gap: 10px;
+  gap: 8px;
 
 }
 
@@ -393,6 +587,8 @@ button {
 .quest-info {
 
   flex: 1;
+
+  min-width: 0;
 
 }
 
@@ -402,6 +598,8 @@ button {
   font-weight: bold;
 
   margin-bottom: 5px;
+
+  overflow-wrap: anywhere;
 
 }
 
@@ -428,61 +626,22 @@ button {
 
   background: transparent;
 
-  color: #777783;
+  color: #999;
 
 }
 
 
-/* =========================
-   RANDOM QUEST
-========================= */
+.quest .print-button {
 
-.random-result {
-
-  min-height: 90px;
-
-  margin-top: 15px;
-
-  border:
-    2px dashed #454552;
-
-  border-radius: 14px;
-
-  display: flex;
-
-  justify-content:
-    center;
-
-  align-items:
-    center;
-
-  text-align: center;
-
-  padding: 15px;
-
-  font-size: 20px;
-
-  font-weight: bold;
+  padding-left: 11px;
+  padding-right: 11px;
 
 }
 
 
-.accept-random {
-
-  width: 100%;
-
-  margin-top: 10px;
-
-  background: #ffffff;
-
-  color: #111111;
-
-}
-
-
-/* =========================
+/* =====================================================
    ACHIEVEMENTS
-========================= */
+===================================================== */
 
 .achievement {
 
@@ -495,7 +654,7 @@ button {
   padding: 12px 0;
 
   border-bottom:
-    1px solid #30303b;
+    1px solid var(--border);
 
 }
 
@@ -514,25 +673,36 @@ button {
 }
 
 
-/* =========================
-   HISTORIE
-========================= */
+/* =====================================================
+   HISTORY
+===================================================== */
 
 .history-item {
 
   padding: 10px 0;
 
   border-bottom:
-    1px solid #30303b;
+    1px solid var(--border);
 
   font-size: 13px;
 
 }
 
 
-/* =========================
+/* =====================================================
+   PRINT PREVIEW
+===================================================== */
+
+#printArea {
+
+  display: none;
+
+}
+
+
+/* =====================================================
    MOBILE
-========================= */
+===================================================== */
 
 @media (max-width: 550px) {
 
@@ -563,6 +733,144 @@ button {
 
   }
 
+
+  .quest {
+
+    flex-wrap: wrap;
+
+  }
+
+
+  .quest-info {
+
+    width: 100%;
+
+    flex-basis: 100%;
+
+  }
+
+}
+
+
+/* =====================================================
+   PRINT
+===================================================== */
+
+@media print {
+
+  body * {
+
+    visibility: hidden;
+
+  }
+
+
+  #printArea,
+  #printArea * {
+
+    visibility: visible;
+
+  }
+
+
+  #printArea {
+
+    display: block;
+
+    position: absolute;
+
+    left: 0;
+
+    top: 0;
+
+    width: 72mm;
+
+    padding: 5mm;
+
+    background: white;
+
+    color: black;
+
+    font-family:
+      Arial,
+      sans-serif;
+
+  }
+
+
+  .receipt {
+
+    width: 100%;
+
+    text-align: center;
+
+  }
+
+
+  .receipt-title {
+
+    font-size: 20px;
+
+    font-weight: 900;
+
+    letter-spacing: 2px;
+
+    margin-bottom: 8px;
+
+  }
+
+
+  .receipt-line {
+
+    border-top:
+      1px dashed #000;
+
+    margin: 10px 0;
+
+  }
+
+
+  .receipt-quest {
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    margin: 12px 0;
+
+    overflow-wrap: anywhere;
+
+  }
+
+
+  .receipt-meta {
+
+    font-size: 13px;
+
+    margin: 6px 0;
+
+  }
+
+
+  .receipt-xp {
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    margin-top: 12px;
+
+  }
+
+
+  .receipt-footer {
+
+    font-size: 10px;
+
+    margin-top: 15px;
+
+  }
+
 }
 
 </style>
@@ -570,31 +878,26 @@ button {
 </head>
 
 
-<body>
+<body class="theme-dark">
 
 
 <div class="app">
 
 
-<!-- =========================
+<!-- =====================================================
      HEADER
-========================= -->
+===================================================== -->
 
 <header>
 
   <div>
 
     <div class="logo">
-
       QUESTY
-
     </div>
 
-
     <div class="subtitle">
-
-      Gamification deiner To-Doˋs
-
+      Gamification deiner To-Dos
     </div>
 
   </div>
@@ -641,14 +944,14 @@ button {
 
 
 
-<!-- =========================
+<!-- =====================================================
      QUEST ERSTELLEN
-========================= -->
+===================================================== -->
 
 <div class="card">
 
   <h1>
-    Was steht heute an?
+    ⚔️ Was steht heute an?
   </h1>
 
 
@@ -737,7 +1040,18 @@ button {
     class="primary"
   >
 
-    QUEST ERSTELLEN
+    ⚔️ QUEST ERSTELLEN
+
+  </button>
+
+
+  <button
+    id="addQuestPrintButton"
+    class="primary"
+    style="margin-top:10px;"
+  >
+
+    🖨️ ANNEHMEN & DRUCKEN
 
   </button>
 
@@ -745,9 +1059,9 @@ button {
 
 
 
-<!-- =========================
+<!-- =====================================================
      RANDOM QUEST
-========================= -->
+===================================================== -->
 
 <div class="card">
 
@@ -787,17 +1101,23 @@ button {
   </button>
 
 
-  <!--
-       DIESER BUTTON IST
-       VON ANFANG AN SICHTBAR
-  -->
-
   <button
     id="acceptRandomButton"
     class="accept-random"
   >
 
-    ALS QUEST ANNEHMEN
+    ⚔️ QUEST ANNEHMEN
+
+  </button>
+
+
+  <button
+    id="acceptRandomPrintButton"
+    class="primary"
+    style="margin-top:10px;"
+  >
+
+    🖨️ ANNEHMEN & DRUCKEN
 
   </button>
 
@@ -816,15 +1136,15 @@ button {
 
 
 
-<!-- =========================
+<!-- =====================================================
      AKTIVE QUESTS
-========================= -->
+===================================================== -->
 
 <div>
 
   <h2>
 
-    Aktive Quests
+    ⚔️ Aktive Quests
 
     <span id="questCount">
       0
@@ -839,9 +1159,9 @@ button {
 
 
 
-<!-- =========================
+<!-- =====================================================
      ACHIEVEMENTS
-========================= -->
+===================================================== -->
 
 <div class="card">
 
@@ -854,18 +1174,28 @@ button {
 
 </div>
 
+
+
+<!-- =====================================================
+     THEME
+===================================================== -->
+
 <div class="card">
 
-  <h2>🎨 Dein Theme</h2>
+  <h2>
+    🎨 Dein Theme
+  </h2>
+
 
   <p>
     Wie soll sich Questy heute anfühlen?
   </p>
 
+
   <select id="themeSelect">
 
     <option value="dark">
-      🌑 Dark Fantasy
+      🔵 Quest Blue
     </option>
 
     <option value="purple">
@@ -873,7 +1203,7 @@ button {
     </option>
 
     <option value="blue">
-      🔵 Cyber Quest
+      🔷 Cyber Quest
     </option>
 
     <option value="pink">
@@ -892,14 +1222,16 @@ button {
 
 </div>
 
-<!-- =========================
+
+
+<!-- =====================================================
      HISTORIE
-========================= -->
+===================================================== -->
 
 <div class="card">
 
   <h2>
-    Quest-Historie
+    📜 Quest-Historie
   </h2>
 
 
@@ -912,64 +1244,71 @@ button {
 
 
 
+<!-- =====================================================
+     DRUCKBEREICH
+===================================================== -->
+
+<div id="printArea"></div>
+
+
+
 <script>
 
 
-/* =========================
+/* =====================================================
    DATEN LADEN
-========================= */
+===================================================== */
 
 let data =
-JSON.parse(
-  localStorage.getItem(
-    "questMode"
-  )
-) || {
+
+  JSON.parse(
+
+    localStorage.getItem(
+      "questMode"
+    )
+
+  ) || {
 
 
-  xp: 0,
+    xp: 0,
 
+    quests: [],
 
-  quests: [],
+    history: [],
 
+    randomQuests: [
 
-  history: [],
+      "10 Minuten spazieren gehen",
 
+      "Eine Schublade aufräumen",
 
-  randomQuests: [
+      "Ein Glas Wasser trinken",
 
-    "10 Minuten spazieren gehen",
+      "Staubwischen",
 
-    "Eine Schublade aufräumen",
+      "5 Minuten dehnen",
 
-    "Ein Glas Wasser trinken",
+      "Eine Sache erledigen, die ich seit Tagen aufschiebe"
 
-    "Staubwischen",
+    ],
 
-    "5 Minuten dehnen",
+    achievements: {}
 
-    "Eine Sache erledigen, die ich seit Tagen aufschiebe"
-
-  ],
-
-
-  achievements: {}
-
-};
+  };
 
 
 
-/* =========================
+/* =====================================================
    RANDOM QUEST
-========================= */
+===================================================== */
 
 let currentRandomQuest = null;
 
 
 
-/* =========================
+/* =====================================================
    ACHIEVEMENTS
-========================= */
+===================================================== */
 
 const achievements = [
 
@@ -1071,9 +1410,12 @@ const achievements = [
       "Schließe eine Hard Quest ab.",
 
     check: () =>
+
       data.history.some(
+
         q =>
           q.type === "boss"
+
       )
 
   }
@@ -1082,9 +1424,9 @@ const achievements = [
 
 
 
-/* =========================
+/* =====================================================
    SPEICHERN
-========================= */
+===================================================== */
 
 function save() {
 
@@ -1100,9 +1442,9 @@ function save() {
 
 
 
-/* =========================
+/* =====================================================
    XP
-========================= */
+===================================================== */
 
 function getXP(
   difficulty
@@ -1124,14 +1466,15 @@ function getXP(
 
 
 
-/* =========================
-   NORMALE QUEST ERSTELLEN
-========================= */
+/* =====================================================
+   QUEST OBJEKT ERSTELLEN
+===================================================== */
 
-function addQuest() {
+function createQuestFromInput() {
 
 
   const input =
+
     document.getElementById(
       "questInput"
     );
@@ -1147,12 +1490,13 @@ function addQuest() {
       "Du brauchst erst eine Quest..."
     );
 
-    return;
+    return null;
 
   }
 
 
   const difficulty =
+
     Number(
 
       document
@@ -1165,6 +1509,7 @@ function addQuest() {
 
 
   const type =
+
     document
       .getElementById(
         "questType"
@@ -1172,19 +1517,22 @@ function addQuest() {
       .value;
 
 
-  data.quests.push({
+  return {
 
-    id: Date.now(),
+    id:
+      Date.now(),
 
-    text: text,
+    text:
+      text,
 
-    difficulty: difficulty,
+    difficulty:
+      difficulty,
 
-    type: type,
+    type:
+      type,
 
-    xp: getXP(
-      difficulty
-    ),
+    xp:
+      getXP(difficulty),
 
     created:
       new Date()
@@ -1192,10 +1540,38 @@ function addQuest() {
           "de-DE"
         )
 
-  });
+  };
+
+}
 
 
-  input.value = "";
+
+/* =====================================================
+   NORMALE QUEST ERSTELLEN
+===================================================== */
+
+function addQuest() {
+
+
+  const quest =
+    createQuestFromInput();
+
+
+  if (!quest) {
+
+    return;
+
+  }
+
+
+  data.quests.push(
+    quest
+  );
+
+
+  document.getElementById(
+    "questInput"
+  ).value = "";
 
 
   save();
@@ -1206,9 +1582,49 @@ function addQuest() {
 
 
 
-/* =========================
+/* =====================================================
+   NORMALE QUEST:
+   ANNEHMEN + DRUCKEN
+===================================================== */
+
+function addQuestAndPrint() {
+
+
+  const quest =
+    createQuestFromInput();
+
+
+  if (!quest) {
+
+    return;
+
+  }
+
+
+  data.quests.push(
+    quest
+  );
+
+
+  document.getElementById(
+    "questInput"
+  ).value = "";
+
+
+  save();
+
+  render();
+
+
+  printQuest(quest);
+
+}
+
+
+
+/* =====================================================
    RANDOM QUEST WÜRFELN
-========================= */
+===================================================== */
 
 function randomQuest() {
 
@@ -1254,9 +1670,9 @@ function randomQuest() {
 
 
 
-/* =========================
+/* =====================================================
    RANDOM QUEST ANNEHMEN
-========================= */
+===================================================== */
 
 function acceptRandomQuest() {
 
@@ -1274,18 +1690,22 @@ function acceptRandomQuest() {
   }
 
 
-  data.quests.push({
+  const quest = {
 
-    id: Date.now(),
+    id:
+      Date.now(),
 
     text:
       currentRandomQuest,
 
-    difficulty: 2,
+    difficulty:
+      2,
 
-    type: "side",
+    type:
+      "side",
 
-    xp: 20,
+    xp:
+      20,
 
     created:
       new Date()
@@ -1293,7 +1713,12 @@ function acceptRandomQuest() {
           "de-DE"
         )
 
-  });
+  };
+
+
+  data.quests.push(
+    quest
+  );
 
 
   currentRandomQuest = null;
@@ -1310,19 +1735,92 @@ function acceptRandomQuest() {
 
   render();
 
+}
+
+
+
+/* =====================================================
+   RANDOM QUEST:
+   ANNEHMEN + DRUCKEN
+===================================================== */
+
+function acceptRandomQuestAndPrint() {
+
+
+  if (
+    currentRandomQuest === null
+  ) {
+
+    alert(
+      "Würfle zuerst eine Random Quest! 🎲"
+    );
+
+    return;
+
+  }
+
+
+  const quest = {
+
+    id:
+      Date.now(),
+
+    text:
+      currentRandomQuest,
+
+    difficulty:
+      2,
+
+    type:
+      "side",
+
+    xp:
+      20,
+
+    created:
+      new Date()
+        .toLocaleString(
+          "de-DE"
+        )
+
+  };
+
+
+  data.quests.push(
+    quest
+  );
+
+
+  currentRandomQuest = null;
+
+
+  document.getElementById(
+    "randomResult"
+  ).innerHTML =
+
+    "🖨️ Quest angenommen & wird gedruckt!";
+
+
+  save();
+
+  render();
+
+
+  printQuest(quest);
 
 }
 
 
 
-/* =========================
+/* =====================================================
    RANDOM QUESTS VERWALTEN
-========================= */
+===================================================== */
 
 function manageRandomQuests() {
 
 
   let list =
+
     "🎲 DEINE RANDOM QUESTS\n\n";
 
 
@@ -1367,8 +1865,10 @@ function manageRandomQuests() {
 
 
   if (
+
     newQuest &&
     newQuest.trim()
+
   ) {
 
 
@@ -1392,9 +1892,9 @@ function manageRandomQuests() {
 
 
 
-/* =========================
+/* =====================================================
    QUEST ABSCHLIESSEN
-========================= */
+===================================================== */
 
 function completeQuest(
   id
@@ -1405,7 +1905,9 @@ function completeQuest(
 
     data.quests.findIndex(
 
-      function(quest) {
+      function(
+        quest
+      ) {
 
         return quest.id === id;
 
@@ -1427,7 +1929,8 @@ function completeQuest(
     data.quests[index];
 
 
-  data.xp += quest.xp;
+  data.xp +=
+    quest.xp;
 
 
   data.history.unshift({
@@ -1471,9 +1974,9 @@ function completeQuest(
 
 
 
-/* =========================
+/* =====================================================
    QUEST LÖSCHEN
-========================= */
+===================================================== */
 
 function deleteQuest(
   id
@@ -1484,7 +1987,9 @@ function deleteQuest(
 
     data.quests.filter(
 
-      function(quest) {
+      function(
+        quest
+      ) {
 
         return quest.id !== id;
 
@@ -1501,9 +2006,9 @@ function deleteQuest(
 
 
 
-/* =========================
+/* =====================================================
    ACHIEVEMENTS PRÜFEN
-========================= */
+===================================================== */
 
 function checkAchievements() {
 
@@ -1564,9 +2069,9 @@ function checkAchievements() {
 
 
 
-/* =========================
+/* =====================================================
    QUEST ICON
-========================= */
+===================================================== */
 
 function typeIcon(
   type
@@ -1589,9 +2094,110 @@ function typeIcon(
 
 
 
-/* =========================
+/* =====================================================
+   QUEST DRUCKEN
+===================================================== */
+
+function printQuest(
+  quest
+) {
+
+
+  const printArea =
+
+    document.getElementById(
+      "printArea"
+    );
+
+
+  const stars =
+
+    "⭐".repeat(
+      quest.difficulty
+    );
+
+
+  printArea.innerHTML = `
+
+    <div class="receipt">
+
+      <div class="receipt-title">
+        QUESTY
+      </div>
+
+      <div>
+        QUEST RECEIPT
+      </div>
+
+      <div class="receipt-line"></div>
+
+      <div class="receipt-quest">
+        ${escapeHtml(
+          quest.text
+        )}
+      </div>
+
+      <div class="receipt-line"></div>
+
+      <div class="receipt-meta">
+        ${stars}
+      </div>
+
+      <div class="receipt-meta">
+        ${escapeHtml(
+          quest.type.toUpperCase()
+        )}
+      </div>
+
+      <div class="receipt-xp">
+        +${quest.xp} XP
+      </div>
+
+      <div class="receipt-line"></div>
+
+      <div class="receipt-footer">
+        QUESTY · ${quest.created}
+      </div>
+
+    </div>
+
+  `;
+
+
+  window.print();
+
+}
+
+
+
+/* =====================================================
+   HTML SICHER MACHEN
+===================================================== */
+
+function escapeHtml(
+  text
+) {
+
+
+  const div =
+    document.createElement(
+      "div"
+    );
+
+
+  div.textContent =
+    text;
+
+
+  return div.innerHTML;
+
+}
+
+
+
+/* =====================================================
    QUESTS RENDERN
-========================= */
+===================================================== */
 
 function renderQuests() {
 
@@ -1633,7 +2239,9 @@ function renderQuests() {
 
     data.quests.map(
 
-      function(quest) {
+      function(
+        quest
+      ) {
 
 
         return `
@@ -1650,7 +2258,9 @@ function renderQuests() {
                   quest.type
                 )}
 
-                ${quest.text}
+                ${escapeHtml(
+                  quest.text
+                )}
 
               </div>
 
@@ -1674,8 +2284,13 @@ function renderQuests() {
 
 
             <button
+
               class="complete"
+
               data-complete="${quest.id}"
+
+              title="Quest abschließen"
+
             >
 
               ✓
@@ -1684,8 +2299,28 @@ function renderQuests() {
 
 
             <button
+
+              class="print-button"
+
+              data-print="${quest.id}"
+
+              title="Quest drucken"
+
+            >
+
+              🖨️
+
+            </button>
+
+
+            <button
+
               class="delete"
+
               data-delete="${quest.id}"
+
+              title="Quest löschen"
+
             >
 
               🗑️
@@ -1705,9 +2340,9 @@ function renderQuests() {
 
 
 
-/* =========================
+/* =====================================================
    ACHIEVEMENTS RENDERN
-========================= */
+===================================================== */
 
 function renderAchievements() {
 
@@ -1790,9 +2425,9 @@ function renderAchievements() {
 
 
 
-/* =========================
+/* =====================================================
    HISTORIE RENDERN
-========================= */
+===================================================== */
 
 function renderHistory() {
 
@@ -1823,18 +2458,27 @@ function renderHistory() {
 
     data.history
 
-      .slice(0, 20)
+      .slice(
+        0,
+        20
+      )
 
       .map(
 
-        function(quest) {
+        function(
+          quest
+        ) {
 
 
           return `
 
             <div class="history-item">
 
-              ✓ ${quest.text}
+              ✓
+
+              ${escapeHtml(
+                quest.text
+              )}
 
               <strong>
 
@@ -1867,9 +2511,9 @@ function renderHistory() {
 
 
 
-/* =========================
+/* =====================================================
    ALLES AKTUALISIEREN
-========================= */
+===================================================== */
 
 function render() {
 
@@ -1911,14 +2555,13 @@ function render() {
     "xp-fill"
   ).style.width =
 
-    xpIntoLevel + "%";
+    xpIntoLevel +
+    "%";
 
 
   renderQuests();
 
-
   renderAchievements();
-
 
   renderHistory();
 
@@ -1926,84 +2569,150 @@ function render() {
 
 
 
-/* =========================
+/* =====================================================
    BUTTON:
    QUEST ERSTELLEN
-========================= */
+===================================================== */
 
 document
+
   .getElementById(
     "addQuestButton"
   )
+
   .addEventListener(
+
     "click",
+
     addQuest
+
   );
 
 
 
-/* =========================
+/* =====================================================
    BUTTON:
-   RANDOM QUEST
-========================= */
+   QUEST ERSTELLEN + DRUCKEN
+===================================================== */
 
 document
+
+  .getElementById(
+    "addQuestPrintButton"
+  )
+
+  .addEventListener(
+
+    "click",
+
+    addQuestAndPrint
+
+  );
+
+
+
+/* =====================================================
+   BUTTON:
+   RANDOM QUEST
+===================================================== */
+
+document
+
   .getElementById(
     "randomButton"
   )
+
   .addEventListener(
+
     "click",
+
     randomQuest
+
   );
 
 
 
-/* =========================
+/* =====================================================
    BUTTON:
-   RANDOM QUEST ANNEHMEN
-========================= */
+   RANDOM ANNEHMEN
+===================================================== */
 
 document
+
   .getElementById(
     "acceptRandomButton"
   )
+
   .addEventListener(
+
     "click",
+
     acceptRandomQuest
+
   );
 
 
 
-/* =========================
+/* =====================================================
    BUTTON:
-   RANDOM QUEST VERWALTEN
-========================= */
+   RANDOM ANNEHMEN + DRUCKEN
+===================================================== */
 
 document
+
+  .getElementById(
+    "acceptRandomPrintButton"
+  )
+
+  .addEventListener(
+
+    "click",
+
+    acceptRandomQuestAndPrint
+
+  );
+
+
+
+/* =====================================================
+   BUTTON:
+   RANDOM QUESTS VERWALTEN
+===================================================== */
+
+document
+
   .getElementById(
     "manageRandomButton"
   )
+
   .addEventListener(
+
     "click",
+
     manageRandomQuests
+
   );
 
 
 
-/* =========================
+/* =====================================================
    QUEST-LISTE:
-   ERLEDIGEN / LÖSCHEN
-========================= */
+   ABSCHLIESSEN / DRUCKEN / LÖSCHEN
+===================================================== */
 
 document
+
   .getElementById(
     "questList"
   )
+
   .addEventListener(
 
     "click",
 
-    function(event) {
+    function(
+      event
+    ) {
 
 
       const completeButton =
@@ -2032,6 +2741,58 @@ document
         return;
 
       }
+
+
+
+      const printButton =
+
+        event.target.closest(
+          "[data-print]"
+        );
+
+
+      if (
+        printButton
+      ) {
+
+
+        const id =
+
+          Number(
+            printButton
+              .dataset
+              .print
+          );
+
+
+        const quest =
+
+          data.quests.find(
+
+            function(
+              q
+            ) {
+
+              return q.id === id;
+
+            }
+
+          );
+
+
+        if (quest) {
+
+          printQuest(
+            quest
+          );
+
+        }
+
+
+        return;
+
+      }
+
 
 
       const deleteButton =
@@ -2064,66 +2825,121 @@ document
 
 
 
-/* =========================
-   APP STARTEN
-========================= */
-
-render();
-
-/* =========================
+/* =====================================================
    THEMES
-========================= */
+===================================================== */
 
-function changeTheme(theme) {
+function changeTheme(
+  theme
+) {
 
-  document.body.className = "theme-" + theme;
+
+  document.body.className =
+    "theme-" +
+    theme;
+
 
   localStorage.setItem(
+
     "questModeTheme",
+
     theme
+
   );
 
 }
+
 
 
 const themeSelect =
-  document.getElementById("themeSelect");
+
+  document.getElementById(
+    "themeSelect"
+  );
 
 
-if (themeSelect) {
+
+if (
+  themeSelect
+) {
+
 
   themeSelect.addEventListener(
+
     "change",
+
     function() {
 
-      changeTheme(this.value);
+      changeTheme(
+        this.value
+      );
 
     }
+
   );
 
 }
+
 
 
 const savedTheme =
+
   localStorage.getItem(
+
     "questModeTheme"
+
   );
 
 
-if (savedTheme) {
 
-  changeTheme(savedTheme);
+if (
+  savedTheme
+) {
 
-  if (themeSelect) {
-    themeSelect.value = savedTheme;
+
+  changeTheme(
+    savedTheme
+  );
+
+
+  if (
+    themeSelect
+  ) {
+
+    themeSelect.value =
+      savedTheme;
+
   }
+
 
 } else {
 
-  changeTheme("dark");
+
+  changeTheme(
+    "dark"
+  );
+
+
+  if (
+    themeSelect
+  ) {
+
+    themeSelect.value =
+      "dark";
+
+  }
 
 }
-   
+
+
+
+/* =====================================================
+   APP STARTEN
+===================================================== */
+
+render();
+
+
 </script>
 
 </body>
