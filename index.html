@@ -3,49 +3,68 @@
 
 <head>
 
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>QUESTY</title>
+
 <link rel="manifest" href="manifest.json">
 
 <meta name="theme-color" content="#4D71B5">
 
 <link rel="apple-touch-icon" href="icon-192.png">
 
-<meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-
-<title>QUESTY</title>
-
 
 <style>
 
-/* =====================================================
-   GRUNDLAYOUT
-===================================================== */
+/* =========================================================
+   QUESTY
+   PIXEL / ARCADE THEME
+========================================================= */
 
 :root {
 
-  --bg: #10182b;
-  --card: #192643;
-  --border: #314a78;
-  --input: #111b30;
+  --bg: #101827;
+  --card: #19253a;
+  --card-light: #223352;
 
-  --text: #f8faff;
-  --muted: #aab8d1;
+  --border: #4D71B5;
+  --border-dark: #304b7d;
 
-  --button: #FFC94C;
-  --button-text: #17130a;
+  --text: #f8f9ff;
+  --muted: #9daecc;
 
-  --accent: #4D71B5;
-  --accent-light: #7597dc;
+  --blue: #4D71B5;
+  --blue-light: #7092d3;
 
-  --danger: #ef6262;
+  --yellow: #FFC94C;
+  --yellow-dark: #dca72c;
 
+  --red: #ef5b5b;
+  --green: #55d68b;
+
+  --shadow:
+    5px 5px 0px #0a101c;
+
+  --pixel-font:
+    "Courier New",
+    monospace;
 }
 
 
+/* =========================================================
+   RESET
+========================================================= */
+
 * {
   box-sizing: border-box;
+}
+
+
+html {
+  background: var(--bg);
 }
 
 
@@ -53,167 +72,40 @@ body {
 
   margin: 0;
 
+  min-height: 100vh;
+
   font-family:
-    "Lucida Bright",
-    Georgia,
-    serif;
+    "Courier New",
+    monospace;
 
   background:
     radial-gradient(
-      circle at top right,
-      #263d6b 0%,
-      var(--bg) 45%
-    );
+      circle at 20% 10%,
+      rgba(77,113,181,.18),
+      transparent 30%
+    ),
 
-  background-attachment: fixed;
+    radial-gradient(
+      circle at 85% 80%,
+      rgba(255,201,76,.08),
+      transparent 30%
+    ),
+
+    var(--bg);
 
   color: var(--text);
 
-  min-height: 100vh;
-
 }
 
 
-/* =====================================================
-   THEMES
-===================================================== */
-
-
-/* ----- STANDARD ----- */
-
-body.theme-dark {
-
-  --bg: #10182b;
-  --card: #192643;
-  --border: #314a78;
-  --input: #111b30;
-
-  --text: #f8faff;
-  --muted: #aab8d1;
-
-  --button: #FFC94C;
-  --button-text: #17130a;
-
-  --accent: #4D71B5;
-  --accent-light: #7597dc;
-
-  --danger: #ef6262;
-
-}
-
-
-/* ----- PURPLE ----- */
-
-body.theme-purple {
-
-  --bg: #160d20;
-  --card: #251536;
-  --border: #5b3678;
-  --input: #190e24;
-
-  --text: #faf5ff;
-  --muted: #c2a9d0;
-
-  --button: #d8b4fe;
-  --button-text: #1d1028;
-
-  --accent: #a855f7;
-  --accent-light: #c084fc;
-
-}
-
-
-/* ----- BLUE ----- */
-
-body.theme-blue {
-
-  --bg: #07151f;
-  --card: #102a3a;
-  --border: #28516a;
-  --input: #091923;
-
-  --text: #edfaff;
-  --muted: #8eaebb;
-
-  --button: #67e8f9;
-  --button-text: #07151b;
-
-  --accent: #22d3ee;
-  --accent-light: #67e8f9;
-
-}
-
-
-/* ----- PINK ----- */
-
-body.theme-pink {
-
-  --bg: #211923;
-  --card: #30232f;
-  --border: #68495e;
-  --input: #241a23;
-
-  --text: #fff5fb;
-  --muted: #c7aaba;
-
-  --button: #f9b4d5;
-  --button-text: #291522;
-
-  --accent: #ec72aa;
-  --accent-light: #f59bc4;
-
-}
-
-
-/* ----- GREEN ----- */
-
-body.theme-green {
-
-  --bg: #0d1813;
-  --card: #17271e;
-  --border: #385443;
-  --input: #101c16;
-
-  --text: #f1fff5;
-  --muted: #91aa9a;
-
-  --button: #9be6b4;
-  --button-text: #102017;
-
-  --accent: #4ade80;
-  --accent-light: #86efac;
-
-}
-
-
-/* ----- FIRE ----- */
-
-body.theme-fire {
-
-  --bg: #1c0d08;
-  --card: #2d1710;
-  --border: #673526;
-  --input: #200e09;
-
-  --text: #fff5ef;
-  --muted: #cba094;
-
-  --button: #ffb36b;
-  --button-text: #281108;
-
-  --accent: #f97316;
-  --accent-light: #fb923c;
-
-}
-
-
-/* =====================================================
+/* =========================================================
    APP
-===================================================== */
+========================================================= */
 
 .app {
 
-  max-width: 700px;
+  width: 100%;
+  max-width: 760px;
 
   margin: auto;
 
@@ -222,9 +114,9 @@ body.theme-fire {
 }
 
 
-/* =====================================================
+/* =========================================================
    HEADER
-===================================================== */
+========================================================= */
 
 header {
 
@@ -236,64 +128,92 @@ header {
   align-items:
     center;
 
-  gap: 20px;
+  gap: 25px;
 
-  margin-bottom: 25px;
+  margin-bottom: 30px;
 
 }
 
 
 .logo {
 
-  font-size: 30px;
+  font-family:
+    "Courier New",
+    monospace;
+
+  font-size: 32px;
 
   font-weight: 900;
 
   letter-spacing: 3px;
+
+  color: var(--yellow);
+
+  text-shadow:
+    3px 3px 0 #000;
 
 }
 
 
 .logo span {
 
-  opacity: .45;
+  color: var(--blue-light);
 
 }
 
 
 .subtitle {
 
+  margin-top: 5px;
+
   color: var(--muted);
 
-  font-size: 13px;
+  font-size: 11px;
 
-  margin-top: 4px;
+  letter-spacing: 1px;
 
 }
 
 
+/* =========================================================
+   LEVEL
+========================================================= */
+
 .level-box {
 
-  min-width: 150px;
+  min-width: 180px;
 
   text-align: right;
 
   font-size: 12px;
+
+  font-weight: bold;
+
+}
+
+
+.level-number {
+
+  color: var(--yellow);
+
+  font-size: 18px;
 
 }
 
 
 .xp-bar {
 
-  height: 10px;
+  height: 14px;
 
-  background: rgba(255,255,255,.12);
+  margin:
+    7px 0;
 
-  border-radius: 20px;
+  padding: 2px;
 
-  margin: 6px 0;
+  background: #0a101c;
 
-  overflow: hidden;
+  border:
+    2px solid var(--border);
 
 }
 
@@ -307,8 +227,8 @@ header {
   background:
     linear-gradient(
       90deg,
-      var(--accent),
-      var(--button)
+      var(--blue),
+      var(--yellow)
     );
 
   transition:
@@ -317,40 +237,90 @@ header {
 }
 
 
-/* =====================================================
+/* =========================================================
    CARDS
-===================================================== */
+========================================================= */
 
 .card {
 
-  background: var(--card);
+  background:
+    linear-gradient(
+      145deg,
+      var(--card),
+      #152136
+    );
 
   border:
-    1px solid var(--border);
-
-  border-radius: 18px;
+    2px solid var(--border);
 
   padding: 20px;
 
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 
   box-shadow:
-    0 8px 25px rgba(0,0,0,.12);
+    var(--shadow);
+
+  position: relative;
 
 }
 
 
-.card h1,
-.card h2 {
+.card::before {
+
+  content: "";
+
+  position: absolute;
+
+  top: -2px;
+  left: 12px;
+
+  width: 45px;
+  height: 4px;
+
+  background:
+    var(--yellow);
+
+}
+
+
+h1,
+h2 {
 
   margin-top: 0;
 
 }
 
 
-/* =====================================================
+h1 {
+
+  font-size: 23px;
+
+  color: var(--yellow);
+
+}
+
+
+h2 {
+
+  font-size: 18px;
+
+}
+
+
+p {
+
+  color: var(--muted);
+
+  font-size: 13px;
+
+  line-height: 1.5;
+
+}
+
+
+/* =========================================================
    INPUTS
-===================================================== */
+========================================================= */
 
 input,
 select {
@@ -359,18 +329,23 @@ select {
 
   padding: 14px;
 
-  border-radius: 12px;
-
   border:
-    1px solid var(--border);
+    2px solid var(--border-dark);
 
-  background: var(--input);
+  background:
+    #0d1524;
 
-  color: var(--text);
+  color:
+    var(--text);
 
-  font-size: 15px;
+  font-family:
+    inherit;
 
-  font-family: inherit;
+  font-size:
+    14px;
+
+  outline:
+    none;
 
 }
 
@@ -378,101 +353,212 @@ select {
 input:focus,
 select:focus {
 
-  outline: 2px solid var(--accent);
+  border-color:
+    var(--yellow);
 
-  outline-offset: 2px;
+  box-shadow:
+    0 0 0 2px
+    rgba(255,201,76,.15);
+
+}
+
+
+input::placeholder {
+
+  color:
+    #687794;
 
 }
 
 
 .options {
 
-  display: grid;
+  display:
+    grid;
 
   grid-template-columns:
     1fr 1fr;
 
-  gap: 12px;
+  gap:
+    12px;
 
-  margin: 15px 0;
+  margin:
+    16px 0;
 
 }
 
 
 label {
 
-  display: block;
+  display:
+    block;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
-  font-size: 12px;
+  font-size:
+    10px;
 
-  margin-bottom: 6px;
+  margin-bottom:
+    6px;
+
+  text-transform:
+    uppercase;
+
+  letter-spacing:
+    1px;
 
 }
 
 
-/* =====================================================
+/* =========================================================
    BUTTONS
-===================================================== */
+========================================================= */
 
 button {
 
-  border: none;
+  border:
+    none;
 
-  border-radius: 12px;
+  padding:
+    13px 16px;
 
-  padding: 13px 16px;
+  font-family:
+    inherit;
 
-  font-size: 14px;
+  font-size:
+    12px;
 
-  font-weight: bold;
+  font-weight:
+    900;
 
-  cursor: pointer;
-
-  font-family: inherit;
+  cursor:
+    pointer;
 
   transition:
-    transform .12s ease,
-    filter .12s ease;
+    transform .1s ease,
+    filter .1s ease;
 
 }
 
 
 button:hover {
 
-  filter: brightness(1.08);
+  filter:
+    brightness(1.12);
 
 }
 
 
 button:active {
 
-  transform: scale(.97);
+  transform:
+    translate(
+      3px,
+      3px
+    );
 
 }
 
 
 .primary {
 
-  width: 100%;
+  width:
+    100%;
 
-  background: var(--button);
+  background:
+    var(--yellow);
 
-  color: var(--button-text);
+  color:
+    #17120a;
+
+  box-shadow:
+    4px 4px 0
+    #9d7621;
 
 }
 
 
 .secondary {
 
-  width: 100%;
+  width:
+    100%;
 
-  margin-top: 10px;
+  margin-top:
+    10px;
 
-  background: var(--accent);
+  background:
+    var(--blue);
 
-  color: white;
+  color:
+    white;
+
+  box-shadow:
+    4px 4px 0
+    #263d68;
+
+}
+
+
+.random-button {
+
+  width:
+    100%;
+
+  margin-top:
+    15px;
+
+  background:
+    var(--blue);
+
+  color:
+    white;
+
+  box-shadow:
+    4px 4px 0
+    #263d68;
+
+}
+
+
+.accept-random {
+
+  width:
+    100%;
+
+  margin-top:
+    12px;
+
+  background:
+    var(--green);
+
+  color:
+    #08140d;
+
+  box-shadow:
+    4px 4px 0
+    #32865a;
+
+}
+
+
+.accept-print {
+
+  width:
+    100%;
+
+  margin-top:
+    8px;
+
+  background:
+    var(--yellow);
+
+  color:
+    #17120a;
+
+  box-shadow:
+    4px 4px 0
+    #9d7621;
 
 }
 
@@ -480,63 +566,179 @@ button:active {
 .print-button {
 
   background:
-    rgba(255,255,255,.10);
+    var(--blue);
 
-  color: var(--text);
+  color:
+    white;
 
-  border:
-    1px solid var(--border);
+  padding:
+    9px 11px;
+
+  font-size:
+    11px;
+
+  box-shadow:
+    3px 3px 0
+    #263d68;
 
 }
 
 
-.random-button {
-
-  width: 100%;
+.complete {
 
   background:
-    linear-gradient(
-      135deg,
-      var(--button),
-      #ffdf78
-    );
+    var(--green);
 
-  color: #17130a;
+  color:
+    #08140d;
 
-  margin-top: 15px;
+  font-size:
+    18px;
 
-}
+  width:
+    42px;
 
+  height:
+    42px;
 
-.accept-random {
-
-  width: 100%;
-
-  margin-top: 10px;
-
-  background: var(--accent);
-
-  color: white;
+  padding:
+    0;
 
 }
 
 
-/* =====================================================
+.delete {
+
+  background:
+    transparent;
+
+  color:
+    #7885a0;
+
+  font-size:
+    16px;
+
+  padding:
+    8px;
+
+}
+
+
+/* =========================================================
+   QUEST LIST
+========================================================= */
+
+.quest {
+
+  background:
+    var(--card);
+
+  border:
+    2px solid var(--border-dark);
+
+  padding:
+    14px;
+
+  margin:
+    10px 0;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    9px;
+
+  box-shadow:
+    3px 3px 0
+    #0a101c;
+
+}
+
+
+.quest-info {
+
+  flex:
+    1;
+
+  min-width:
+    0;
+
+}
+
+
+.quest-name {
+
+  font-weight:
+    bold;
+
+  font-size:
+    14px;
+
+  margin-bottom:
+    6px;
+
+  overflow-wrap:
+    anywhere;
+
+}
+
+
+.quest-meta {
+
+  font-size:
+    10px;
+
+  color:
+    var(--muted);
+
+}
+
+
+.quest-type {
+
+  display:
+    inline-block;
+
+  padding:
+    2px 5px;
+
+  margin-right:
+    5px;
+
+  border:
+    1px solid
+    var(--border);
+
+  color:
+    var(--yellow);
+
+}
+
+
+/* =========================================================
    RANDOM QUEST
-===================================================== */
+========================================================= */
 
 .random-result {
 
-  min-height: 100px;
+  min-height:
+    100px;
 
-  margin-top: 15px;
+  margin-top:
+    15px;
 
   border:
-    2px dashed var(--accent);
+    2px dashed
+    var(--blue-light);
 
-  border-radius: 14px;
+  background:
+    #0d1524;
 
-  display: flex;
+  display:
+    flex;
 
   justify-content:
     center;
@@ -544,167 +746,271 @@ button:active {
   align-items:
     center;
 
-  text-align: center;
+  text-align:
+    center;
 
-  padding: 18px;
+  padding:
+    18px;
 
-  font-size: 20px;
+  font-size:
+    17px;
 
-  font-weight: bold;
+  font-weight:
+    bold;
 
-  background:
-    rgba(77,113,181,.10);
-
-}
-
-
-/* =====================================================
-   ACTIVE QUESTS
-===================================================== */
-
-.quest {
-
-  background: var(--card);
-
-  border:
-    1px solid var(--border);
-
-  border-radius: 15px;
-
-  padding: 15px;
-
-  margin: 10px 0;
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 8px;
+  color:
+    var(--yellow);
 
 }
 
 
-.quest-info {
+.random-buttons {
 
-  flex: 1;
+  display:
+    grid;
 
-  min-width: 0;
+  grid-template-columns:
+    1fr 1fr;
 
-}
+  gap:
+    10px;
 
-
-.quest-name {
-
-  font-weight: bold;
-
-  margin-bottom: 5px;
-
-  overflow-wrap: anywhere;
+  margin-top:
+    10px;
 
 }
 
 
-.quest-meta {
+.random-buttons button {
 
-  font-size: 12px;
-
-  color: var(--muted);
-
-}
-
-
-.complete {
-
-  background: var(--button);
-
-  color: var(--button-text);
+  width:
+    100%;
 
 }
 
 
-.delete {
-
-  background: transparent;
-
-  color: #999;
-
-}
-
-
-.quest .print-button {
-
-  padding-left: 11px;
-  padding-right: 11px;
-
-}
-
-
-/* =====================================================
+/* =========================================================
    ACHIEVEMENTS
-===================================================== */
+========================================================= */
 
 .achievement {
 
-  display: flex;
+  display:
+    flex;
 
-  align-items: center;
+  align-items:
+    center;
 
-  gap: 12px;
+  gap:
+    12px;
 
-  padding: 12px 0;
+  padding:
+    13px 0;
 
   border-bottom:
-    1px solid var(--border);
+    1px solid
+    var(--border-dark);
 
 }
 
 
 .achievement-icon {
 
-  font-size: 28px;
+  width:
+    38px;
+
+  height:
+    38px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  background:
+    #0d1524;
+
+  border:
+    2px solid
+    var(--yellow);
+
+  color:
+    var(--yellow);
+
+  font-size:
+    18px;
 
 }
 
 
 .locked {
 
-  opacity: .35;
+  opacity:
+    .3;
+
+  filter:
+    grayscale(1);
 
 }
 
 
-/* =====================================================
+/* =========================================================
    HISTORY
-===================================================== */
+========================================================= */
 
 .history-item {
 
-  padding: 10px 0;
+  padding:
+    11px 0;
 
   border-bottom:
-    1px solid var(--border);
+    1px solid
+    var(--border-dark);
 
-  font-size: 13px;
-
-}
-
-
-/* =====================================================
-   PRINT PREVIEW
-===================================================== */
-
-#printArea {
-
-  display: none;
+  font-size:
+    12px;
 
 }
 
 
-/* =====================================================
+.history-xp {
+
+  color:
+    var(--yellow);
+
+  font-weight:
+    bold;
+
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.empty {
+
+  padding:
+    25px;
+
+  text-align:
+    center;
+
+  border:
+    2px dashed
+    var(--border-dark);
+
+  color:
+    var(--muted);
+
+  font-size:
+    12px;
+
+}
+
+
+/* =========================================================
+   SVG ICONS
+========================================================= */
+
+.icon {
+
+  width:
+    22px;
+
+  height:
+    22px;
+
+  vertical-align:
+    middle;
+
+  display:
+    inline-block;
+
+}
+
+
+.icon svg {
+
+  width:
+    100%;
+
+  height:
+    100%;
+
+  fill:
+    currentColor;
+
+}
+
+
+/* =========================================================
+   THEME
+========================================================= */
+
+.theme-grid {
+
+  display:
+    grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap:
+    10px;
+
+}
+
+
+.theme-option {
+
+  padding:
+    12px;
+
+  background:
+    #0d1524;
+
+  color:
+    var(--text);
+
+  border:
+    2px solid
+    var(--border-dark);
+
+  text-align:
+    left;
+
+}
+
+
+.theme-option.active {
+
+  border-color:
+    var(--yellow);
+
+  color:
+    var(--yellow);
+
+}
+
+
+/* =========================================================
    MOBILE
-===================================================== */
+========================================================= */
 
 @media (max-width: 550px) {
+
+  .app {
+
+    padding:
+      14px;
+
+  }
+
 
   header {
 
@@ -719,9 +1025,11 @@ button:active {
 
   .level-box {
 
-    width: 100%;
+    width:
+      100%;
 
-    text-align: left;
+    text-align:
+      left;
 
   }
 
@@ -734,142 +1042,100 @@ button:active {
   }
 
 
+  .random-buttons {
+
+    grid-template-columns:
+      1fr;
+
+  }
+
+
   .quest {
 
-    flex-wrap: wrap;
+    flex-wrap:
+      wrap;
 
   }
 
 
   .quest-info {
 
-    width: 100%;
+    width:
+      100%;
 
-    flex-basis: 100%;
+    flex-basis:
+      100%;
 
   }
 
 }
 
 
-/* =====================================================
-   PRINT
-===================================================== */
+/* =========================================================
+   OTHER THEMES
+========================================================= */
 
-@media print {
+body.theme-purple {
 
-  body * {
+  --bg: #170f24;
+  --card: #26163b;
+  --border: #8c5ac7;
+  --border-dark: #593b7c;
+  --blue: #8c5ac7;
+  --blue-light: #b58ae5;
+  --yellow: #ffc94c;
 
-    visibility: hidden;
-
-  }
-
-
-  #printArea,
-  #printArea * {
-
-    visibility: visible;
-
-  }
+}
 
 
-  #printArea {
+body.theme-blue {
 
-    display: block;
+  --bg: #08151f;
+  --card: #10283a;
+  --border: #3d91bd;
+  --border-dark: #285d7b;
+  --blue: #3d91bd;
+  --blue-light: #70c3eb;
+  --yellow: #ffc94c;
 
-    position: absolute;
-
-    left: 0;
-
-    top: 0;
-
-    width: 72mm;
-
-    padding: 5mm;
-
-    background: white;
-
-    color: black;
-
-    font-family:
-      Arial,
-      sans-serif;
-
-  }
+}
 
 
-  .receipt {
+body.theme-pink {
 
-    width: 100%;
+  --bg: #21121d;
+  --card: #32202d;
+  --border: #c96c9c;
+  --border-dark: #77445f;
+  --blue: #c96c9c;
+  --blue-light: #ed91ba;
+  --yellow: #ffc94c;
 
-    text-align: center;
-
-  }
-
-
-  .receipt-title {
-
-    font-size: 20px;
-
-    font-weight: 900;
-
-    letter-spacing: 2px;
-
-    margin-bottom: 8px;
-
-  }
+}
 
 
-  .receipt-line {
+body.theme-green {
 
-    border-top:
-      1px dashed #000;
+  --bg: #0b1912;
+  --card: #15291e;
+  --border: #4d9a69;
+  --border-dark: #326445;
+  --blue: #4d9a69;
+  --blue-light: #7bc793;
+  --yellow: #ffc94c;
 
-    margin: 10px 0;
-
-  }
-
-
-  .receipt-quest {
-
-    font-size: 18px;
-
-    font-weight: bold;
-
-    margin: 12px 0;
-
-    overflow-wrap: anywhere;
-
-  }
+}
 
 
-  .receipt-meta {
+body.theme-fire {
 
-    font-size: 13px;
-
-    margin: 6px 0;
-
-  }
-
-
-  .receipt-xp {
-
-    font-size: 18px;
-
-    font-weight: bold;
-
-    margin-top: 12px;
-
-  }
-
-
-  .receipt-footer {
-
-    font-size: 10px;
-
-    margin-top: 15px;
-
-  }
+  --bg: #1d0d08;
+  --card: #301711;
+  --border: #d35b36;
+  --border-dark: #803822;
+  --blue: #d35b36;
+  --blue-light: #f18b67;
+  --yellow: #ffc94c;
 
 }
 
@@ -893,11 +1159,15 @@ button:active {
   <div>
 
     <div class="logo">
+
       QUESTY
+
     </div>
 
     <div class="subtitle">
-      Gamification deiner To-Dos
+
+      GAMIFICATION DEINER TO-DOS
+
     </div>
 
   </div>
@@ -908,7 +1178,10 @@ button:active {
     <div>
 
       LEVEL
-      <span id="level">
+      <span
+        id="level"
+        class="level-number"
+      >
         1
       </span>
 
@@ -951,16 +1224,13 @@ button:active {
 <div class="card">
 
   <h1>
-    ⚔️ Was steht heute an?
+    NEUE QUEST
   </h1>
 
 
   <p>
     Mach aus einer Aufgabe eine Quest.
   </p>
-
-
-  <br>
 
 
   <input
@@ -983,19 +1253,19 @@ button:active {
       <select id="difficulty">
 
         <option value="1">
-          ⭐ Easy
+          ★ EASY
         </option>
 
         <option value="2">
-          ⭐⭐ Normal
+          ★★ NORMAL
         </option>
 
         <option value="3">
-          ⭐⭐⭐ Schwer
+          ★★★ SCHWER
         </option>
 
         <option value="4">
-          ⭐⭐⭐⭐ Überwindung sein Vater
+          ★★★★ ÜBERWINDUNG SEIN VATER
         </option>
 
       </select>
@@ -1013,19 +1283,19 @@ button:active {
       <select id="questType">
 
         <option value="normal">
-          Quest
+          QUEST
         </option>
 
         <option value="daily">
-          Daily
+          DAILY
         </option>
 
         <option value="side">
-          Side Quest
+          SIDE QUEST
         </option>
 
         <option value="boss">
-          Hard Quest
+          HARD QUEST
         </option>
 
       </select>
@@ -1040,18 +1310,7 @@ button:active {
     class="primary"
   >
 
-    ⚔️ QUEST ERSTELLEN
-
-  </button>
-
-
-  <button
-    id="addQuestPrintButton"
-    class="primary"
-    style="margin-top:10px;"
-  >
-
-    🖨️ ANNEHMEN & DRUCKEN
+    QUEST ERSTELLEN
 
   </button>
 
@@ -1065,9 +1324,8 @@ button:active {
 
 <div class="card">
 
-
   <h2>
-    🎲 Zufällige Quest
+    RANDOM QUEST
   </h2>
 
 
@@ -1096,30 +1354,35 @@ button:active {
     class="random-button"
   >
 
-    🎲 RANDOM QUEST
+    RANDOM QUEST
 
   </button>
 
 
-  <button
-    id="acceptRandomButton"
-    class="accept-random"
-  >
-
-    ⚔️ QUEST ANNEHMEN
-
-  </button>
+  <div class="random-buttons">
 
 
-  <button
-    id="acceptRandomPrintButton"
-    class="primary"
-    style="margin-top:10px;"
-  >
+    <button
+      id="acceptRandomButton"
+      class="accept-random"
+    >
 
-    🖨️ ANNEHMEN & DRUCKEN
+      QUEST ANNEHMEN
 
-  </button>
+    </button>
+
+
+    <button
+      id="acceptPrintRandomButton"
+      class="accept-print"
+    >
+
+      ANNEHMEN + DRUCKEN
+
+    </button>
+
+
+  </div>
 
 
   <button
@@ -1127,10 +1390,9 @@ button:active {
     class="secondary"
   >
 
-    ⚙️ Meine Random-Quests verwalten
+    RANDOM QUESTS VERWALTEN
 
   </button>
-
 
 </div>
 
@@ -1144,7 +1406,7 @@ button:active {
 
   <h2>
 
-    ⚔️ Aktive Quests
+    AKTIVE QUESTS
 
     <span id="questCount">
       0
@@ -1166,7 +1428,7 @@ button:active {
 <div class="card">
 
   <h2>
-    🏆 Deine Achievements
+    ACHIEVEMENTS
   </h2>
 
 
@@ -1177,13 +1439,13 @@ button:active {
 
 
 <!-- =====================================================
-     THEME
+     THEMES
 ===================================================== -->
 
 <div class="card">
 
   <h2>
-    🎨 Dein Theme
+    DEIN THEME
   </h2>
 
 
@@ -1195,27 +1457,27 @@ button:active {
   <select id="themeSelect">
 
     <option value="dark">
-      🔵 Quest Blue
+      ARCADE BLUE
     </option>
 
     <option value="purple">
-      🟣 Arcane Purple
+      ARCANE PURPLE
     </option>
 
     <option value="blue">
-      🔷 Cyber Quest
+      CYBER QUEST
     </option>
 
     <option value="pink">
-      🌸 Cozy RPG
+      COZY RPG
     </option>
 
     <option value="green">
-      🌲 Forest
+      FOREST
     </option>
 
     <option value="fire">
-      🔥 Inferno
+      INFERNO
     </option>
 
   </select>
@@ -1231,7 +1493,7 @@ button:active {
 <div class="card">
 
   <h2>
-    📜 Quest-Historie
+    QUEST-HISTORIE
   </h2>
 
 
@@ -1244,71 +1506,280 @@ button:active {
 
 
 
-<!-- =====================================================
-     DRUCKBEREICH
-===================================================== -->
-
-<div id="printArea"></div>
-
-
-
 <script>
 
-
-/* =====================================================
-   DATEN LADEN
-===================================================== */
+/* =========================================================
+   DATEN
+========================================================= */
 
 let data =
+JSON.parse(
+  localStorage.getItem("questMode")
+) || {
 
-  JSON.parse(
+  xp: 0,
 
-    localStorage.getItem(
-      "questMode"
-    )
+  quests: [],
 
-  ) || {
+  history: [],
 
+  randomQuests: [
 
-    xp: 0,
+    "10 Minuten spazieren gehen",
 
-    quests: [],
+    "Eine Schublade aufräumen",
 
-    history: [],
+    "Ein Glas Wasser trinken",
 
-    randomQuests: [
+    "5 Minuten dehnen",
 
-      "10 Minuten spazieren gehen",
+    "Eine Sache erledigen, die ich seit Tagen aufschiebe"
 
-      "Eine Schublade aufräumen",
+  ],
 
-      "Ein Glas Wasser trinken",
+  achievements: {}
 
-      "Staubwischen",
-
-      "5 Minuten dehnen",
-
-      "Eine Sache erledigen, die ich seit Tagen aufschiebe"
-
-    ],
-
-    achievements: {}
-
-  };
+};
 
 
-
-/* =====================================================
+/* =========================================================
    RANDOM QUEST
-===================================================== */
+========================================================= */
 
 let currentRandomQuest = null;
 
 
+/* =========================================================
+   SVG ICONS
+========================================================= */
 
-/* =====================================================
+function icon(type) {
+
+  const icons = {
+
+
+    quest: `
+      <svg viewBox="0 0 24 24">
+        <path d="
+          M13 2
+          L4 13
+          H10
+          L9 22
+          L20 9
+          H14
+          Z
+        "/>
+      </svg>
+    `,
+
+
+    daily: `
+      <svg viewBox="0 0 24 24">
+        <path d="
+          M12 2
+          A10 10 0 1 0 22 12
+          H18
+          A6 6 0 1 1 12 6
+          Z
+        "/>
+        <path d="
+          M12 2
+          V7
+          L16 4
+          Z
+        "/>
+      </svg>
+    `,
+
+
+    side: `
+      <svg viewBox="0 0 24 24">
+        <path d="
+          M4 4
+          H12
+          V8
+          H8
+          V16
+          H12
+          V20
+          H4
+          Z
+        "/>
+        <path d="
+          M12 8
+          H18
+          V5
+          L22 10
+          L18 15
+          V12
+          H12
+          Z
+        "/>
+      </svg>
+    `,
+
+
+    boss: `
+      <svg viewBox="0 0 24 24">
+        <path d="
+          M5 21
+          L3 7
+          L8 10
+          L12 3
+          L16 10
+          L21 7
+          L19 21
+          Z
+        "/>
+        <rect x="8" y="14" width="3" height="3"/>
+        <rect x="13" y="14" width="3" height="3"/>
+      </svg>
+    `,
+
+
+    check: `
+      <svg viewBox="0 0 24 24">
+        <path d="
+          M3 12
+          L8 17
+          L21 4
+          L21 10
+          L8 22
+          L3 17
+          Z
+        "/>
+      </svg>
+    `,
+
+
+    trash: `
+      <svg viewBox="0 0 24 24">
+        <rect x="5" y="6" width="14" height="15"/>
+        <rect x="3" y="3" width="18" height="3"/>
+        <rect x="9" y="1" width="6" height="2"/>
+        <rect x="8" y="9" width="2" height="8"/>
+        <rect x="14" y="9" width="2" height="8"/>
+      </svg>
+    `,
+
+
+    printer: `
+      <svg viewBox="0 0 24 24">
+        <path d="
+          M6 8
+          V2
+          H18
+          V8
+          H21
+          V18
+          H18
+          V22
+          H6
+          V18
+          H3
+          V8
+          Z
+        "/>
+        <rect x="8" y="14" width="8" height="5" fill="#101827"/>
+        <rect x="8" y="5" width="8" height="3" fill="#101827"/>
+        <rect x="6" y="10" width="3" height="2" fill="#FFC94C"/>
+      </svg>
+    `,
+
+
+    trophy: `
+      <svg viewBox="0 0 24 24">
+        <path d="
+          M6 3
+          H18
+          V10
+          C18 15 15 17 12 17
+          C9 17 6 15 6 10
+          Z
+        "/>
+        <rect x="10" y="17" width="4" height="4"/>
+        <rect x="7" y="21" width="10" height="2"/>
+        <path d="
+          M6 5
+          H2
+          V9
+          C2 12 4 14 7 14
+          V11
+          C5 11 5 10 5 8
+          H6
+          Z
+        "/>
+        <path d="
+          M18 5
+          H22
+          V9
+          C22 12 20 14 17 14
+          V11
+          C19 11 19 10 19 8
+          H18
+          Z
+        "/>
+      </svg>
+    `,
+
+
+    crystal: `
+      <svg viewBox="0 0 24 24">
+        <path d="
+          M7 2
+          H17
+          L22 8
+          L12 22
+          L2 8
+          Z
+        "/>
+        <path d="
+          M7 2
+          L12 8
+          L17 2
+          M2 8
+          H22
+          M12 8
+          V22
+        "
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"/>
+      </svg>
+    `,
+
+
+    dice: `
+      <svg viewBox="0 0 24 24">
+        <rect
+          x="3"
+          y="3"
+          width="18"
+          height="18"
+          rx="2"
+        />
+        <rect x="7" y="7" width="3" height="3" fill="#101827"/>
+        <rect x="14" y="14" width="3" height="3" fill="#101827"/>
+        <rect x="14" y="7" width="3" height="3" fill="#101827"/>
+        <rect x="7" y="14" width="3" height="3" fill="#101827"/>
+      </svg>
+    `
+
+  };
+
+
+  return `
+    <span class="icon">
+      ${icons[type] || icons.quest}
+    </span>
+  `;
+
+}
+
+
+/* =========================================================
    ACHIEVEMENTS
-===================================================== */
+========================================================= */
 
 const achievements = [
 
@@ -1317,9 +1788,9 @@ const achievements = [
 
     id: "first",
 
-    icon: "🌱",
+    icon: "I",
 
-    name: "Erste Schritte",
+    name: "ERSTE SCHRITTE",
 
     description:
       "Schließe deine erste Quest ab.",
@@ -1334,9 +1805,9 @@ const achievements = [
 
     id: "five",
 
-    icon: "🔥",
+    icon: "V",
 
-    name: "Im Flow",
+    name: "IM FLOW",
 
     description:
       "Schließe 5 Quests ab.",
@@ -1351,9 +1822,9 @@ const achievements = [
 
     id: "ten",
 
-    icon: "⚔️",
+    icon: "X",
 
-    name: "Quest Hunter",
+    name: "QUEST HUNTER",
 
     description:
       "Schließe 10 Quests ab.",
@@ -1368,9 +1839,9 @@ const achievements = [
 
     id: "hundred",
 
-    icon: "💯",
+    icon: "XP",
 
-    name: "Hundert Punkte",
+    name: "HUNDERT PUNKTE",
 
     description:
       "Sammle 100 XP.",
@@ -1385,9 +1856,9 @@ const achievements = [
 
     id: "fivehundred",
 
-    icon: "👑",
+    icon: "500",
 
-    name: "Questmaster",
+    name: "QUESTMASTER",
 
     description:
       "Sammle 500 XP.",
@@ -1402,20 +1873,16 @@ const achievements = [
 
     id: "boss",
 
-    icon: "🐉",
+    icon: "B",
 
-    name: "Drachenbezwinger",
+    name: "BOSS DOWN",
 
     description:
       "Schließe eine Hard Quest ab.",
 
     check: () =>
-
       data.history.some(
-
-        q =>
-          q.type === "boss"
-
+        q => q.type === "boss"
       )
 
   }
@@ -1423,32 +1890,25 @@ const achievements = [
 ];
 
 
-
-/* =====================================================
+/* =========================================================
    SPEICHERN
-===================================================== */
+========================================================= */
 
 function save() {
 
   localStorage.setItem(
-
     "questMode",
-
     JSON.stringify(data)
-
   );
 
 }
 
 
-
-/* =====================================================
+/* =========================================================
    XP
-===================================================== */
+========================================================= */
 
-function getXP(
-  difficulty
-) {
+function getXP(difficulty) {
 
   return {
 
@@ -1460,21 +1920,18 @@ function getXP(
 
     4: 60
 
-  }[difficulty];
+  }[difficulty] || 20;
 
 }
 
 
+/* =========================================================
+   QUEST ERSTELLEN
+========================================================= */
 
-/* =====================================================
-   QUEST OBJEKT ERSTELLEN
-===================================================== */
-
-function createQuestFromInput() {
-
+function addQuest() {
 
   const input =
-
     document.getElementById(
       "questInput"
     );
@@ -1487,29 +1944,25 @@ function createQuestFromInput() {
   if (!text) {
 
     alert(
-      "Du brauchst erst eine Quest..."
+      "Du brauchst erst eine Quest."
     );
 
-    return null;
+    return;
 
   }
 
 
   const difficulty =
-
     Number(
-
       document
         .getElementById(
           "difficulty"
         )
         .value
-
     );
 
 
   const type =
-
     document
       .getElementById(
         "questType"
@@ -1517,7 +1970,7 @@ function createQuestFromInput() {
       .value;
 
 
-  return {
+  data.quests.push({
 
     id:
       Date.now(),
@@ -1540,38 +1993,10 @@ function createQuestFromInput() {
           "de-DE"
         )
 
-  };
-
-}
+  });
 
 
-
-/* =====================================================
-   NORMALE QUEST ERSTELLEN
-===================================================== */
-
-function addQuest() {
-
-
-  const quest =
-    createQuestFromInput();
-
-
-  if (!quest) {
-
-    return;
-
-  }
-
-
-  data.quests.push(
-    quest
-  );
-
-
-  document.getElementById(
-    "questInput"
-  ).value = "";
+  input.value = "";
 
 
   save();
@@ -1581,60 +2006,18 @@ function addQuest() {
 }
 
 
-
-/* =====================================================
-   NORMALE QUEST:
-   ANNEHMEN + DRUCKEN
-===================================================== */
-
-function addQuestAndPrint() {
-
-
-  const quest =
-    createQuestFromInput();
-
-
-  if (!quest) {
-
-    return;
-
-  }
-
-
-  data.quests.push(
-    quest
-  );
-
-
-  document.getElementById(
-    "questInput"
-  ).value = "";
-
-
-  save();
-
-  render();
-
-
-  printQuest(quest);
-
-}
-
-
-
-/* =====================================================
-   RANDOM QUEST WÜRFELN
-===================================================== */
+/* =========================================================
+   RANDOM QUEST
+========================================================= */
 
 function randomQuest() {
-
 
   if (
     data.randomQuests.length === 0
   ) {
 
     alert(
-      "Du hast noch keine Random Quests!"
+      "Du hast noch keine Random Quests."
     );
 
     return;
@@ -1642,47 +2025,41 @@ function randomQuest() {
   }
 
 
-  const randomIndex =
+  const index =
 
     Math.floor(
-
       Math.random() *
       data.randomQuests.length
-
     );
 
 
   currentRandomQuest =
-
-    data.randomQuests[
-      randomIndex
-    ];
+    data.randomQuests[index];
 
 
   document.getElementById(
     "randomResult"
   ).innerHTML =
 
-    "🎯 " +
     currentRandomQuest;
 
 }
 
 
-
-/* =====================================================
+/* =========================================================
    RANDOM QUEST ANNEHMEN
-===================================================== */
+========================================================= */
 
-function acceptRandomQuest() {
-
+function acceptRandomQuest(
+  printAfter
+) {
 
   if (
     currentRandomQuest === null
   ) {
 
     alert(
-      "Würfle zuerst eine Random Quest! 🎲"
+      "Würfle zuerst eine Random Quest."
     );
 
     return;
@@ -1728,100 +2105,33 @@ function acceptRandomQuest() {
     "randomResult"
   ).innerHTML =
 
-    "✅ Quest angenommen!";
+    "QUEST ANGENOMMEN";
 
 
   save();
 
   render();
 
-}
 
+  if (printAfter) {
 
-
-/* =====================================================
-   RANDOM QUEST:
-   ANNEHMEN + DRUCKEN
-===================================================== */
-
-function acceptRandomQuestAndPrint() {
-
-
-  if (
-    currentRandomQuest === null
-  ) {
-
-    alert(
-      "Würfle zuerst eine Random Quest! 🎲"
+    printQuest(
+      quest
     );
-
-    return;
 
   }
 
-
-  const quest = {
-
-    id:
-      Date.now(),
-
-    text:
-      currentRandomQuest,
-
-    difficulty:
-      2,
-
-    type:
-      "side",
-
-    xp:
-      20,
-
-    created:
-      new Date()
-        .toLocaleString(
-          "de-DE"
-        )
-
-  };
-
-
-  data.quests.push(
-    quest
-  );
-
-
-  currentRandomQuest = null;
-
-
-  document.getElementById(
-    "randomResult"
-  ).innerHTML =
-
-    "🖨️ Quest angenommen & wird gedruckt!";
-
-
-  save();
-
-  render();
-
-
-  printQuest(quest);
-
 }
 
 
-
-/* =====================================================
+/* =========================================================
    RANDOM QUESTS VERWALTEN
-===================================================== */
+========================================================= */
 
 function manageRandomQuests() {
 
-
   let list =
-
-    "🎲 DEINE RANDOM QUESTS\n\n";
+    "DEINE RANDOM QUESTS\n\n";
 
 
   if (
@@ -1835,47 +2145,35 @@ function manageRandomQuests() {
 
 
   data.randomQuests.forEach(
-
     function(
       quest,
       index
     ) {
 
       list +=
-
         (index + 1) +
         ". " +
         quest +
         "\n";
 
     }
-
   );
 
 
   const newQuest =
-
     prompt(
-
       list +
-
       "\n\nNeue Random Quest hinzufügen:"
-
     );
 
 
   if (
-
     newQuest &&
     newQuest.trim()
-
   ) {
 
-
     data.randomQuests.push(
-
       newQuest.trim()
-
     );
 
 
@@ -1883,7 +2181,7 @@ function manageRandomQuests() {
 
 
     alert(
-      "🎲 Random Quest hinzugefügt!"
+      "Random Quest hinzugefügt."
     );
 
   }
@@ -1891,28 +2189,19 @@ function manageRandomQuests() {
 }
 
 
-
-/* =====================================================
+/* =========================================================
    QUEST ABSCHLIESSEN
-===================================================== */
+========================================================= */
 
-function completeQuest(
-  id
-) {
-
+function completeQuest(id) {
 
   const index =
-
     data.quests.findIndex(
-
-      function(
-        quest
-      ) {
+      function(quest) {
 
         return quest.id === id;
 
       }
-
     );
 
 
@@ -1962,7 +2251,7 @@ function completeQuest(
 
   alert(
 
-    "🎉 QUEST ABGESCHLOSSEN!\n\n" +
+    "QUEST ABGESCHLOSSEN\n\n" +
 
     "+" +
     quest.xp +
@@ -1973,28 +2262,19 @@ function completeQuest(
 }
 
 
-
-/* =====================================================
+/* =========================================================
    QUEST LÖSCHEN
-===================================================== */
+========================================================= */
 
-function deleteQuest(
-  id
-) {
-
+function deleteQuest(id) {
 
   data.quests =
-
     data.quests.filter(
-
-      function(
-        quest
-      ) {
+      function(quest) {
 
         return quest.id !== id;
 
       }
-
     );
 
 
@@ -2005,20 +2285,16 @@ function deleteQuest(
 }
 
 
-
-/* =====================================================
-   ACHIEVEMENTS PRÜFEN
-===================================================== */
+/* =========================================================
+   ACHIEVEMENTS
+========================================================= */
 
 function checkAchievements() {
 
-
   achievements.forEach(
-
     function(
       achievement
     ) {
-
 
       if (
 
@@ -2030,20 +2306,17 @@ function checkAchievements() {
 
       ) {
 
-
         data.achievements[
           achievement.id
         ] = true;
 
 
         setTimeout(
-
           function() {
-
 
             alert(
 
-              "🏆 ACHIEVEMENT FREIGESCHALTET!\n\n" +
+              "ACHIEVEMENT FREIGESCHALTET\n\n" +
 
               achievement.name +
 
@@ -2054,156 +2327,296 @@ function checkAchievements() {
             );
 
           },
-
           100
-
         );
 
       }
 
     }
-
   );
 
 }
 
 
+/* =========================================================
+   QUEST-TYP ICON
+========================================================= */
 
-/* =====================================================
-   QUEST ICON
-===================================================== */
-
-function typeIcon(
-  type
-) {
-
+function typeIcon(type) {
 
   return {
 
-    normal: "⚔️",
+    normal:
+      icon("quest"),
 
-    daily: "🟢",
+    daily:
+      icon("daily"),
 
-    side: "🟣",
+    side:
+      icon("side"),
 
-    boss: "🐉"
+    boss:
+      icon("boss")
 
-  }[type] || "⚔️";
+  }[type] || icon("quest");
 
 }
 
 
-
-/* =====================================================
+/* =========================================================
    QUEST DRUCKEN
-===================================================== */
+========================================================= */
 
-function printQuest(
-  quest
-) {
+function printQuest(quest) {
 
-
-  const printArea =
-
-    document.getElementById(
-      "printArea"
+  const printWindow =
+    window.open(
+      "",
+      "_blank",
+      "width=400,height=600"
     );
 
 
-  const stars =
+  if (!printWindow) {
 
-    "⭐".repeat(
+    alert(
+      "Der Druckdialog konnte nicht geöffnet werden. Bitte erlaube Pop-ups für Questy."
+    );
+
+    return;
+
+  }
+
+
+  const difficulty =
+    "★".repeat(
       quest.difficulty
     );
 
 
-  printArea.innerHTML = `
+  printWindow.document.write(`
 
-    <div class="receipt">
+<!DOCTYPE html>
 
-      <div class="receipt-title">
-        QUESTY
-      </div>
+<html lang="de">
 
-      <div>
-        QUEST RECEIPT
-      </div>
+<head>
 
-      <div class="receipt-line"></div>
+<meta charset="UTF-8">
 
-      <div class="receipt-quest">
-        ${escapeHtml(
-          quest.text
-        )}
-      </div>
+<title>QUESTY BON</title>
 
-      <div class="receipt-line"></div>
+<style>
 
-      <div class="receipt-meta">
-        ${stars}
-      </div>
+@page {
 
-      <div class="receipt-meta">
-        ${escapeHtml(
-          quest.type.toUpperCase()
-        )}
-      </div>
+  size: 80mm auto;
 
-      <div class="receipt-xp">
-        +${quest.xp} XP
-      </div>
+  margin: 0;
 
-      <div class="receipt-line"></div>
+}
 
-      <div class="receipt-footer">
-        QUESTY · ${quest.created}
-      </div>
 
-    </div>
+body {
 
-  `;
+  width: 72mm;
 
+  margin: 4mm auto;
+
+  font-family:
+    "Courier New",
+    monospace;
+
+  color: #000;
+
+  background: #fff;
+
+  text-align: center;
+
+}
+
+
+.logo {
+
+  font-size: 20px;
+
+  font-weight: bold;
+
+  letter-spacing: 2px;
+
+  margin-bottom: 8px;
+
+}
+
+
+.line {
+
+  border-top:
+    2px dashed #000;
+
+  margin:
+    8px 0;
+
+}
+
+
+.quest {
+
+  font-size:
+    18px;
+
+  font-weight:
+    bold;
+
+  margin:
+    12px 0;
+
+  line-height:
+    1.35;
+
+}
+
+
+.meta {
+
+  font-size:
+    12px;
+
+  margin:
+    5px 0;
+
+}
+
+
+.xp {
+
+  font-size:
+    18px;
+
+  font-weight:
+    bold;
+
+  margin-top:
+    12px;
+
+}
+
+
+.footer {
+
+  font-size:
+    9px;
+
+  margin-top:
+    18px;
+
+}
+
+
+</style>
+
+</head>
+
+<body>
+
+
+<div class="logo">
+QUESTY
+</div>
+
+
+<div>
+QUEST RECEIPT
+</div>
+
+
+<div class="line"></div>
+
+
+<div class="quest">
+
+${quest.text}
+
+</div>
+
+
+<div class="line"></div>
+
+
+<div class="meta">
+
+SCHWIERIGKEIT:
+${difficulty}
+
+</div>
+
+
+<div class="meta">
+
+TYP:
+${quest.type.toUpperCase()}
+
+</div>
+
+
+<div class="xp">
+
++${quest.xp} XP
+
+</div>
+
+
+<div class="line"></div>
+
+
+<div class="footer">
+
+DEIN LEBEN.
+DEINE QUESTS.
+
+<br><br>
+
+QUESTY
+
+</div>
+
+
+<script>
+
+window.onload = function() {
 
   window.print();
 
-}
+};
+
+window.onafterprint = function() {
+
+  window.close();
+
+};
+
+<\/script>
 
 
+</body>
 
-/* =====================================================
-   HTML SICHER MACHEN
-===================================================== */
+</html>
 
-function escapeHtml(
-  text
-) {
+`);
 
 
-  const div =
-    document.createElement(
-      "div"
-    );
-
-
-  div.textContent =
-    text;
-
-
-  return div.innerHTML;
+  printWindow.document.close();
 
 }
 
 
-
-/* =====================================================
+/* =========================================================
    QUESTS RENDERN
-===================================================== */
+========================================================= */
 
 function renderQuests() {
 
-
   const container =
-
     document.getElementById(
       "questList"
     );
@@ -2212,7 +2625,6 @@ function renderQuests() {
   document.getElementById(
     "questCount"
   ).textContent =
-
     data.quests.length;
 
 
@@ -2220,14 +2632,15 @@ function renderQuests() {
     data.quests.length === 0
   ) {
 
+    container.innerHTML = `
 
-    container.innerHTML =
+      <div class="empty">
 
-      `<div class="card">
+        KEINE OFFENEN QUESTS
 
-        Keine offenen Quests 🎉
+      </div>
 
-      </div>`;
+    `;
 
     return;
 
@@ -2236,21 +2649,14 @@ function renderQuests() {
 
   container.innerHTML =
 
-
     data.quests.map(
-
-      function(
-        quest
-      ) {
-
+      function(quest) {
 
         return `
 
           <div class="quest">
 
-
             <div class="quest-info">
-
 
               <div class="quest-name">
 
@@ -2258,97 +2664,87 @@ function renderQuests() {
                   quest.type
                 )}
 
-                ${escapeHtml(
-                  quest.text
-                )}
+                ${quest.text}
 
               </div>
 
 
               <div class="quest-meta">
 
-                ${"⭐".repeat(
+                <span class="quest-type">
+
+                  ${quest.type.toUpperCase()}
+
+                </span>
+
+                ${"★".repeat(
                   quest.difficulty
                 )}
 
-                ·
+                &nbsp;·&nbsp;
 
-                +${quest.xp}
+                <span
+                  class="history-xp"
+                >
 
-                XP
+                  +${quest.xp} XP
+
+                </span>
 
               </div>
-
 
             </div>
 
 
             <button
-
-              class="complete"
-
-              data-complete="${quest.id}"
-
-              title="Quest abschließen"
-
-            >
-
-              ✓
-
-            </button>
-
-
-            <button
-
               class="print-button"
-
               data-print="${quest.id}"
-
               title="Quest drucken"
-
             >
 
-              🖨️
+              ${icon("printer")}
 
             </button>
 
 
             <button
-
-              class="delete"
-
-              data-delete="${quest.id}"
-
-              title="Quest löschen"
-
+              class="complete"
+              data-complete="${quest.id}"
+              title="Quest abschließen"
             >
 
-              🗑️
+              ${icon("check")}
 
             </button>
 
+
+            <button
+              class="delete"
+              data-delete="${quest.id}"
+              title="Quest löschen"
+            >
+
+              ${icon("trash")}
+
+            </button>
 
           </div>
 
         `;
 
       }
-
     ).join("");
 
 }
 
 
-
-/* =====================================================
+/* =========================================================
    ACHIEVEMENTS RENDERN
-===================================================== */
+========================================================= */
 
 function renderAchievements() {
 
-
   const container =
-
     document.getElementById(
       "achievements"
     );
@@ -2356,16 +2752,12 @@ function renderAchievements() {
 
   container.innerHTML =
 
-
     achievements.map(
-
       function(
         achievement
       ) {
 
-
         const unlocked =
-
           data.achievements[
             achievement.id
           ];
@@ -2374,19 +2766,10 @@ function renderAchievements() {
         return `
 
           <div class="achievement
+            ${unlocked ? "" : "locked"}"
+          >
 
-            ${
-              unlocked
-                ? ""
-                : "locked"
-            }
-
-          ">
-
-
-            <div
-              class="achievement-icon"
-            >
+            <div class="achievement-icon">
 
               ${achievement.icon}
 
@@ -2394,7 +2777,6 @@ function renderAchievements() {
 
 
             <div>
-
 
               <strong>
 
@@ -2409,31 +2791,25 @@ function renderAchievements() {
 
               </div>
 
-
             </div>
-
 
           </div>
 
         `;
 
       }
-
     ).join("");
 
 }
 
 
-
-/* =====================================================
+/* =========================================================
    HISTORIE RENDERN
-===================================================== */
+========================================================= */
 
 function renderHistory() {
 
-
   const container =
-
     document.getElementById(
       "history"
     );
@@ -2442,7 +2818,6 @@ function renderHistory() {
   if (
     data.history.length === 0
   ) {
-
 
     container.innerHTML =
 
@@ -2455,36 +2830,24 @@ function renderHistory() {
 
   container.innerHTML =
 
-
     data.history
-
-      .slice(
-        0,
-        20
-      )
-
+      .slice(0, 20)
       .map(
-
-        function(
-          quest
-        ) {
-
+        function(quest) {
 
           return `
 
             <div class="history-item">
 
-              ✓
+              ${icon("check")}
 
-              ${escapeHtml(
-                quest.text
-              )}
+              ${quest.text}
 
-              <strong>
+              <span class="history-xp">
 
                 +${quest.xp} XP
 
-              </strong>
+              </span>
 
 
               <br>
@@ -2496,27 +2859,22 @@ function renderHistory() {
 
               </small>
 
-
             </div>
 
           `;
 
         }
-
       )
-
       .join("");
 
 }
 
 
-
-/* =====================================================
-   ALLES AKTUALISIEREN
-===================================================== */
+/* =========================================================
+   GESAMT RENDERN
+========================================================= */
 
 function render() {
-
 
   const level =
 
@@ -2533,30 +2891,25 @@ function render() {
   document.getElementById(
     "level"
   ).textContent =
-
     level;
 
 
   document.getElementById(
     "xp-current"
   ).textContent =
-
     xpIntoLevel;
 
 
   document.getElementById(
     "xp-needed"
   ).textContent =
-
     100;
 
 
   document.getElementById(
     "xp-fill"
   ).style.width =
-
-    xpIntoLevel +
-    "%";
+    xpIntoLevel + "%";
 
 
   renderQuests();
@@ -2568,155 +2921,102 @@ function render() {
 }
 
 
-
-/* =====================================================
-   BUTTON:
-   QUEST ERSTELLEN
-===================================================== */
+/* =========================================================
+   QUEST ERSTELLEN BUTTON
+========================================================= */
 
 document
-
   .getElementById(
     "addQuestButton"
   )
-
   .addEventListener(
-
     "click",
-
     addQuest
-
   );
 
 
-
-/* =====================================================
-   BUTTON:
-   QUEST ERSTELLEN + DRUCKEN
-===================================================== */
+/* =========================================================
+   RANDOM BUTTON
+========================================================= */
 
 document
-
-  .getElementById(
-    "addQuestPrintButton"
-  )
-
-  .addEventListener(
-
-    "click",
-
-    addQuestAndPrint
-
-  );
-
-
-
-/* =====================================================
-   BUTTON:
-   RANDOM QUEST
-===================================================== */
-
-document
-
   .getElementById(
     "randomButton"
   )
-
   .addEventListener(
-
     "click",
-
     randomQuest
-
   );
 
 
-
-/* =====================================================
-   BUTTON:
+/* =========================================================
    RANDOM ANNEHMEN
-===================================================== */
+========================================================= */
 
 document
-
   .getElementById(
     "acceptRandomButton"
   )
-
   .addEventListener(
-
     "click",
+    function() {
 
-    acceptRandomQuest
+      acceptRandomQuest(
+        false
+      );
 
+    }
   );
 
 
-
-/* =====================================================
-   BUTTON:
+/* =========================================================
    RANDOM ANNEHMEN + DRUCKEN
-===================================================== */
+========================================================= */
 
 document
-
   .getElementById(
-    "acceptRandomPrintButton"
+    "acceptPrintRandomButton"
   )
-
   .addEventListener(
-
     "click",
+    function() {
 
-    acceptRandomQuestAndPrint
+      acceptRandomQuest(
+        true
+      );
 
+    }
   );
 
 
-
-/* =====================================================
-   BUTTON:
-   RANDOM QUESTS VERWALTEN
-===================================================== */
+/* =========================================================
+   RANDOM VERWALTEN
+========================================================= */
 
 document
-
   .getElementById(
     "manageRandomButton"
   )
-
   .addEventListener(
-
     "click",
-
     manageRandomQuests
-
   );
 
 
-
-/* =====================================================
-   QUEST-LISTE:
-   ABSCHLIESSEN / DRUCKEN / LÖSCHEN
-===================================================== */
+/* =========================================================
+   QUEST LIST BUTTONS
+========================================================= */
 
 document
-
   .getElementById(
     "questList"
   )
-
   .addEventListener(
-
     "click",
-
-    function(
-      event
-    ) {
+    function(event) {
 
 
       const completeButton =
-
         event.target.closest(
           "[data-complete]"
         );
@@ -2725,7 +3025,6 @@ document
       if (
         completeButton
       ) {
-
 
         completeQuest(
 
@@ -2737,66 +3036,12 @@ document
 
         );
 
-
         return;
 
       }
-
-
-
-      const printButton =
-
-        event.target.closest(
-          "[data-print]"
-        );
-
-
-      if (
-        printButton
-      ) {
-
-
-        const id =
-
-          Number(
-            printButton
-              .dataset
-              .print
-          );
-
-
-        const quest =
-
-          data.quests.find(
-
-            function(
-              q
-            ) {
-
-              return q.id === id;
-
-            }
-
-          );
-
-
-        if (quest) {
-
-          printQuest(
-            quest
-          );
-
-        }
-
-
-        return;
-
-      }
-
 
 
       const deleteButton =
-
         event.target.closest(
           "[data-delete]"
         );
@@ -2805,7 +3050,6 @@ document
       if (
         deleteButton
       ) {
-
 
         deleteQuest(
 
@@ -2817,22 +3061,58 @@ document
 
         );
 
+        return;
+
+      }
+
+
+      const printButton =
+        event.target.closest(
+          "[data-print]"
+        );
+
+
+      if (
+        printButton
+      ) {
+
+        const id =
+          Number(
+            printButton
+              .dataset
+              .print
+          );
+
+
+        const quest =
+          data.quests.find(
+            function(q) {
+
+              return q.id === id;
+
+            }
+          );
+
+
+        if (quest) {
+
+          printQuest(
+            quest
+          );
+
+        }
+
       }
 
     }
-
   );
 
 
-
-/* =====================================================
+/* =========================================================
    THEMES
-===================================================== */
+========================================================= */
 
-function changeTheme(
-  theme
-) {
-
+function changeTheme(theme) {
 
   document.body.className =
     "theme-" +
@@ -2840,34 +3120,23 @@ function changeTheme(
 
 
   localStorage.setItem(
-
     "questModeTheme",
-
     theme
-
   );
 
 }
 
 
-
 const themeSelect =
-
   document.getElementById(
     "themeSelect"
   );
 
 
-
-if (
-  themeSelect
-) {
-
+if (themeSelect) {
 
   themeSelect.addEventListener(
-
     "change",
-
     function() {
 
       changeTheme(
@@ -2875,67 +3144,43 @@ if (
       );
 
     }
-
   );
 
 }
 
 
-
 const savedTheme =
-
   localStorage.getItem(
-
     "questModeTheme"
-
   );
 
 
-
-if (
-  savedTheme
-) {
-
+if (savedTheme) {
 
   changeTheme(
     savedTheme
   );
 
 
-  if (
-    themeSelect
-  ) {
+  if (themeSelect) {
 
     themeSelect.value =
       savedTheme;
 
   }
 
-
 } else {
-
 
   changeTheme(
     "dark"
   );
 
-
-  if (
-    themeSelect
-  ) {
-
-    themeSelect.value =
-      "dark";
-
-  }
-
 }
 
 
-
-/* =====================================================
-   APP STARTEN
-===================================================== */
+/* =========================================================
+   APP START
+========================================================= */
 
 render();
 
