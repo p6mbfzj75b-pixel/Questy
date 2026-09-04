@@ -114,11 +114,13 @@ body.theme-rose {
   --muted: #98727f;
   --primary: #e85d91;
   --primary-dark: #c74374;
-  --yellow: #e6a83b;
+  --yellow: #d99624;
   --red: #d9536f;
   --green: #55b98a;
   --purple: #a875d6;
+  --shadow: 0 8px 25px rgba(140,70,100,.14);
 }
+
 
 body.theme-green {
   --bg: #0b1711;
@@ -1044,6 +1046,7 @@ button:active {
 }
 
 
+
 /* =========================================================
    HISTORY
 ========================================================= */
@@ -1421,6 +1424,41 @@ button:active {
 
 }
 
+
+
+
+.quick-preview {
+  margin-top: 15px;
+  padding: 18px;
+  border: 2px dashed var(--primary);
+  border-radius: 14px;
+  background: var(--bg);
+  text-align: center;
+}
+
+.quick-preview-title {
+  color: var(--yellow);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.quick-preview-quest {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 8px 0 14px;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.quick-actions button {
+  width: 100%;
+}
 
 /* =========================================================
    MOBILE
@@ -1930,6 +1968,8 @@ button:active {
 </div>
 
 
+  <div id="quickResult" class="quick-preview" style="display:none"></div>
+
 <!-- =======================================================
      RANDOM QUEST
 ======================================================= -->
@@ -2079,6 +2119,7 @@ button:active {
   <div id="questList"></div>
 
 </div>
+
 
 
 <!-- =======================================================
@@ -2237,2180 +2278,573 @@ button:active {
 
 
 <script>
-
-
 /* =========================================================
-   DEFAULT DATA
+   QUESTY — STABILE VERSION
 ========================================================= */
 
 const defaultRandomQuests = [
-
-  {
-    text: "Eine Schublade aufräumen",
-    category: "home"
-  },
-
-  {
-    text: "10 Minuten spazieren gehen",
-    category: "movement"
-  },
-
-  {
-    text: "Ein Glas Wasser trinken",
-    category: "movement"
-  },
-
-  {
-    text: "Eine Oberfläche komplett freiräumen",
-    category: "home"
-  },
-
-  {
-    text: "5 Minuten dehnen",
-    category: "movement"
-  },
-
-  {
-    text: "Eine Sache erledigen, die du seit Tagen aufschiebst",
-    category: "overcome"
-  },
-
-  {
-    text: "5 Dinge wegwerfen",
-    category: "home"
-  },
-
-  {
-    text: "Einen Ort aufräumen, den du ignorierst",
-    category: "chaos"
-  },
-
-  {
-    text: "Eine offene Nachricht beantworten",
-    category: "organization"
-  },
-
-  {
-    text: "Kalender für morgen checken",
-    category: "organization"
-  },
-
-  {
-    text: "Etwas reparieren, das dich schon länger nervt",
-    category: "chaos"
-  },
-
-  {
-    text: "Eine Aufgabe beginnen, aber nur 5 Minuten machen",
-    category: "overcome"
-  },
-
-  {
-    text: "Drei Dinge an ihren richtigen Platz bringen",
-    category: "home"
-  },
-
-  {
-    text: "Eine kleine Aufgabe erledigen, bevor du weiter scrollst",
-    category: "organization"
-  },
-
-  {
-    text: "Den Schreibtisch auf 80% seines Potentials bringen",
-    category: "chaos"
-  }
-
+  { text: "Eine Schublade aufräumen", category: "home" },
+  { text: "10 Minuten spazieren gehen", category: "movement" },
+  { text: "Ein Glas Wasser trinken", category: "movement" },
+  { text: "Eine Oberfläche komplett freiräumen", category: "home" },
+  { text: "5 Minuten dehnen", category: "movement" },
+  { text: "Eine Sache erledigen, die du seit Tagen aufschiebst", category: "overcome" },
+  { text: "5 Dinge wegwerfen", category: "home" },
+  { text: "Einen Ort aufräumen, den du ignorierst", category: "chaos" },
+  { text: "Eine offene Nachricht beantworten", category: "organization" },
+  { text: "Kalender für morgen checken", category: "organization" },
+  { text: "Etwas reparieren, das dich schon länger nervt", category: "chaos" },
+  { text: "Eine Aufgabe beginnen, aber nur 5 Minuten machen", category: "overcome" },
+  { text: "Drei Dinge an ihren richtigen Platz bringen", category: "home" },
+  { text: "Eine kleine Aufgabe erledigen, bevor du weiter scrollst", category: "organization" },
+  { text: "Den Schreibtisch auf 80% seines Potentials bringen", category: "chaos" }
 ];
 
-
-let data = {
-
-  xp: 0,
-
-  quests: [],
-
-  history: [],
-
-  randomQuests:
-    defaultRandomQuests,
-
-  achievements: {},
-
-  redeemedRewards: 0,
-
-  lastActiveDate: null,
-
-  streak: 0
-
+const quickQuests = {
+  5: ["5 Dinge weglegen", "Eine Oberfläche freiräumen", "Eine Nachricht beantworten", "5 Minuten dehnen", "Müll einsammeln"],
+  15: ["15 Minuten aufräumen", "Kurzer Spaziergang", "E-Mails bearbeiten", "Eine Schublade aufräumen", "15 Minuten Papierkram"],
+  30: ["30 Minuten Haushalt", "30 Minuten Sport", "Eine größere Aufgabe beginnen", "30 Minuten Organisation", "Einen lange aufgeschobenen Punkt erledigen"]
 };
 
-
-/* =========================================================
-   LOAD DATA
-========================================================= */
-
-try {
-
-  const saved =
-    JSON.parse(
-      localStorage.getItem("questMode")
-    );
-
-  if (saved) {
-
-    data = {
-      ...data,
-      ...saved
-    };
-
-  }
-
-} catch (error) {
-
-  console.log(
-    "Neue Questy-Datenbank erstellt."
-  );
-
-}
-
-
-/* =========================================================
-   MIGRATION
-========================================================= */
-
-if (!Array.isArray(data.randomQuests)) {
-
-  data.randomQuests =
-    defaultRandomQuests;
-
-}
-
-
-data.randomQuests =
-  data.randomQuests.map(
-    quest => {
-
-      if (typeof quest === "string") {
-
-        return {
-          text: quest,
-          category: "chaos"
-        };
-
-      }
-
-      return quest;
-
-    }
-  );
-
-
-/* =========================================================
-   CURRENT RANDOM QUEST
-========================================================= */
+let data = {
+  xp: 0,
+  quests: [],
+  history: [],
+  randomQuests: defaultRandomQuests.map(q => ({...q})),
+  achievements: {},
+  redeemedRewards: 0,
+  lastActiveDate: null,
+  streak: 0
+};
 
 let currentRandomQuest = null;
-
+let currentQuickQuest = null;
 
 /* =========================================================
-   XP
+   LOAD + NORMALIZE DATA
 ========================================================= */
-
-function getXP(difficulty) {
-
-  return {
-
-    1: 10,
-
-    2: 20,
-
-    3: 35,
-
-    4: 60
-
-  }[difficulty] || 10;
-
+try {
+  const raw = localStorage.getItem("questMode");
+  if (raw) {
+    const saved = JSON.parse(raw);
+    if (saved && typeof saved === "object") {
+      data = { ...data, ...saved };
+    }
+  }
+} catch (error) {
+  console.warn("Questy: gespeicherte Daten konnten nicht gelesen werden.", error);
 }
 
-
-/* =========================================================
-   SAVE
-========================================================= */
+if (!Array.isArray(data.quests)) data.quests = [];
+if (!Array.isArray(data.history)) data.history = [];
+if (!data.achievements || typeof data.achievements !== "object") data.achievements = {};
+if (!Array.isArray(data.randomQuests) || data.randomQuests.length === 0) {
+  data.randomQuests = defaultRandomQuests.map(q => ({...q}));
+}
+data.randomQuests = data.randomQuests.map(q => {
+  if (typeof q === "string") return { text: q, category: "chaos" };
+  return { text: String(q.text || "Neue Quest"), category: q.category || "chaos" };
+});
 
 function save() {
-
-  localStorage.setItem(
-    "questMode",
-    JSON.stringify(data)
-  );
-
+  try {
+    localStorage.setItem("questMode", JSON.stringify(data));
+  } catch (error) {
+    console.error("Questy: Speichern fehlgeschlagen.", error);
+  }
 }
 
-
 /* =========================================================
-   TOAST
+   HELPERS
 ========================================================= */
+function getXP(difficulty) {
+  return ({1: 10, 2: 20, 3: 35, 4: 60})[Number(difficulty)] || 10;
+}
+
+function typeName(type) {
+  return ({
+    normal: "QUEST",
+    daily: "DAILY",
+    side: "SIDE QUEST",
+    boss: "HARD QUEST"
+  })[type] || "QUEST";
+}
+
+function escapeHTML(text) {
+  const div = document.createElement("div");
+  div.textContent = String(text ?? "");
+  return div.innerHTML;
+}
+
+function icon(type) {
+  const icons = {
+    quest: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 8h8"/><path d="M8 12h5"/></svg>`,
+    check: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l4 4L19 6"/></svg>`,
+    trash: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>`,
+    printer: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>`,
+    star: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"/></svg>`
+  };
+  return icons[type] || icons.quest;
+}
 
 function toast(message) {
-
-  const element =
-    document.getElementById("toast");
-
-  element.textContent =
-    message;
-
+  const element = document.getElementById("toast");
+  if (!element) return;
+  element.textContent = message;
   element.classList.add("show");
-
-  setTimeout(
-    () => {
-
-      element.classList.remove("show");
-
-    },
-    2500
-  );
-
+  clearTimeout(window.questyToastTimer);
+  window.questyToastTimer = setTimeout(() => element.classList.remove("show"), 2500);
 }
 
+function makeQuest(text, difficulty, type = "normal") {
+  return {
+    id: Date.now() + Math.floor(Math.random() * 1000),
+    text: String(text).trim(),
+    difficulty: Number(difficulty) || 1,
+    type,
+    xp: getXP(difficulty),
+    created: new Date().toLocaleString("de-DE")
+  };
+}
 
 /* =========================================================
-   CREATE NORMAL QUEST
+   NORMAL QUEST
 ========================================================= */
-
-function addQuest(
-  shouldPrint = false
-) {
-
-  const input =
-    document.getElementById(
-      "questInput"
-    );
-
-  const text =
-    input.value.trim();
-
+function addQuest(shouldPrint = false) {
+  const input = document.getElementById("questInput");
+  if (!input) return;
+  const text = input.value.trim();
 
   if (!text) {
-
-    toast(
-      "Du brauchst erst eine Quest."
-    );
-
+    toast("Du brauchst erst eine Quest.");
+    input.focus();
     return;
-
   }
 
+  const difficulty = Number(document.getElementById("difficulty").value);
+  const type = document.getElementById("questType").value;
+  const quest = makeQuest(text, difficulty, type);
 
-  const difficulty =
-    Number(
-      document.getElementById(
-        "difficulty"
-      ).value
-    );
-
-
-  const type =
-    document.getElementById(
-      "questType"
-    ).value;
-
-
-  const quest = {
-
-    id:
-      Date.now(),
-
-    text:
-      text,
-
-    difficulty:
-      difficulty,
-
-    type:
-      type,
-
-    xp:
-      getXP(difficulty),
-
-    created:
-      new Date().toLocaleString(
-        "de-DE"
-      )
-
-  };
-
-
-  data.quests.push(
-    quest
-  );
-
-
+  data.quests.push(quest);
   input.value = "";
-
-
   save();
-
   render();
+  toast("Quest angenommen.");
 
-
-  toast(
-    "Quest angenommen."
-  );
-
-
-  if (shouldPrint) {
-
-    openPrintPreview(
-      quest
-    );
-
-  }
-
+  if (shouldPrint) openPrintPreview(quest);
 }
-
-
-/* =========================================================
-   ACCEPT RANDOM
-========================================================= */
-
-function acceptRandomQuest(
-  shouldPrint = false
-) {
-
-  if (!currentRandomQuest) {
-
-    toast(
-      "Würfle zuerst eine Random Quest."
-    );
-
-    return;
-
-  }
-
-
-  const quest = {
-
-    id:
-      Date.now(),
-
-    text:
-      currentRandomQuest.text,
-
-    difficulty:
-      2,
-
-    type:
-      "side",
-
-    xp:
-      20,
-
-    created:
-      new Date().toLocaleString(
-        "de-DE"
-      )
-
-  };
-
-
-  data.quests.push(
-    quest
-  );
-
-
-  currentRandomQuest =
-    null;
-
-
-  document.getElementById(
-    "randomResult"
-  ).innerHTML =
-
-    `<div>
-
-      <div class="random-label">
-        QUEST ANGENOMMEN
-      </div>
-
-      Bereit zum Angriff.
-
-    </div>`;
-
-
-  save();
-
-  render();
-
-
-  toast(
-    "Random Quest angenommen."
-  );
-
-
-  if (shouldPrint) {
-
-    openPrintPreview(
-      quest
-    );
-
-  }
-
-}
-
 
 /* =========================================================
    RANDOM QUEST
 ========================================================= */
-
 function randomQuest() {
+  const category = document.getElementById("randomCategory").value;
+  let pool = data.randomQuests.slice();
+  if (category !== "all") pool = pool.filter(q => q.category === category);
 
-  const category =
-    document.getElementById(
-      "randomCategory"
-    ).value;
-
-
-  let pool =
-    data.randomQuests;
-
-
-  if (category !== "all") {
-
-    pool =
-      pool.filter(
-        q =>
-          q.category === category
-      );
-
-  }
-
-
-  if (
-    pool.length === 0
-  ) {
-
-    toast(
-      "In dieser Kategorie gibt es noch keine Quests."
-    );
-
+  if (!pool.length) {
+    toast("In dieser Kategorie gibt es noch keine Quests.");
     return;
-
   }
 
-
-  currentRandomQuest =
-    pool[
-      Math.floor(
-        Math.random() *
-        pool.length
-      )
-    ];
-
-
-  document.getElementById(
-    "randomResult"
-  ).innerHTML =
-
-    `<div>
-
-      <div class="random-label">
-        QUEST GENERATED
-      </div>
-
-      ${currentRandomQuest.text}
-
+  currentRandomQuest = pool[Math.floor(Math.random() * pool.length)];
+  const result = document.getElementById("randomResult");
+  result.innerHTML = `
+    <div>
+      <div class="random-label">QUEST GENERATED</div>
+      ${escapeHTML(currentRandomQuest.text)}
     </div>`;
-
 }
 
+function acceptRandomQuest(shouldPrint = false) {
+  if (!currentRandomQuest) {
+    toast("Würfle zuerst eine Random Quest.");
+    return;
+  }
 
-/* =========================================================
-   MANAGE RANDOM QUESTS
-========================================================= */
+  const quest = makeQuest(currentRandomQuest.text, 2, "side");
+  data.quests.push(quest);
+  currentRandomQuest = null;
+  document.getElementById("randomResult").innerHTML = `
+    <div><div class="random-label">QUEST ANGENOMMEN</div>Bereit zum Angriff.</div>`;
+  save();
+  render();
+  toast("Random Quest angenommen.");
+  if (shouldPrint) openPrintPreview(quest);
+}
 
 function manageRandomQuests() {
-
-  let text =
-    "DEINE RANDOM QUESTS\n\n";
-
-
-  data.randomQuests.forEach(
-    (quest, index) => {
-
-      text +=
-        `${index + 1}. ${quest.text}\n`;
-
-    }
-  );
-
-
-  const newQuest =
-    prompt(
-
-      text +
-      "\n\nNeue Random Quest hinzufügen:"
-
-    );
-
-
-  if (
-    newQuest &&
-    newQuest.trim()
-  ) {
-
-    const category =
-      prompt(
-
-        "Kategorie:\n" +
-        "home\n" +
-        "organization\n" +
-        "movement\n" +
-        "chaos\n" +
-        "overcome",
-
-        "chaos"
-
-      );
-
-
-    data.randomQuests.push({
-
-      text:
-        newQuest.trim(),
-
-      category:
-        category || "chaos"
-
-    });
-
-
-    save();
-
-
-    toast(
-      "Random Quest hinzugefügt."
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   COMPLETE QUEST
-========================================================= */
-
-function completeQuest(id) {
-
-  const index =
-    data.quests.findIndex(
-      quest =>
-        quest.id === id
-    );
-
-
-  if (index === -1) {
-
-    return;
-
-  }
-
-
-  const quest =
-    data.quests[index];
-
-
-  data.xp +=
-    quest.xp;
-
-
-  data.history.unshift({
-
-    ...quest,
-
-    completed:
-      new Date().toLocaleString(
-        "de-DE"
-      )
-
+  let text = "DEINE RANDOM QUESTS\n\n";
+  data.randomQuests.forEach((quest, index) => {
+    text += `${index + 1}. ${quest.text}\n`;
   });
 
+  const newQuest = prompt(text + "\n\nNeue Random Quest hinzufügen:");
+  if (!newQuest || !newQuest.trim()) return;
 
-  data.quests.splice(
-    index,
-    1
+  const category = prompt(
+    "Kategorie:\n" +
+    "home\norganization\nmovement\nchaos\novercome",
+    "chaos"
   );
 
-
-  updateStreak();
-
-  checkAchievements();
-
+  data.randomQuests.push({
+    text: newQuest.trim(),
+    category: category || "chaos"
+  });
   save();
-
-  render();
-
-
-  toast(
-    `QUEST ABGESCHLOSSEN · +${quest.xp} XP`
-  );
-
+  toast("Random Quest hinzugefügt.");
 }
-
 
 /* =========================================================
-   DELETE QUEST
+   QUICK QUEST — NUR VORSCHLAG, NICHT SOFORT AKTIV
 ========================================================= */
+function createQuickQuest(minutes) {
+  const pool = quickQuests[minutes];
+  if (!pool || !pool.length) return;
 
-function deleteQuest(id) {
+  const text = pool[Math.floor(Math.random() * pool.length)];
+  const difficulty = minutes === 5 ? 1 : minutes === 15 ? 2 : 3;
+  currentQuickQuest = makeQuest(text, difficulty, "side");
 
-  data.quests =
-    data.quests.filter(
-      quest =>
-        quest.id !== id
-    );
+  const card = document.getElementById("quickResult");
+  if (!card) return;
 
+  card.innerHTML = `
+    <div class="quick-preview-title">QUEST VORSCHLAG · ${minutes} MIN</div>
+    <div class="quick-preview-quest">${escapeHTML(currentQuickQuest.text)}</div>
+    <div class="quest-meta">${"★".repeat(currentQuickQuest.difficulty)} · +${currentQuickQuest.xp} XP</div>
+    <div class="quick-actions" style="margin-top:14px">
+      <button class="primary" id="acceptQuickButton">QUEST ANNEHMEN</button>
+      <button class="secondary" id="newQuickButton">NEUE QUEST</button>
+    </div>
+    <button class="yellow-button" id="acceptQuickPrintButton" style="margin-top:8px">ANNEHMEN + DRUCKEN</button>
+  `;
 
-  save();
+  card.style.display = "block";
 
-  render();
-
-
-  toast(
-    "Quest gelöscht."
-  );
-
+  document.getElementById("acceptQuickButton").onclick = () => acceptQuickQuest(false);
+  document.getElementById("newQuickButton").onclick = () => createQuickQuest(minutes);
+  document.getElementById("acceptQuickPrintButton").onclick = () => acceptQuickQuest(true);
 }
 
+function acceptQuickQuest(shouldPrint = false) {
+  if (!currentQuickQuest) {
+    toast("Wähle zuerst eine Quick Quest.");
+    return;
+  }
+
+  const quest = currentQuickQuest;
+  data.quests.push(quest);
+  currentQuickQuest = null;
+
+  const card = document.getElementById("quickResult");
+  if (card) {
+    card.innerHTML = `<div class="random-label">QUEST ANGENOMMEN</div><strong>${escapeHTML(quest.text)}</strong>`;
+  }
+
+  save();
+  render();
+  toast("Quick Quest angenommen.");
+  if (shouldPrint) openPrintPreview(quest);
+}
+
+/* =========================================================
+   COMPLETE / DELETE
+========================================================= */
+function completeQuest(id) {
+  const index = data.quests.findIndex(q => q.id === id);
+  if (index === -1) return;
+
+  const quest = data.quests[index];
+  data.xp += Number(quest.xp) || 0;
+  data.history.unshift({
+    ...quest,
+    completed: new Date().toLocaleString("de-DE")
+  });
+  data.quests.splice(index, 1);
+  updateStreak();
+  checkAchievements();
+  save();
+  render();
+  toast(`QUEST ABGESCHLOSSEN · +${quest.xp} XP`);
+}
+
+function deleteQuest(id) {
+  data.quests = data.quests.filter(q => q.id !== id);
+  save();
+  render();
+  toast("Quest gelöscht.");
+}
+
+function findQuest(id) {
+  return data.quests.find(q => q.id === id);
+}
 
 /* =========================================================
    STREAK
 ========================================================= */
-
 function updateStreak() {
-
-  const today =
-    new Date()
-      .toISOString()
-      .split("T")[0];
-
-
-  if (
-    data.lastActiveDate === today
-  ) {
-
-    return;
-
-  }
-
+  const today = new Date().toISOString().split("T")[0];
+  if (data.lastActiveDate === today) return;
 
   if (!data.lastActiveDate) {
-
     data.streak = 1;
-
   } else {
-
-    const last =
-      new Date(
-        data.lastActiveDate
-      );
-
-    const now =
-      new Date(today);
-
-
-    const difference =
-      Math.floor(
-        (
-          now - last
-        ) /
-        86400000
-      );
-
-
-    if (difference === 1) {
-
-      data.streak += 1;
-
-    } else {
-
-      data.streak = 1;
-
-    }
-
+    const last = new Date(data.lastActiveDate);
+    const now = new Date(today);
+    const difference = Math.floor((now - last) / 86400000);
+    data.streak = difference === 1 ? data.streak + 1 : 1;
   }
-
-
-  data.lastActiveDate =
-    today;
-
+  data.lastActiveDate = today;
 }
-
 
 /* =========================================================
    ACHIEVEMENTS
 ========================================================= */
-
 const achievements = [
-
-  {
-    id: "first",
-    name: "Erste Schritte",
-    description: "Schließe deine erste Quest ab.",
-    check: () =>
-      data.history.length >= 1
-  },
-
-  {
-    id: "five",
-    name: "Im Flow",
-    description: "Schließe 5 Quests ab.",
-    check: () =>
-      data.history.length >= 5
-  },
-
-  {
-    id: "ten",
-    name: "Quest Hunter",
-    description: "Schließe 10 Quests ab.",
-    check: () =>
-      data.history.length >= 10
-  },
-
-  {
-    id: "hundred",
-    name: "Hundert Punkte",
-    description: "Sammle 100 XP.",
-    check: () =>
-      data.xp >= 100
-  },
-
-  {
-    id: "fivehundred",
-    name: "Questmaster",
-    description: "Sammle 500 XP.",
-    check: () =>
-      data.xp >= 500
-  },
-
-  {
-    id: "boss",
-    name: "Drachenbezwinger",
-    description: "Schließe eine Hard Quest ab.",
-    check: () =>
-      data.history.some(
-        q =>
-          q.type === "boss"
-      )
-  },
-
-  {
-    id: "streak3",
-    name: "Momentum",
-    description: "Erreiche 3 Tage Momentum.",
-    check: () =>
-      data.streak >= 3
-  },
-
-  {
-    id: "streak7",
-    name: "Unaufhaltsam",
-    description: "Erreiche 7 Tage Momentum.",
-    check: () =>
-      data.streak >= 7
-  },
-
-  {
-    id: "chaos",
-    name: "Agent of Chaos",
-    description: "Schließe 5 Chaos Quests ab.",
-    check: () =>
-      data.history.filter(
-        q =>
-          q.text
-      ).length >= 5
-  },
-
-  {
-    id: "speed",
-    name: "Keine Zeit zu verlieren",
-    description: "Erstelle und erledige eine Quest.",
-    check: () =>
-      data.history.length >= 1
-  }
-
+  { id: "first", name: "Erste Schritte", description: "Schließe deine erste Quest ab.", check: () => data.history.length >= 1 },
+  { id: "five", name: "Im Flow", description: "Schließe 5 Quests ab.", check: () => data.history.length >= 5 },
+  { id: "ten", name: "Quest Hunter", description: "Schließe 10 Quests ab.", check: () => data.history.length >= 10 },
+  { id: "hundred", name: "Hundert Punkte", description: "Sammle 100 XP.", check: () => data.xp >= 100 },
+  { id: "fivehundred", name: "Questmaster", description: "Sammle 500 XP.", check: () => data.xp >= 500 },
+  { id: "boss", name: "Drachenbezwinger", description: "Schließe eine Hard Quest ab.", check: () => data.history.some(q => q.type === "boss") },
+  { id: "streak3", name: "Momentum", description: "Erreiche 3 Tage Momentum.", check: () => data.streak >= 3 },
+  { id: "streak7", name: "Unaufhaltsam", description: "Erreiche 7 Tage Momentum.", check: () => data.streak >= 7 },
+  { id: "chaos", name: "Agent of Chaos", description: "Schließe 5 Chaos Quests ab.", check: () => data.history.filter(q => q.category === "chaos").length >= 5 },
+  { id: "speed", name: "Keine Zeit zu verlieren", description: "Erstelle und erledige eine Quest.", check: () => data.history.length >= 1 }
 ];
 
-
-/* =========================================================
-   CHECK ACHIEVEMENTS
-========================================================= */
-
 function checkAchievements() {
-
-  achievements.forEach(
-    achievement => {
-
-      if (
-
-        achievement.check() &&
-
-        !data.achievements[
-          achievement.id
-        ]
-
-      ) {
-
-        data.achievements[
-          achievement.id
-        ] = true;
-
-
-        setTimeout(
-          () => {
-
-            toast(
-              "ACHIEVEMENT FREIGESCHALTET: " +
-              achievement.name
-            );
-
-          },
-          200
-        );
-
-      }
-
+  achievements.forEach(achievement => {
+    if (achievement.check() && !data.achievements[achievement.id]) {
+      data.achievements[achievement.id] = true;
+      setTimeout(() => toast("ACHIEVEMENT FREIGESCHALTET: " + achievement.name), 200);
     }
-  );
-
+  });
 }
 
-
 /* =========================================================
-   SVG ICONS
+   RENDER
 ========================================================= */
-
-function icon(type) {
-
-  const icons = {
-
-    quest: `
-      <svg class="icon"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2">
-        <path d="M4 4h16v16H4z"/>
-        <path d="M8 8h8"/>
-        <path d="M8 12h5"/>
-      </svg>
-    `,
-
-    check: `
-      <svg class="icon"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="3">
-        <path d="M5 12l4 4L19 6"/>
-      </svg>
-    `,
-
-    trash: `
-      <svg class="icon"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2">
-        <path d="M4 7h16"/>
-        <path d="M9 7V4h6v3"/>
-        <path d="M6 7l1 13h10l1-13"/>
-      </svg>
-    `,
-
-    printer: `
-      <svg class="icon"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2">
-        <path d="M6 9V3h12v6"/>
-        <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
-        <path d="M6 14h12v7H6z"/>
-      </svg>
-    `,
-
-    star: `
-      <svg class="icon"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2">
-        <path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"/>
-      </svg>
-    `
-
-  };
-
-
-  return (
-    icons[type] ||
-    icons.quest
-  );
-
-}
-
-
-/* =========================================================
-   QUEST TYPE
-========================================================= */
-
-function typeName(type) {
-
-  return {
-
-    normal:
-      "QUEST",
-
-    daily:
-      "DAILY",
-
-    side:
-      "SIDE QUEST",
-
-    boss:
-      "HARD QUEST"
-
-  }[type] || "QUEST";
-
-}
-
-
-/* =========================================================
-   RENDER QUESTS
-========================================================= */
-
 function renderQuests() {
+  const container = document.getElementById("questList");
+  document.getElementById("questCount").textContent = data.quests.length;
 
-  const container =
-    document.getElementById(
-      "questList"
-    );
-
-
-  document.getElementById(
-    "questCount"
-  ).textContent =
-    data.quests.length;
-
-
-  if (
-    data.quests.length === 0
-  ) {
-
-    container.innerHTML =
-
-      `<div class="card">
-
-        Keine offenen Quests.
-
-        <br><br>
-
-        <span class="quest-meta">
-          Das Universum ist momentan verdächtig ruhig.
-        </span>
-
-      </div>`;
-
+  if (!data.quests.length) {
+    container.innerHTML = `<div class="card">Keine offenen Quests.<br><br><span class="quest-meta">Das Universum ist momentan verdächtig ruhig.</span></div>`;
     return;
-
   }
 
-
-  container.innerHTML =
-
-    data.quests.map(
-      quest => `
-
-        <div class="quest">
-
-          <div class="quest-info">
-
-            <div class="quest-name">
-
-              ${icon("quest")}
-
-              ${escapeHTML(
-                quest.text
-              )}
-
-            </div>
-
-            <div class="quest-meta">
-
-              ${typeName(
-                quest.type
-              )}
-
-              ·
-
-              ${"★".repeat(
-                quest.difficulty
-              )}
-
-              ·
-
-              +${quest.xp} XP
-
-            </div>
-
-          </div>
-
-
-          <div class="quest-buttons">
-
-            <button
-              class="quest-btn complete"
-              data-complete="${quest.id}"
-              title="Quest abschließen"
-            >
-
-              ${icon("check")}
-
-            </button>
-
-
-            <button
-              class="quest-btn print"
-              data-print="${quest.id}"
-              title="Quest drucken"
-            >
-
-              ${icon("printer")}
-
-            </button>
-
-
-            <button
-              class="quest-btn delete"
-              data-delete="${quest.id}"
-              title="Quest löschen"
-            >
-
-              ${icon("trash")}
-
-            </button>
-
-          </div>
-
-        </div>
-
-      `
-    ).join("");
-
+  container.innerHTML = data.quests.map(quest => `
+    <div class="quest">
+      <div class="quest-info">
+        <div class="quest-name">${icon("quest")} ${escapeHTML(quest.text)}</div>
+        <div class="quest-meta">${typeName(quest.type)} · ${"★".repeat(Number(quest.difficulty) || 1)} · +${quest.xp} XP</div>
+      </div>
+      <div class="quest-buttons">
+        <button class="quest-btn complete" data-complete="${quest.id}" title="Quest abschließen">${icon("check")}</button>
+        <button class="quest-btn print" data-print="${quest.id}" title="Quest drucken">${icon("printer")}</button>
+        <button class="quest-btn delete" data-delete="${quest.id}" title="Quest löschen">${icon("trash")}</button>
+      </div>
+    </div>
+  `).join("");
 }
-
-
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
-
-function escapeHTML(text) {
-
-  const div =
-    document.createElement("div");
-
-  div.textContent =
-    text;
-
-  return div.innerHTML;
-
-}
-
-
-/* =========================================================
-   RENDER PROFILE
-========================================================= */
 
 function renderProfile() {
-
-  document.getElementById(
-    "totalQuests"
-  ).textContent =
-    data.history.length;
-
-
-  document.getElementById(
-    "totalXP"
-  ).textContent =
-    data.xp;
-
-
-  document.getElementById(
-    "achievementCount"
-  ).textContent =
-
-    Object.values(
-      data.achievements
-    ).filter(Boolean).length;
-
-
-  document.getElementById(
-    "activeCount"
-  ).textContent =
-    data.quests.length;
-
-
-  document.getElementById(
-    "streak"
-  ).textContent =
-    data.streak;
-
+  document.getElementById("totalQuests").textContent = data.history.length;
+  document.getElementById("totalXP").textContent = data.xp;
+  document.getElementById("achievementCount").textContent = Object.values(data.achievements).filter(Boolean).length;
+  document.getElementById("activeCount").textContent = data.quests.length;
+  document.getElementById("streak").textContent = data.streak;
 }
-
-
-/* =========================================================
-   RENDER ACHIEVEMENTS
-========================================================= */
 
 function renderAchievements() {
-
-  const container =
-    document.getElementById(
-      "achievements"
-    );
-
-
-  container.innerHTML =
-
-    achievements.map(
-      achievement => {
-
-        const unlocked =
-          data.achievements[
-            achievement.id
-          ];
-
-
-        return `
-
-          <div class="
-            achievement
-            ${unlocked ? "" : "locked"}
-          ">
-
-            <div class="achievement-icon">
-
-              ${icon("star")}
-
-            </div>
-
-            <div>
-
-              <strong>
-
-                ${
-                  unlocked
-                    ? achievement.name
-                    : "GEHEIMES ACHIEVEMENT"
-                }
-
-              </strong>
-
-              <div class="achievement-description">
-
-                ${
-                  unlocked
-                    ? achievement.description
-                    : "Noch nicht freigeschaltet."
-                }
-
-              </div>
-
-            </div>
-
-          </div>
-
-        `;
-
-      }
-    ).join("");
-
+  const container = document.getElementById("achievements");
+  container.innerHTML = achievements.map(a => {
+    const unlocked = !!data.achievements[a.id];
+    return `
+      <div class="achievement ${unlocked ? "" : "locked"}">
+        <div class="achievement-icon">${icon("star")}</div>
+        <div>
+          <strong>${unlocked ? a.name : "GEHEIMES ACHIEVEMENT"}</strong>
+          <div class="achievement-description">${unlocked ? a.description : "Noch nicht freigeschaltet."}</div>
+        </div>
+      </div>`;
+  }).join("");
 }
-
-
-/* =========================================================
-   RENDER HISTORY
-========================================================= */
 
 function renderHistory() {
-
-  const container =
-    document.getElementById(
-      "history"
-    );
-
-
-  if (
-    data.history.length === 0
-  ) {
-
-    container.innerHTML =
-
-      `<p class="quest-meta">
-
-        Noch keine abgeschlossenen Quests.
-
-      </p>`;
-
+  const container = document.getElementById("history");
+  if (!data.history.length) {
+    container.innerHTML = `<p class="quest-meta">Noch keine abgeschlossenen Quests.</p>`;
     return;
-
   }
 
-
-  container.innerHTML =
-
-    data.history
-      .slice(0,30)
-      .map(
-        quest => `
-
-          <div class="history-item">
-
-            ${icon("check")}
-
-            ${escapeHTML(
-              quest.text
-            )}
-
-            <span
-              class="history-xp"
-            >
-
-              +${quest.xp} XP
-
-            </span>
-
-            <br>
-
-            <small>
-
-              ${quest.completed}
-
-            </small>
-
-          </div>
-
-        `
-      ).join("");
-
+  container.innerHTML = data.history.slice(0, 30).map(q => `
+    <div class="history-item">
+      ${icon("check")} ${escapeHTML(q.text)}
+      <span class="history-xp">+${q.xp} XP</span><br>
+      <small>${escapeHTML(q.completed || "")}</small>
+    </div>`).join("");
 }
-
-
-/* =========================================================
-   QUICK QUEST
-========================================================= */
-
-const quickQuests = {
-
-  5: [
-
-    "5 Dinge weglegen",
-
-    "Eine Oberfläche freiräumen",
-
-    "Eine Nachricht beantworten",
-
-    "5 Minuten dehnen",
-
-    "Müll einsammeln"
-
-  ],
-
-  15: [
-
-    "15 Minuten aufräumen",
-
-    "Kurzer Spaziergang",
-
-    "E-Mails bearbeiten",
-
-    "Eine Schublade aufräumen",
-
-    "15 Minuten Papierkram"
-
-  ],
-
-  30: [
-
-    "30 Minuten Haushalt",
-
-    "30 Minuten Sport",
-
-    "Eine größere Aufgabe beginnen",
-
-    "30 Minuten Organisation",
-
-    "Einen lange aufgeschobenen Punkt erledigen"
-
-  ]
-
-};
-
-
-function createQuickQuest(minutes) {
-
-  const pool =
-    quickQuests[minutes];
-
-
-  const text =
-    pool[
-      Math.floor(
-        Math.random() *
-        pool.length
-      )
-    ];
-
-
-  const difficulty =
-    minutes === 5
-      ? 1
-      : minutes === 15
-        ? 2
-        : 3;
-
-
-  const quest = {
-
-    id:
-      Date.now(),
-
-    text:
-      text,
-
-    difficulty:
-      difficulty,
-
-    type:
-      "side",
-
-    xp:
-      getXP(difficulty),
-
-    created:
-      new Date().toLocaleString(
-        "de-DE"
-      )
-
-  };
-
-
-  data.quests.push(
-    quest
-  );
-
-
-  save();
-
-  render();
-
-
-  toast(
-    `QUICK QUEST: ${text}`
-  );
-
-}
-
-
-/* =========================================================
-   PRINT PREVIEW
-========================================================= */
-
-async function openPrintPreview(quest) {
-
-  const modal =
-    document.getElementById(
-      "printModal"
-    );
-
-  const area =
-    document.getElementById(
-      "printArea"
-    );
-
-
-  const difficulty =
-    "★".repeat(
-      quest.difficulty
-    );
-
-
-  const questId =
-    String(
-      quest.id
-    ).slice(-6);
-
-
-  area.innerHTML = `
-
-    <div class="receipt">
-
-      <div class="receipt-logo">
-        QUESTY
-      </div>
-
-      <div class="receipt-sub">
-        YOUR LIFE // YOUR QUESTS
-      </div>
-
-
-      <div class="receipt-line"></div>
-
-
-      <div class="receipt-type">
-        ${typeName(quest.type)}
-      </div>
-
-
-      <div class="receipt-title">
-        ${escapeHTML(quest.text)}
-      </div>
-
-
-      <div class="receipt-line"></div>
-
-
-      <div class="receipt-stat">
-
-        <span>DIFFICULTY</span>
-
-        <strong>
-          ${difficulty}
-        </strong>
-
-      </div>
-
-
-      <div class="receipt-stat">
-
-        <span>QUEST ID</span>
-
-        <strong>
-          #${questId}
-        </strong>
-
-      </div>
-
-
-      <div class="receipt-stat">
-
-        <span>CREATED</span>
-
-        <strong>
-          ${escapeHTML(quest.created)}
-        </strong>
-
-      </div>
-
-
-      <div class="receipt-xp">
-
-        +${quest.xp} XP
-
-      </div>
-
-
-      <div class="receipt-line"></div>
-
-
-      <div class="receipt-type">
-
-        STATUS: OPEN
-
-      </div>
-
-
-      <div class="receipt-footer">
-
-        GOOD LUCK
-
-      </div>
-
-    </div>
-
-  `;
-
-
-  modal.classList.add(
-    "show"
-  );
-
-
-  document
-    .getElementById(
-      "realPrintButton"
-    )
-    .onclick = async () => {
-
-      const button =
-        document.getElementById(
-          "realPrintButton"
-        );
-
-
-      button.disabled = true;
-
-      button.textContent =
-        "DRUCKE...";
-
-
-      try {
-
-        const response =
-          await fetch(
-            "https://api.questy-app.com/print",
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json"
-              },
-
-              body:
-                JSON.stringify({
-                  text: quest.text,
-                  xp: quest.xp,
-                  difficulty:
-                    quest.difficulty,
-                  type: quest.type,
-                  id: quest.id,
-                  created:
-                    quest.created
-                })
-            }
-          );
-
-
-        const result =
-          await response.json();
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            result.error ||
-            "Druck fehlgeschlagen"
-          );
-
-        }
-
-
-        button.textContent =
-          "GEDRUCKT ✓";
-
-
-      } catch (error) {
-
-        console.error(
-          "Druckfehler:",
-          error
-        );
-
-
-        button.textContent =
-          "DRUCKFEHLER";
-
-
-        alert(
-          "Der Bon konnte nicht gedruckt werden."
-        );
-
-
-      } finally {
-
-        setTimeout(() => {
-
-          button.disabled = false;
-
-          button.textContent =
-            "BON DRUCKEN";
-
-        }, 2000);
-
-      }
-
-    };
-
-}
-
-
-/* =========================================================
-   FIND QUEST BY ID
-========================================================= */
-
-        ${escapeHTML(
-          quest.text
-        )}
-
-      </div>
-
-
-      <div class="receipt-line"></div>
-
-
-      <div class="receipt-stat">
-
-        <span>DIFFICULTY</span>
-
-        <strong>
-          ${"★".repeat(
-            quest.difficulty
-          )}
-        </strong>
-
-      </div>
-
-
-      <div class="receipt-stat">
-
-        <span>QUEST ID</span>
-
-        <strong>
-          #${String(
-            quest.id
-          ).slice(-6)}
-        </strong>
-
-      </div>
-
-
-      <div class="receipt-stat">
-
-        <span>CREATED</span>
-
-        <strong>
-          ${quest.created}
-        </strong>
-
-      </div>
-
-
-      <div class="receipt-xp">
-
-        +${quest.xp} XP
-
-      </div>
-
-
-      <div class="receipt-line"></div>
-
-
-      <div class="receipt-type">
-
-        STATUS: OPEN
-
-      </div>
-
-
-      <div class="receipt-footer">
-
-        ACCEPT YOUR QUEST<br><br>
-
-        QUESTY // PLAYER SYSTEM
-
-      </div>
-
-    </div>
-
-  `;
-
-
-  modal.classList.add(
-    "show"
-  );
-
-
-  document
-    .getElementById(
-      "realPrintButton"
-    )
-    .onclick = () => {
-
-      window.print();
-
-    };
-
-}
-
-
-/* =========================================================
-   FIND QUEST BY ID
-========================================================= */
-
-function findQuest(id) {
-
-  return data.quests.find(
-    quest =>
-      quest.id === id
-  );
-
-}
-
-
-/* =========================================================
-   RENDER EVERYTHING
-========================================================= */
-
-function render() {
-
-  const level =
-
-    Math.floor(
-      data.xp / 100
-    ) + 1;
-
-
-  const xpIntoLevel =
-
-    data.xp % 100;
-
-
-  document.getElementById(
-    "level"
-  ).textContent =
-    level;
-
-
-  document.getElementById(
-    "xp-current"
-  ).textContent =
-    xpIntoLevel;
-
-
-  document.getElementById(
-    "xp-needed"
-  ).textContent =
-    100;
-
-
-  document.getElementById(
-    "xp-fill"
-  ).style.width =
-    xpIntoLevel + "%";
-
-
-  renderQuests();
-
-  renderProfile();
-
-  renderAchievements();
-
-  renderHistory();
-
-
-
-  updateBuff();
-
-}
-
-
-/* =========================================================
-   BUFF
-========================================================= */
 
 function updateBuff() {
-
-  const element =
-    document.getElementById(
-      "buffText"
-    );
-
-
-  if (
-    data.streak >= 7
-  ) {
-
-    element.innerHTML =
-
-      `<div class="buff">
-
-        <strong>
-          MOMENTUM BUFF
-        </strong>
-
-        <br>
-
-        +15% mentale Quest-Power
-
-      </div>`;
-
+  const element = document.getElementById("buffText");
+  if (data.streak >= 7) {
+    element.innerHTML = `<div class="buff"><strong>MOMENTUM BUFF</strong><br>+15% mentale Quest-Power</div>`;
+  } else if (data.streak >= 3) {
+    element.innerHTML = `<div class="buff"><strong>MOMENTUM BUFF</strong><br>+5% Quest-Motivation</div>`;
+  } else {
+    element.textContent = "Noch kein aktiver Buff.";
   }
-
-  else if (
-    data.streak >= 3
-  ) {
-
-    element.innerHTML =
-
-      `<div class="buff">
-
-        <strong>
-          MOMENTUM BUFF
-        </strong>
-
-        <br>
-
-        +5% Quest-Motivation
-
-      </div>`;
-
-  }
-
-  else {
-
-    element.innerHTML =
-      "Noch kein aktiver Buff.";
-
-  }
-
 }
 
-
-/* =========================================================
-   THEME
-========================================================= */
-
-function changeTheme(
-  theme
-) {
-
-  document.body.className =
-    "theme-" + theme;
-
-
-  localStorage.setItem(
-    "questModeTheme",
-    theme
-  );
-
+function render() {
+  const level = Math.floor(Number(data.xp) / 100) + 1;
+  const xpIntoLevel = Number(data.xp) % 100;
+  document.getElementById("level").textContent = level;
+  document.getElementById("xp-current").textContent = xpIntoLevel;
+  document.getElementById("xp-needed").textContent = 100;
+  document.getElementById("xp-fill").style.width = xpIntoLevel + "%";
+  renderQuests();
+  renderProfile();
+  renderAchievements();
+  renderHistory();
+  updateBuff();
 }
 
+/* =========================================================
+   PRINT PREVIEW + RASPBERRY PI
+========================================================= */
+function openPrintPreview(quest) {
+  const modal = document.getElementById("printModal");
+  const area = document.getElementById("printArea");
+  const difficulty = "★".repeat(Number(quest.difficulty) || 1);
+  const questId = String(quest.id).slice(-6);
 
-const themeSelect =
-  document.getElementById(
-    "themeSelect"
-  );
+  area.innerHTML = `
+    <div class="receipt">
+      <div class="receipt-logo">QUESTY</div>
+      <div class="receipt-sub">YOUR LIFE // YOUR QUESTS</div>
+      <div class="receipt-line"></div>
+      <div class="receipt-type">${typeName(quest.type)}</div>
+      <div class="receipt-title">${escapeHTML(quest.text)}</div>
+      <div class="receipt-line"></div>
+      <div class="receipt-stat"><span>DIFFICULTY</span><strong>${difficulty}</strong></div>
+      <div class="receipt-stat"><span>QUEST ID</span><strong>#${questId}</strong></div>
+      <div class="receipt-stat"><span>CREATED</span><strong>${escapeHTML(quest.created)}</strong></div>
+      <div class="receipt-xp">+${quest.xp} XP</div>
+      <div class="receipt-line"></div>
+      <div class="receipt-type">STATUS: OPEN</div>
+      <div class="receipt-footer">GOOD LUCK</div>
+    </div>`;
 
+  modal.classList.add("show");
 
-themeSelect.addEventListener(
-  "change",
-  function() {
+  document.getElementById("realPrintButton").onclick = async () => {
+    const button = document.getElementById("realPrintButton");
+    button.disabled = true;
+    button.textContent = "DRUCKE...";
 
-    changeTheme(
-      this.value
-    );
+    try {
+      const response = await fetch("https://api.questy-app.com/print", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: quest.text,
+          xp: quest.xp,
+          difficulty: quest.difficulty,
+          type: quest.type,
+          id: quest.id,
+          created: quest.created
+        })
+      });
 
+      let result = {};
+      try { result = await response.json(); } catch (_) {}
+      if (!response.ok) throw new Error(result.error || "Druck fehlgeschlagen");
+      button.textContent = "GEDRUCKT ✓";
+    } catch (error) {
+      console.error("Druckfehler:", error);
+      button.textContent = "DRUCKFEHLER";
+      alert("Der Bon konnte nicht gedruckt werden.");
+    } finally {
+      setTimeout(() => {
+        button.disabled = false;
+        button.textContent = "BON DRUCKEN";
+      }, 2000);
+    }
+  };
+}
+
+/* =========================================================
+   THEME — FUNKTIONIERT OHNE NEU LADEN
+========================================================= */
+const validThemes = ["default", "purple", "blue", "pink", "rose", "green", "fire"];
+
+function changeTheme(theme) {
+  if (!validThemes.includes(theme)) theme = "default";
+  document.body.className = "theme-" + theme;
+  localStorage.setItem("questModeTheme", theme);
+  const select = document.getElementById("themeSelect");
+  if (select && select.value !== theme) select.value = theme;
+}
+
+/* =========================================================
+   EVENT LISTENERS — ERST NACH DEM LADEN ALLER ELEMENTE
+========================================================= */
+document.addEventListener("DOMContentLoaded", () => {
+  const themeSelect = document.getElementById("themeSelect");
+  if (themeSelect) {
+    themeSelect.addEventListener("change", event => changeTheme(event.target.value));
+    const savedTheme = localStorage.getItem("questModeTheme");
+    changeTheme(validThemes.includes(savedTheme) ? savedTheme : "default");
+  } else {
+    changeTheme("default");
   }
-);
 
+  document.getElementById("addQuestButton").addEventListener("click", () => addQuest(false));
+  document.getElementById("questInput").addEventListener("keydown", event => {
+    if (event.key === "Enter") addQuest(false);
+  });
 
-const savedTheme =
-  localStorage.getItem(
-    "questModeTheme"
-  );
+  document.querySelectorAll("[data-quick]").forEach(button => {
+    button.addEventListener("click", () => createQuickQuest(Number(button.dataset.quick)));
+  });
 
+  document.getElementById("randomButton").addEventListener("click", randomQuest);
+  document.getElementById("acceptRandomButton").addEventListener("click", () => acceptRandomQuest(false));
+  document.getElementById("acceptRandomPrintButton").addEventListener("click", () => acceptRandomQuest(true));
+  document.getElementById("manageRandomButton").addEventListener("click", manageRandomQuests);
 
-if (savedTheme) {
+  document.getElementById("questList").addEventListener("click", event => {
+    const complete = event.target.closest("[data-complete]");
+    if (complete) return completeQuest(Number(complete.dataset.complete));
 
-  changeTheme(
-    savedTheme
-  );
-
-  themeSelect.value =
-    savedTheme;
-
-} else {
-
-  changeTheme(
-    "default"
-  );
-
-}
-
-
-/* =========================================================
-   ADD QUEST BUTTON
-========================================================= */
-
-document
-  .getElementById(
-    "addQuestButton"
-  )
-  .addEventListener(
-    "click",
-    () =>
-      addQuest(false)
-  );
-
-
-/* =========================================================
-   RANDOM BUTTON
-========================================================= */
-
-document
-  .getElementById(
-    "randomButton"
-  )
-  .addEventListener(
-    "click",
-    randomQuest
-  );
-
-
-/* =========================================================
-   RANDOM ACCEPT
-========================================================= */
-
-document
-  .getElementById(
-    "acceptRandomButton"
-  )
-  .addEventListener(
-    "click",
-    () =>
-      acceptRandomQuest(false)
-  );
-
-
-/* =========================================================
-   RANDOM ACCEPT + PRINT
-========================================================= */
-
-document
-  .getElementById(
-    "acceptRandomPrintButton"
-  )
-  .addEventListener(
-    "click",
-    () =>
-      acceptRandomQuest(true)
-  );
-
-
-/* =========================================================
-   MANAGE RANDOM
-========================================================= */
-
-document
-  .getElementById(
-    "manageRandomButton"
-  )
-  .addEventListener(
-    "click",
-    manageRandomQuests
-  );
-
-
-/* =========================================================
-   QUICK QUEST BUTTONS
-========================================================= */
-
-document
-  .querySelectorAll(
-    "[data-quick]"
-  )
-  .forEach(
-    button => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          createQuickQuest(
-            Number(
-              button.dataset.quick
-            )
-          );
-
-        }
-      );
-
+    const print = event.target.closest("[data-print]");
+    if (print) {
+      const quest = findQuest(Number(print.dataset.print));
+      if (quest) openPrintPreview(quest);
+      return;
     }
-  );
 
+    const del = event.target.closest("[data-delete]");
+    if (del) deleteQuest(Number(del.dataset.delete));
+  });
 
-/* =========================================================
-   ACTIVE QUEST BUTTONS
-========================================================= */
+  document.getElementById("closePrintModal").addEventListener("click", () => {
+    document.getElementById("printModal").classList.remove("show");
+  });
 
-document
-  .getElementById(
-    "questList"
-  )
-  .addEventListener(
-    "click",
-    event => {
+  document.getElementById("printModal").addEventListener("click", event => {
+    if (event.target.id === "printModal") event.currentTarget.classList.remove("show");
+  });
 
-
-      const complete =
-        event.target.closest(
-          "[data-complete]"
-        );
-
-
-      if (complete) {
-
-        completeQuest(
-          Number(
-            complete.dataset.complete
-          )
-        );
-
-        return;
-
-      }
-
-
-      const print =
-        event.target.closest(
-          "[data-print]"
-        );
-
-
-      if (print) {
-
-        const quest =
-          findQuest(
-            Number(
-              print.dataset.print
-            )
-          );
-
-
-        if (quest) {
-
-          openPrintPreview(
-            quest
-          );
-
-        }
-
-        return;
-
-      }
-
-
-      const del =
-        event.target.closest(
-          "[data-delete]"
-        );
-
-
-      if (del) {
-
-        deleteQuest(
-          Number(
-            del.dataset.delete
-          )
-        );
-
-      }
-
-    }
-  );
-
-
-/* =========================================================
-   CLOSE PRINT MODAL
-========================================================= */
-
-document
-  .getElementById(
-    "closePrintModal"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      document
-        .getElementById(
-          "printModal"
-        )
-        .classList.remove(
-          "show"
-        );
-
-    }
-  );
-
-
-/* =========================================================
-   CLOSE MODAL WHEN CLICKING OUTSIDE
-========================================================= */
-
-document
-  .getElementById(
-    "printModal"
-  )
-  .addEventListener(
-    "click",
-    event => {
-
-      if (
-        event.target.id ===
-        "printModal"
-      ) {
-
-        event.currentTarget
-          .classList.remove(
-            "show"
-          );
-
-      }
-
-    }
-  );
-
-
-/* =========================================================
-   ENTER KEY = CREATE QUEST
-========================================================= */
-
-document
-  .getElementById(
-    "questInput"
-  )
-  .addEventListener(
-    "keydown",
-    event => {
-
-      if (
-        event.key === "Enter"
-      ) {
-
-        addQuest(false);
-
-      }
-
-    }
-  );
-
-
-/* =========================================================
-   START
-========================================================= */
-
-checkAchievements();
-
-save();
-
-render();
-
-
+  checkAchievements();
+  save();
+  render();
+});
 </script>
-
 </body>
-
 </html>
