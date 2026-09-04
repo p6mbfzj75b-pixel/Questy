@@ -105,6 +105,21 @@ body.theme-pink {
   --purple: #bb86fc;
 }
 
+body.theme-rose {
+  --bg: #fff4f8;
+  --card: #ffffff;
+  --card2: #fff8fb;
+  --border: #f0bfd2;
+  --text: #3a2630;
+  --muted: #98727f;
+  --primary: #e85d91;
+  --primary-dark: #c74374;
+  --yellow: #e6a83b;
+  --red: #d9536f;
+  --green: #55b98a;
+  --purple: #a875d6;
+}
+
 body.theme-green {
   --bg: #0b1711;
   --card: #14241b;
@@ -1025,52 +1040,6 @@ button:active {
 
   margin-top:
     3px;
-
-}
-
-
-/* =========================================================
-   REWARD SHOP
-========================================================= */
-
-.reward {
-
-  display:
-    flex;
-
-  justify-content:
-    space-between;
-
-  align-items:
-    center;
-
-  gap:
-    10px;
-
-  padding:
-    13px 0;
-
-  border-bottom:
-    1px solid var(--border);
-
-}
-
-
-.reward:last-child {
-
-  border-bottom:
-    none;
-
-}
-
-
-.reward-cost {
-
-  color:
-    var(--yellow);
-
-  font-weight:
-    bold;
 
 }
 
@@ -2113,49 +2082,6 @@ button:active {
 
 
 <!-- =======================================================
-     REWARD SHOP
-======================================================= -->
-
-<div class="card">
-
-  <h2 class="section-title">
-
-    <svg class="section-icon"
-         viewBox="0 0 24 24"
-         fill="none"
-         stroke="currentColor"
-         stroke-width="2">
-
-      <path d="M3 8h18v13H3z"/>
-
-      <path d="M12 8v13"/>
-
-      <path d="M3 8h18"/>
-
-      <path d="M12 8c-3-1-6-2-6-4 0-1.5 1-2 2-2 2 0 4 4 4 6"/>
-
-      <path d="M12 8c3-1 6-2 6-4 0-1.5-1-2-2-2-2 0-4 4-4 6"/>
-
-    </svg>
-
-    Reward Shop
-
-  </h2>
-
-
-  <p class="quest-meta">
-
-    XP gegen echte Belohnungen eintauschen.
-
-  </p>
-
-
-  <div id="rewardShop"></div>
-
-</div>
-
-
-<!-- =======================================================
      ACHIEVEMENTS
 ======================================================= -->
 
@@ -2222,6 +2148,10 @@ button:active {
 
     <option value="pink">
       COZY RPG
+    </option>
+
+    <option value="rose">
+      ROSE QUEST
     </option>
 
     <option value="green">
@@ -3578,163 +3508,6 @@ function renderHistory() {
 
 
 /* =========================================================
-   REWARD SHOP
-========================================================= */
-
-const rewards = [
-
-  {
-    name:
-      "Lieblingskaffee",
-
-    description:
-      "Ein Kaffee deiner Wahl.",
-
-    cost:
-      100
-
-  },
-
-  {
-    name:
-      "1 Stunde Gaming",
-
-    description:
-      "Komplett ohne schlechtes Gewissen.",
-
-    cost:
-      250
-
-  },
-
-  {
-    name:
-      "Lieblingsessen",
-
-    description:
-      "Heute wird nicht gekocht.",
-
-    cost:
-      500
-
-  },
-
-  {
-    name:
-      "Abend komplett frei",
-
-    description:
-      "Keine Produktivität. Keine Schuldgefühle.",
-
-    cost:
-      750
-
-  }
-
-];
-
-
-function renderRewards() {
-
-  const container =
-    document.getElementById(
-      "rewardShop"
-    );
-
-
-  container.innerHTML =
-
-    rewards.map(
-      reward => `
-
-        <div class="reward">
-
-          <div>
-
-            <strong>
-              ${reward.name}
-            </strong>
-
-            <div class="quest-meta">
-
-              ${reward.description}
-
-            </div>
-
-          </div>
-
-
-          <div>
-
-            <div class="reward-cost">
-
-              ${reward.cost} XP
-
-            </div>
-
-
-            <button
-              class="small-button secondary"
-              data-reward="${reward.cost}"
-              data-reward-name="${escapeHTML(
-                reward.name
-              )}"
-            >
-
-              EINLÖSEN
-
-            </button>
-
-          </div>
-
-        </div>
-
-      `
-    ).join("");
-
-}
-
-
-/* =========================================================
-   REDEEM REWARD
-========================================================= */
-
-function redeemReward(
-  cost,
-  name
-) {
-
-  if (
-    data.xp < cost
-  ) {
-
-    toast(
-      `Noch ${cost - data.xp} XP nötig.`
-    );
-
-    return;
-
-  }
-
-
-  data.xp -= cost;
-
-  data.redeemedRewards++;
-
-
-  save();
-
-  render();
-
-
-  toast(
-    `REWARD EINGELÖST: ${name}`
-  );
-
-}
-
-
-/* =========================================================
    QUICK QUEST
 ========================================================= */
 
@@ -4071,10 +3844,11 @@ async function openPrintPreview(quest) {
     };
 
 }
-      </div>
 
 
-      <div class="receipt-title">
+/* =========================================================
+   FIND QUEST BY ID
+========================================================= */
 
         ${escapeHTML(
           quest.text
@@ -4235,7 +4009,6 @@ function render() {
 
   renderHistory();
 
-  renderRewards();
 
 
   updateBuff();
@@ -4544,45 +4317,6 @@ document
         );
 
       }
-
-    }
-  );
-
-
-/* =========================================================
-   REWARD BUTTONS
-========================================================= */
-
-document
-  .getElementById(
-    "rewardShop"
-  )
-  .addEventListener(
-    "click",
-    event => {
-
-      const button =
-        event.target.closest(
-          "[data-reward]"
-        );
-
-
-      if (!button) {
-
-        return;
-
-      }
-
-
-      redeemReward(
-
-        Number(
-          button.dataset.reward
-        ),
-
-        button.dataset.rewardName
-
-      );
 
     }
   );
