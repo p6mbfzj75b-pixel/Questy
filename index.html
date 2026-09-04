@@ -3854,7 +3854,7 @@ function createQuickQuest(minutes) {
    PRINT PREVIEW
 ========================================================= */
 
-function openPrintPreview(quest) {
+async function openPrintPreview(quest) {
 
   const modal =
     document.getElementById(
@@ -3978,14 +3978,99 @@ function openPrintPreview(quest) {
     .getElementById(
       "realPrintButton"
     )
-    .onclick = () => {
+    .onclick = async () => {
 
-      window.print();
+      const button =
+        document.getElementById(
+          "realPrintButton"
+        );
+
+
+      button.disabled = true;
+
+      button.textContent =
+        "DRUCKE...";
+
+
+      try {
+
+        const response =
+          await fetch(
+            "https://api.questy-app.com/print",
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body:
+                JSON.stringify({
+                  text: quest.text,
+                  xp: quest.xp,
+                  difficulty:
+                    quest.difficulty,
+                  type: quest.type,
+                  id: quest.id,
+                  created:
+                    quest.created
+                })
+            }
+          );
+
+
+        const result =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            result.error ||
+            "Druck fehlgeschlagen"
+          );
+
+        }
+
+
+        button.textContent =
+          "GEDRUCKT ✓";
+
+
+      } catch (error) {
+
+        console.error(
+          "Druckfehler:",
+          error
+        );
+
+
+        button.textContent =
+          "DRUCKFEHLER";
+
+
+        alert(
+          "Der Bon konnte nicht gedruckt werden."
+        );
+
+
+      } finally {
+
+        setTimeout(() => {
+
+          button.disabled = false;
+
+          button.textContent =
+            "BON DRUCKEN";
+
+        }, 2000);
+
+      }
 
     };
 
 }
-
       </div>
 
 
