@@ -3848,20 +3848,29 @@ function createQuickQuest(minutes) {
    PRINT PREVIEW
 ========================================================= */
 
-function openPrintPreview(
-  quest
-) {
+function openPrintPreview(quest) {
 
   const modal =
     document.getElementById(
       "printModal"
     );
 
-
   const area =
     document.getElementById(
       "printArea"
     );
+
+
+  const difficulty =
+    "★".repeat(
+      quest.difficulty
+    );
+
+
+  const questId =
+    String(
+      quest.id
+    ).slice(-6);
 
 
   area.innerHTML = `
@@ -3873,7 +3882,63 @@ function openPrintPreview(
       </div>
 
       <div class="receipt-sub">
-        QUEST TERMINAL // ARCADE MODE
+        YOUR LIFE // YOUR QUESTS
+      </div>
+
+
+      <div class="receipt-line"></div>
+
+
+      <div class="receipt-type">
+        ${typeName(quest.type)}
+      </div>
+
+
+      <div class="receipt-title">
+        ${escapeHTML(quest.text)}
+      </div>
+
+
+      <div class="receipt-line"></div>
+
+
+      <div class="receipt-stat">
+
+        <span>DIFFICULTY</span>
+
+        <strong>
+          ${difficulty}
+        </strong>
+
+      </div>
+
+
+      <div class="receipt-stat">
+
+        <span>QUEST ID</span>
+
+        <strong>
+          #${questId}
+        </strong>
+
+      </div>
+
+
+      <div class="receipt-stat">
+
+        <span>CREATED</span>
+
+        <strong>
+          ${escapeHTML(quest.created)}
+        </strong>
+
+      </div>
+
+
+      <div class="receipt-xp">
+
+        +${quest.xp} XP
+
       </div>
 
 
@@ -3882,9 +3947,38 @@ function openPrintPreview(
 
       <div class="receipt-type">
 
-        ${typeName(
-          quest.type
-        )}
+        STATUS: OPEN
+
+      </div>
+
+
+      <div class="receipt-footer">
+
+        GOOD LUCK
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  modal.classList.add(
+    "show"
+  );
+
+
+  document
+    .getElementById(
+      "realPrintButton"
+    )
+    .onclick = () => {
+
+      window.print();
+
+    };
+
+}
 
       </div>
 
