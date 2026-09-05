@@ -2310,6 +2310,15 @@ button:active {
    QUESTY — STABILE VERSION
 ========================================================= */
 
+const SUPABASE_URL = "https://ujuikqupxyiwoedgwthj.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY = "HIER_DEIN_PUBLISHABLE_KEY";
+
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
 const defaultRandomQuests = [
   { text: "Eine Schublade aufräumen", category: "home" },
   { text: "10 Minuten spazieren gehen", category: "movement" },
