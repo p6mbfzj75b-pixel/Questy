@@ -2306,18 +2306,15 @@ button:active {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-/* =========================================================
-   QUESTY — STABILE VERSION
-========================================================= */
-
 const SUPABASE_URL = "https://ujuikqupxyiwoedgwthj.supabase.co";
-
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_PP1dig04mTfN8YpzoZqUgw_ryQaK2Zy";
-
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_PPlidg04mTfN8YpzoZqUgw_ryQaK2Zy";
 const supabase = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_PUBLISHABLE_KEY
 );
+/* =========================================================
+   QUESTY — STABILE VERSION
+========================================================= */
 
 const defaultRandomQuests = [
   { text: "Eine Schublade aufräumen", category: "home" },
@@ -2356,6 +2353,8 @@ let data = {
 
 let currentRandomQuest = null;
 let currentQuickQuest = null;
+let questyCloudLoaded = false;
+let questyCloudSyncInProgress = false;
 
 /* =========================================================
    LOAD + NORMALIZE DATA
@@ -2388,6 +2387,12 @@ function save() {
     localStorage.setItem("questMode", JSON.stringify(data));
   } catch (error) {
     console.error("Questy: Speichern fehlgeschlagen.", error);
+  }
+
+  if (questyCloudLoaded) {
+    syncQuestyCloud().catch(error => {
+      console.error("Questy: Cloud-Speicherung fehlgeschlagen.", error);
+    });
   }
 }
 
@@ -2440,7 +2445,9 @@ function makeQuest(text, difficulty, type = "normal") {
     difficulty: Number(difficulty) || 1,
     type,
     xp: getXP(difficulty),
-    created: new Date().toLocaleString("de-DE")
+    category: "Allgemein",
+    created: new Date().toLocaleString("de-DE"),
+    createdAtISO: new Date().toISOString()
   };
 }
 
@@ -2500,6 +2507,7 @@ function acceptRandomQuest(shouldPrint = false) {
   }
 
   const quest = makeQuest(currentRandomQuest.text, 2, "side");
+  quest.category = currentRandomQuest.category || "Allgemein";
   data.quests.push(quest);
   currentRandomQuest = null;
   document.getElementById("randomResult").innerHTML = `
@@ -2603,12 +2611,27 @@ function completeQuest(id) {
   updateStreak();
   checkAchievements();
   save();
+
+  if (questyCloudLoaded) {
+    syncCompletedQuestToCloud(quest).catch(error =>
+      console.error("Questy: Abschluss konnte nicht synchronisiert werden.", error)
+    );
+  }
+
   render();
   toast(`QUEST ABGESCHLOSSEN · +${quest.xp} XP`);
 }
 
 function deleteQuest(id) {
+  const quest = findQuest(id);
   data.quests = data.quests.filter(q => q.id !== id);
+
+  if (questyCloudLoaded && quest) {
+    syncDeletedQuestToCloud(quest).catch(error =>
+      console.error("Questy: Löschung konnte nicht synchronisiert werden.", error)
+    );
+  }
+
   save();
   render();
   toast("Quest gelöscht.");
@@ -2817,6 +2840,430 @@ function openPrintPreview(quest) {
 }
 
 /* =========================================================
+   QUESTY ACCOUNT + CLOUD-SPIELSTAND
+========================================================= */
+
+const accountStyle = document.createElement("style");
+accountStyle.textContent = `
+  #questyAccountButton {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 1000;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    border-radius: 999px;
+    padding: 10px 16px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+  }
+  #questyAuthModal {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0,0,0,.68);
+  }
+  #questyAuthModal.show { display: flex; }
+  .questy-auth-box {
+    width: min(430px, 100%);
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 20px 70px rgba(0,0,0,.4);
+  }
+  .questy-auth-close {
+    float: right;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 28px;
+    cursor: pointer;
+  }
+  .questy-auth-box h2 { margin: 0 0 8px; }
+  .questy-auth-subtitle { color: var(--muted); font-size: 14px; margin-bottom: 20px; line-height: 1.4; }
+  .questy-auth-box label { display:block; margin: 13px 0 6px; font-weight: 700; }
+  .questy-auth-box input {
+    width: 100%; box-sizing: border-box; padding: 12px;
+    border-radius: 10px; border: 1px solid var(--border);
+    background: var(--card2); color: var(--text); font-size: 16px;
+  }
+  .questy-auth-main, .questy-auth-secondary {
+    width:100%; padding:12px; margin-top:12px; border-radius:10px; cursor:pointer; font-weight:800;
+  }
+  .questy-auth-main { border:0; background:var(--primary); color:#fff; }
+  .questy-auth-secondary { border:1px solid var(--border); background:transparent; color:var(--text); }
+  #questyAuthMessage { margin-top:14px; font-size:14px; line-height:1.4; }
+  .questy-account-email { color:var(--muted); font-size:14px; margin:12px 0 18px; word-break:break-word; }
+`;
+document.head.appendChild(accountStyle);
+
+const accountButton = document.createElement("button");
+accountButton.id = "questyAccountButton";
+accountButton.type = "button";
+accountButton.textContent = "ACCOUNT";
+document.body.appendChild(accountButton);
+
+const accountModal = document.createElement("div");
+accountModal.id = "questyAuthModal";
+accountModal.innerHTML = `
+  <div class="questy-auth-box">
+    <button type="button" class="questy-auth-close" id="questyAuthClose">×</button>
+    <h2 id="questyAuthTitle">QUESTY ACCOUNT</h2>
+    <div class="questy-auth-subtitle" id="questyAuthSubtitle">
+      Speichere deinen Spielstand dauerhaft und spiele auf mehreren Geräten weiter.
+    </div>
+
+    <div id="questyLoginForm">
+      <label for="questyLoginEmail">E-Mail</label>
+      <input id="questyLoginEmail" type="email" autocomplete="email" placeholder="deine@email.de">
+      <label for="questyLoginPassword">Passwort</label>
+      <input id="questyLoginPassword" type="password" autocomplete="current-password" placeholder="••••••••">
+      <button type="button" class="questy-auth-main" id="questyLoginButton">EINLOGGEN</button>
+      <button type="button" class="questy-auth-secondary" id="questyShowRegister">NEUEN ACCOUNT ERSTELLEN</button>
+    </div>
+
+    <div id="questyRegisterForm" style="display:none;">
+      <label for="questyRegisterUsername">Spielername</label>
+      <input id="questyRegisterUsername" type="text" maxlength="30" autocomplete="username" placeholder="z.B. QuestMaster">
+      <label for="questyRegisterEmail">E-Mail</label>
+      <input id="questyRegisterEmail" type="email" autocomplete="email" placeholder="deine@email.de">
+      <label for="questyRegisterPassword">Passwort</label>
+      <input id="questyRegisterPassword" type="password" autocomplete="new-password" placeholder="Mindestens 6 Zeichen">
+      <button type="button" class="questy-auth-main" id="questyRegisterButton">ACCOUNT ERSTELLEN</button>
+      <button type="button" class="questy-auth-secondary" id="questyShowLogin">ZURÜCK ZUM LOGIN</button>
+    </div>
+
+    <div id="questyLoggedIn" style="display:none;">
+      <div class="questy-account-email" id="questyLoggedInEmail"></div>
+      <button type="button" class="questy-auth-main" id="questyLogoutButton">AUSLOGGEN</button>
+    </div>
+
+    <div id="questyAuthMessage"></div>
+  </div>
+`;
+document.body.appendChild(accountModal);
+
+const loginForm = document.getElementById("questyLoginForm");
+const registerForm = document.getElementById("questyRegisterForm");
+const loggedInBox = document.getElementById("questyLoggedIn");
+const authTitle = document.getElementById("questyAuthTitle");
+const authSubtitle = document.getElementById("questyAuthSubtitle");
+const authMessage = document.getElementById("questyAuthMessage");
+
+function accountMessage(text, success = false) {
+  authMessage.textContent = text;
+  authMessage.style.color = success ? "var(--green)" : "var(--red)";
+}
+
+async function refreshAccountUI() {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (user) {
+    loginForm.style.display = "none";
+    registerForm.style.display = "none";
+    loggedInBox.style.display = "block";
+    authTitle.textContent = "QUESTY ACCOUNT";
+    authSubtitle.textContent = "Dein Spielstand wird mit deinem Account gespeichert.";
+    document.getElementById("questyLoggedInEmail").textContent = user.email || "";
+    accountButton.textContent = "ACCOUNT ✓";
+  } else {
+    loginForm.style.display = "block";
+    registerForm.style.display = "none";
+    loggedInBox.style.display = "none";
+    authTitle.textContent = "QUESTY ACCOUNT";
+    authSubtitle.textContent = "Speichere deinen Spielstand dauerhaft und spiele auf mehreren Geräten weiter.";
+    accountButton.textContent = "ACCOUNT";
+  }
+}
+
+async function syncProfileToCloud(user) {
+  const { error } = await supabase.from("profiles").upsert({
+    id: user.id,
+    username: user.user_metadata?.username || null,
+    total_xp: Number(data.xp) || 0,
+    level: Math.floor((Number(data.xp) || 0) / 100) + 1,
+    streak: Number(data.streak) || 0,
+    last_active_date: data.lastActiveDate || null
+  }, { onConflict: "id" });
+  if (error) throw error;
+}
+
+function cloudQuestPayload(quest, userId, status = "active") {
+  return {
+    user_id: userId,
+    text: String(quest.text || "Neue Quest"),
+    difficulty: Number(quest.difficulty) || 1,
+    type: quest.type || "normal",
+    xp: Number(quest.xp) || 0,
+    category: quest.category || "Allgemein",
+    status,
+    created_at: quest.createdAtISO || new Date().toISOString(),
+    completed_at: status === "completed" ? new Date().toISOString() : null
+  };
+}
+
+async function insertQuestToCloud(quest, userId) {
+  if (quest.dbId) return quest;
+
+  const { data: row, error } = await supabase
+    .from("quests")
+    .insert(cloudQuestPayload(quest, userId, "active"))
+    .select("id, quest_number, created_at")
+    .single();
+
+  if (error) throw error;
+
+  quest.dbId = row.id;
+  quest.questNumber = row.quest_number;
+  quest.createdAtISO = row.created_at;
+  return quest;
+}
+
+async function syncQuestyCloud() {
+  if (!questyCloudLoaded || questyCloudSyncInProgress) return;
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  questyCloudSyncInProgress = true;
+
+  try {
+    await syncProfileToCloud(user);
+
+    for (const quest of data.quests) {
+      if (!quest.dbId) {
+        await insertQuestToCloud(quest, user.id);
+      } else {
+        const { error } = await supabase
+          .from("quests")
+          .update(cloudQuestPayload(quest, user.id, "active"))
+          .eq("id", quest.dbId)
+          .eq("user_id", user.id);
+        if (error) throw error;
+      }
+    }
+
+    localStorage.setItem("questMode", JSON.stringify(data));
+  } finally {
+    questyCloudSyncInProgress = false;
+  }
+}
+
+async function syncCompletedQuestToCloud(quest) {
+  if (!quest.dbId) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await insertQuestToCloud(quest, user.id);
+  }
+
+  const { error } = await supabase
+    .from("quests")
+    .update({ status: "completed", completed_at: new Date().toISOString() })
+    .eq("id", quest.dbId);
+  if (error) throw error;
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) await syncProfileToCloud(user);
+}
+
+async function syncDeletedQuestToCloud(quest) {
+  if (!quest.dbId) return;
+
+  const { error } = await supabase
+    .from("quests")
+    .update({ status: "deleted" })
+    .eq("id", quest.dbId);
+  if (error) throw error;
+}
+
+async function loadQuestyFromCloud() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const [profileResult, questResult, achievementResult] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
+    supabase.from("quests").select("*").eq("user_id", user.id).neq("status", "deleted").order("quest_number", { ascending: true }),
+    supabase.from("achievements").select("achievement_id, unlocked_at").eq("user_id", user.id)
+  ]);
+
+  if (profileResult.error) throw profileResult.error;
+  if (questResult.error) throw questResult.error;
+  if (achievementResult.error) throw achievementResult.error;
+
+  const profile = profileResult.data;
+  const cloudQuests = questResult.data || [];
+  const cloudAchievements = achievementResult.data || [];
+
+  data.xp = Number(profile?.total_xp) || 0;
+  data.streak = Number(profile?.streak) || 0;
+  data.lastActiveDate = profile?.last_active_date || null;
+  data.quests = cloudQuests.filter(q => q.status === "active").map(q => ({
+    id: Date.now() + Math.floor(Math.random() * 100000),
+    dbId: q.id,
+    questNumber: q.quest_number,
+    text: q.text,
+    difficulty: q.difficulty,
+    type: q.type,
+    xp: q.xp,
+    category: q.category,
+    created: q.created_at ? new Date(q.created_at).toLocaleString("de-DE") : "",
+    createdAtISO: q.created_at
+  }));
+
+  data.history = cloudQuests.filter(q => q.status === "completed").sort((a,b) =>
+    new Date(b.completed_at || b.created_at) - new Date(a.completed_at || a.created_at)
+  ).map(q => ({
+    id: q.id,
+    dbId: q.id,
+    questNumber: q.quest_number,
+    text: q.text,
+    difficulty: q.difficulty,
+    type: q.type,
+    xp: q.xp,
+    category: q.category,
+    created: q.created_at ? new Date(q.created_at).toLocaleString("de-DE") : "",
+    completed: q.completed_at ? new Date(q.completed_at).toLocaleString("de-DE") : ""
+  }));
+
+  data.achievements = {};
+  cloudAchievements.forEach(a => data.achievements[a.achievement_id] = true);
+
+  questyCloudLoaded = true;
+  localStorage.setItem("questMode", JSON.stringify(data));
+  render();
+}
+
+async function initializeQuestyAccount() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      await loadQuestyFromCloud();
+    }
+  } catch (error) {
+    console.error("Questy: Cloud-Spielstand konnte nicht geladen werden.", error);
+    toast("Cloud-Spielstand konnte nicht geladen werden.");
+  }
+}
+
+accountButton.addEventListener("click", async () => {
+  accountModal.classList.add("show");
+  authMessage.textContent = "";
+  await refreshAccountUI();
+});
+
+document.getElementById("questyAuthClose").addEventListener("click", () => {
+  accountModal.classList.remove("show");
+});
+
+accountModal.addEventListener("click", event => {
+  if (event.target === accountModal) accountModal.classList.remove("show");
+});
+
+document.getElementById("questyShowRegister").addEventListener("click", () => {
+  loginForm.style.display = "none";
+  registerForm.style.display = "block";
+  loggedInBox.style.display = "none";
+  authTitle.textContent = "NEUER ACCOUNT";
+  authSubtitle.textContent = "Erstelle deinen persönlichen Questy-Spieler.";
+  authMessage.textContent = "";
+});
+
+document.getElementById("questyShowLogin").addEventListener("click", () => {
+  loginForm.style.display = "block";
+  registerForm.style.display = "none";
+  loggedInBox.style.display = "none";
+  authTitle.textContent = "QUESTY ACCOUNT";
+  authSubtitle.textContent = "Speichere deinen Spielstand dauerhaft.";
+  authMessage.textContent = "";
+});
+
+document.getElementById("questyRegisterButton").addEventListener("click", async () => {
+  const username = document.getElementById("questyRegisterUsername").value.trim();
+  const email = document.getElementById("questyRegisterEmail").value.trim();
+  const password = document.getElementById("questyRegisterPassword").value;
+
+  if (!username) return accountMessage("Bitte einen Spielernamen eingeben.");
+  if (!email) return accountMessage("Bitte eine E-Mail eingeben.");
+  if (password.length < 6) return accountMessage("Das Passwort muss mindestens 6 Zeichen haben.");
+
+  accountMessage("Account wird erstellt...");
+
+  const { data: signupData, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { username } }
+  });
+
+  if (error) {
+    console.error(error);
+    return accountMessage(error.message);
+  }
+
+  if (signupData.session) {
+    try {
+      questyCloudLoaded = true;
+      await syncQuestyCloud();
+      await refreshAccountUI();
+      accountMessage("Account erstellt und Spielstand gespeichert.", true);
+      setTimeout(() => accountModal.classList.remove("show"), 900);
+    } catch (syncError) {
+      console.error(syncError);
+      accountMessage("Account erstellt, aber der Spielstand konnte noch nicht gespeichert werden.");
+    }
+  } else {
+    accountMessage("Account erstellt! Bitte bestätige zuerst deine E-Mail-Adresse. Danach kannst du dich einloggen.", true);
+  }
+});
+
+document.getElementById("questyLoginButton").addEventListener("click", async () => {
+  const email = document.getElementById("questyLoginEmail").value.trim();
+  const password = document.getElementById("questyLoginPassword").value;
+
+  if (!email || !password) return accountMessage("Bitte E-Mail und Passwort eingeben.");
+
+  accountMessage("Einloggen...");
+
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) {
+    console.error(error);
+    return accountMessage(error.message);
+  }
+
+  try {
+    await loadQuestyFromCloud();
+    await refreshAccountUI();
+    accountMessage("Erfolgreich eingeloggt!", true);
+    setTimeout(() => accountModal.classList.remove("show"), 800);
+  } catch (loadError) {
+    console.error(loadError);
+    accountMessage("Login erfolgreich, aber der Spielstand konnte nicht geladen werden.");
+  }
+});
+
+document.getElementById("questyLogoutButton").addEventListener("click", async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) return accountMessage(error.message);
+  questyCloudLoaded = false;
+  accountButton.textContent = "ACCOUNT";
+  accountMessage("Du wurdest ausgeloggt.", true);
+  setTimeout(() => accountModal.classList.remove("show"), 500);
+});
+
+supabase.auth.onAuthStateChange((_event, session) => {
+  accountButton.textContent = session?.user ? "ACCOUNT ✓" : "ACCOUNT";
+});
+
+initializeQuestyAccount();
+
+/* =========================================================
    THEME — FUNKTIONIERT OHNE NEU LADEN
 ========================================================= */
 const validThemes = ["default", "purple", "blue", "pink", "rose", "green", "fire"];
@@ -2880,621 +3327,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   checkAchievements();
-  save();
   render();
+  if (!questyCloudLoaded) save();
 });
-
-/* =========================================================
-   QUESTY ACCOUNT SYSTEM
-========================================================= */
-
-(function () {
-
-  const authStyle = document.createElement("style");
-
-  authStyle.textContent = `
-    #questyAccountButton {
-      position: fixed;
-      top: 18px;
-      right: 18px;
-      z-index: 1000;
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--text);
-      border-radius: 999px;
-      padding: 10px 16px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: var(--shadow);
-    }
-
-    #questyAccountButton:hover {
-      transform: translateY(-1px);
-    }
-
-    #questyAuthModal {
-      position: fixed;
-      inset: 0;
-      z-index: 2000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      background: rgba(0,0,0,.65);
-    }
-
-    #questyAuthModal.show {
-      display: flex;
-    }
-
-    .questy-auth-box {
-      width: min(420px, 100%);
-      background: var(--card);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 28px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.35);
-    }
-
-    .questy-auth-box h2 {
-      margin-top: 0;
-      margin-bottom: 8px;
-    }
-
-    .questy-auth-subtitle {
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 22px;
-    }
-
-    .questy-auth-box label {
-      display: block;
-      margin: 14px 0 6px;
-      font-weight: 700;
-    }
-
-    .questy-auth-box input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--card2);
-      color: var(--text);
-      font-size: 16px;
-    }
-
-    .questy-auth-main-button {
-      width: 100%;
-      margin-top: 20px;
-      padding: 13px;
-      border: none;
-      border-radius: 10px;
-      background: var(--primary);
-      color: white;
-      font-weight: 800;
-      cursor: pointer;
-      font-size: 15px;
-    }
-
-    .questy-auth-secondary {
-      width: 100%;
-      margin-top: 10px;
-      padding: 11px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: transparent;
-      color: var(--text);
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .questy-auth-close {
-      float: right;
-      border: none;
-      background: transparent;
-      color: var(--muted);
-      font-size: 24px;
-      cursor: pointer;
-    }
-
-    #questyAuthMessage {
-      margin-top: 15px;
-      font-size: 14px;
-      line-height: 1.4;
-    }
-
-    .questy-account-email {
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 20px;
-      word-break: break-word;
-    }
-  `;
-
-  document.head.appendChild(authStyle);
-
-
-  /* ---------------------------------------------------------
-     ACCOUNT BUTTON
-  --------------------------------------------------------- */
-
-  const accountButton = document.createElement("button");
-
-  accountButton.id = "questyAccountButton";
-  accountButton.textContent = "ACCOUNT";
-
-  document.body.appendChild(accountButton);
-
-
-  /* ---------------------------------------------------------
-     AUTH MODAL
-  --------------------------------------------------------- */
-
-  const modal = document.createElement("div");
-
-  modal.id = "questyAuthModal";
-
-  modal.innerHTML = `
-    <div class="questy-auth-box">
-
-      <button
-        type="button"
-        class="questy-auth-close"
-        id="questyAuthClose"
-      >×</button>
-
-      <h2 id="questyAuthTitle">QUESTY ACCOUNT</h2>
-
-      <div
-        class="questy-auth-subtitle"
-        id="questyAuthSubtitle"
-      >
-        Speichere deinen Spielstand dauerhaft.
-      </div>
-
-      <div id="questyLoginForm">
-
-        <label for="questyLoginEmail">
-          E-Mail
-        </label>
-
-        <input
-          id="questyLoginEmail"
-          type="email"
-          autocomplete="email"
-          placeholder="deine@email.de"
-        >
-
-        <label for="questyLoginPassword">
-          Passwort
-        </label>
-
-        <input
-          id="questyLoginPassword"
-          type="password"
-          autocomplete="current-password"
-          placeholder="••••••••"
-        >
-
-        <button
-          type="button"
-          class="questy-auth-main-button"
-          id="questyLoginButton"
-        >
-          EINLOGGEN
-        </button>
-
-        <button
-          type="button"
-          class="questy-auth-secondary"
-          id="questyShowRegister"
-        >
-          NEUEN ACCOUNT ERSTELLEN
-        </button>
-
-      </div>
-
-
-      <div
-        id="questyRegisterForm"
-        style="display:none;"
-      >
-
-        <label for="questyRegisterUsername">
-          Spielername
-        </label>
-
-        <input
-          id="questyRegisterUsername"
-          type="text"
-          maxlength="30"
-          autocomplete="username"
-          placeholder="z.B. QuestMaster"
-        >
-
-        <label for="questyRegisterEmail">
-          E-Mail
-        </label>
-
-        <input
-          id="questyRegisterEmail"
-          type="email"
-          autocomplete="email"
-          placeholder="deine@email.de"
-        >
-
-        <label for="questyRegisterPassword">
-          Passwort
-        </label>
-
-        <input
-          id="questyRegisterPassword"
-          type="password"
-          autocomplete="new-password"
-          placeholder="Mindestens 6 Zeichen"
-        >
-
-        <button
-          type="button"
-          class="questy-auth-main-button"
-          id="questyRegisterButton"
-        >
-          ACCOUNT ERSTELLEN
-        </button>
-
-        <button
-          type="button"
-          class="questy-auth-secondary"
-          id="questyShowLogin"
-        >
-          ZURÜCK ZUM LOGIN
-        </button>
-
-      </div>
-
-
-      <div
-        id="questyLoggedIn"
-        style="display:none;"
-      >
-
-        <div class="questy-account-email" id="questyLoggedInEmail"></div>
-
-        <button
-          type="button"
-          class="questy-auth-main-button"
-          id="questyLogoutButton"
-        >
-          AUSLOGGEN
-        </button>
-
-      </div>
-
-
-      <div id="questyAuthMessage"></div>
-
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-
-
-  /* ---------------------------------------------------------
-     ELEMENTE
-  --------------------------------------------------------- */
-
-  const loginForm = document.getElementById("questyLoginForm");
-  const registerForm = document.getElementById("questyRegisterForm");
-  const loggedIn = document.getElementById("questyLoggedIn");
-
-  const title = document.getElementById("questyAuthTitle");
-  const subtitle = document.getElementById("questyAuthSubtitle");
-
-  const message = document.getElementById("questyAuthMessage");
-
-
-  function showMessage(text, success = false) {
-    message.textContent = text;
-    message.style.color = success
-      ? "var(--green)"
-      : "var(--red)";
-  }
-
-
-  function openModal() {
-    modal.classList.add("show");
-    showCurrentAuthState();
-  }
-
-
-  function closeModal() {
-    modal.classList.remove("show");
-    message.textContent = "";
-  }
-
-
-  async function showCurrentAuthState() {
-
-    const {
-      data: { user }
-    } = await supabase.auth.getUser();
-
-    if (user) {
-
-      loginForm.style.display = "none";
-      registerForm.style.display = "none";
-      loggedIn.style.display = "block";
-
-      title.textContent = "QUESTY ACCOUNT";
-
-      subtitle.textContent =
-        "Dein Spielstand ist mit deinem Account verbunden.";
-
-      document.getElementById("questyLoggedInEmail")
-        .textContent = user.email || "";
-
-      accountButton.textContent = "ACCOUNT ✓";
-
-    } else {
-
-      loginForm.style.display = "block";
-      registerForm.style.display = "none";
-      loggedIn.style.display = "none";
-
-      title.textContent = "QUESTY ACCOUNT";
-
-      subtitle.textContent =
-        "Speichere deinen Spielstand dauerhaft.";
-
-      accountButton.textContent = "ACCOUNT";
-
-    }
-  }
-
-
-  /* ---------------------------------------------------------
-     LOGIN
-  --------------------------------------------------------- */
-
-  document
-    .getElementById("questyLoginButton")
-    .addEventListener("click", async () => {
-
-      const email =
-        document.getElementById("questyLoginEmail")
-          .value
-          .trim();
-
-      const password =
-        document.getElementById("questyLoginPassword")
-          .value;
-
-      if (!email || !password) {
-        showMessage("Bitte E-Mail und Passwort eingeben.");
-        return;
-      }
-
-      showMessage("Einloggen...");
-
-      const { error } =
-        await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
-
-      if (error) {
-        console.error(error);
-        showMessage(error.message);
-        return;
-      }
-
-      showMessage(
-        "Erfolgreich eingeloggt!",
-        true
-      );
-
-      await showCurrentAuthState();
-
-      setTimeout(closeModal, 800);
-    });
-
-
-  /* ---------------------------------------------------------
-     REGISTRIERUNG
-  --------------------------------------------------------- */
-
-  document
-    .getElementById("questyRegisterButton")
-    .addEventListener("click", async () => {
-
-      const username =
-        document.getElementById("questyRegisterUsername")
-          .value
-          .trim();
-
-      const email =
-        document.getElementById("questyRegisterEmail")
-          .value
-          .trim();
-
-      const password =
-        document.getElementById("questyRegisterPassword")
-          .value;
-
-      if (!username) {
-        showMessage("Bitte einen Spielernamen eingeben.");
-        return;
-      }
-
-      if (!email) {
-        showMessage("Bitte eine E-Mail eingeben.");
-        return;
-      }
-
-      if (password.length < 6) {
-        showMessage(
-          "Das Passwort muss mindestens 6 Zeichen haben."
-        );
-        return;
-      }
-
-      showMessage("Account wird erstellt...");
-
-      const { data, error } =
-        await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              username: username
-            }
-          }
-        });
-
-      if (error) {
-        console.error(error);
-        showMessage(error.message);
-        return;
-      }
-
-      if (data.session) {
-
-        showMessage(
-          "Account erstellt und eingeloggt!",
-          true
-        );
-
-        await showCurrentAuthState();
-
-        setTimeout(closeModal, 800);
-
-      } else {
-
-        showMessage(
-          "Account erstellt! Prüfe jetzt deine E-Mails und bestätige deine E-Mail-Adresse.",
-          true
-        );
-      }
-    });
-
-
-  /* ---------------------------------------------------------
-     LOGOUT
-  --------------------------------------------------------- */
-
-  document
-    .getElementById("questyLogoutButton")
-    .addEventListener("click", async () => {
-
-      const { error } =
-        await supabase.auth.signOut();
-
-      if (error) {
-        showMessage(error.message);
-        return;
-      }
-
-      showMessage(
-        "Du wurdest ausgeloggt.",
-        true
-      );
-
-      accountButton.textContent = "ACCOUNT";
-
-      setTimeout(closeModal, 500);
-    });
-
-
-  /* ---------------------------------------------------------
-     FORMULAR WECHSELN
-  --------------------------------------------------------- */
-
-  document
-    .getElementById("questyShowRegister")
-    .addEventListener("click", () => {
-
-      loginForm.style.display = "none";
-      registerForm.style.display = "block";
-      loggedIn.style.display = "none";
-
-      title.textContent = "NEUER ACCOUNT";
-
-      subtitle.textContent =
-        "Erstelle deinen persönlichen Questy-Spieler.";
-
-      message.textContent = "";
-    });
-
-
-  document
-    .getElementById("questyShowLogin")
-    .addEventListener("click", () => {
-
-      loginForm.style.display = "block";
-      registerForm.style.display = "none";
-      loggedIn.style.display = "none";
-
-      title.textContent = "QUESTY ACCOUNT";
-
-      subtitle.textContent =
-        "Speichere deinen Spielstand dauerhaft.";
-
-      message.textContent = "";
-    });
-
-
-  /* ---------------------------------------------------------
-     BUTTONS
-  --------------------------------------------------------- */
-
-  accountButton.addEventListener(
-    "click",
-    openModal
-  );
-
-  document
-    .getElementById("questyAuthClose")
-    .addEventListener(
-      "click",
-      closeModal
-    );
-
-  modal.addEventListener("click", event => {
-
-    if (event.target === modal) {
-      closeModal();
-    }
-
-  });
-
-
-  /* ---------------------------------------------------------
-     AUTH STATUS ÜBERWACHEN
-  --------------------------------------------------------- */
-
-  supabase.auth.onAuthStateChange(
-    async (_event, session) => {
-
-      if (session && session.user) {
-        accountButton.textContent = "ACCOUNT ✓";
-      } else {
-        accountButton.textContent = "ACCOUNT";
-      }
-
-    }
-  );
-
-
-  /* ---------------------------------------------------------
-     STARTSTATUS
-  --------------------------------------------------------- */
-
-  showCurrentAuthState();
-
-})();
-   
 </script>
 </body>
 </html>
