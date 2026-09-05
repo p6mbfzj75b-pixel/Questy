@@ -2303,15 +2303,24 @@ button:active {
   class="toast"
 ></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@questyClient/questyClient-js@2"></script>
 
 <script>
 const SUPABASE_URL = "https://ujuikqupxyiwoedgwthj.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_PPlidg04mTfN8YpzoZqUgw_ryQaK2Zy";
-const supabase = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
-);
+let questyClient = null;
+try {
+  if (window.supabase && typeof window.supabase.createClient === "function") {
+    questyClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+  } else {
+    console.warn("Questy: Supabase-Bibliothek nicht geladen. App läuft im Offline-Modus.");
+  }
+} catch (error) {
+  console.error("Questy: Supabase konnte nicht initialisiert werden.", error);
+}
 /* =========================================================
    QUESTY — STABILE VERSION
 ========================================================= */
@@ -2964,7 +2973,15 @@ function accountMessage(text, success = false) {
 }
 
 async function refreshAccountUI() {
-  const { data: { user } } = await supabase.auth.getUser();
+  if (!questyClient) {
+    loginForm.style.display = "block";
+    registerForm.style.display = "none";
+    loggedInBox.style.display = "none";
+    accountButton.textContent = "ACCOUNT";
+    accountMessage("Account-Funktion konnte nicht geladen werden. Bitte Internetverbindung prüfen und Questy neu laden.");
+    return;
+  }
+  const { data: { user } } = await questyClient.auth.getUser();
 
   if (user) {
     loginForm.style.display = "none";
@@ -2985,7 +3002,7 @@ async function refreshAccountUI() {
 }
 
 async function syncProfileToCloud(user) {
-  const { error } = await supabase.from("profiles").upsert({
+  const { error } = await questyClient.from("profiles").upsert({
     id: user.id,
     username: user.user_metadata?.username || null,
     total_xp: Number(data.xp) || 0,
@@ -3013,7 +3030,7 @@ function cloudQuestPayload(quest, userId, status = "active") {
 async function insertQuestToCloud(quest, userId) {
   if (quest.dbId) return quest;
 
-  const { data: row, error } = await supabase
+  const { data: row, error } = await questyClient
     .from("quests")
     .insert(cloudQuestPayload(quest, userId, "active"))
     .select("id, quest_number, created_at")
@@ -3030,7 +3047,7 @@ async function insertQuestToCloud(quest, userId) {
 async function syncQuestyCloud() {
   if (!questyCloudLoaded || questyCloudSyncInProgress) return;
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await questyClient.auth.getUser();
   if (!user) return;
 
   questyCloudSyncInProgress = true;
@@ -3042,7 +3059,7 @@ async function syncQuestyCloud() {
       if (!quest.dbId) {
         await insertQuestToCloud(quest, user.id);
       } else {
-        const { error } = await supabase
+        const { error } = await questyClient
           .from("quests")
           .update(cloudQuestPayload(quest, user.id, "active"))
           .eq("id", quest.dbId)
@@ -3059,25 +3076,25 @@ async function syncQuestyCloud() {
 
 async function syncCompletedQuestToCloud(quest) {
   if (!quest.dbId) {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await questyClient.auth.getUser();
     if (!user) return;
     await insertQuestToCloud(quest, user.id);
   }
 
-  const { error } = await supabase
+  const { error } = await questyClient
     .from("quests")
     .update({ status: "completed", completed_at: new Date().toISOString() })
     .eq("id", quest.dbId);
   if (error) throw error;
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await questyClient.auth.getUser();
   if (user) await syncProfileToCloud(user);
 }
 
 async function syncDeletedQuestToCloud(quest) {
   if (!quest.dbId) return;
 
-  const { error } = await supabase
+  const { error } = await questyClient
     .from("quests")
     .update({ status: "deleted" })
     .eq("id", quest.dbId);
@@ -3085,13 +3102,13 @@ async function syncDeletedQuestToCloud(quest) {
 }
 
 async function loadQuestyFromCloud() {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await questyClient.auth.getUser();
   if (!user) return;
 
   const [profileResult, questResult, achievementResult] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
-    supabase.from("quests").select("*").eq("user_id", user.id).neq("status", "deleted").order("quest_number", { ascending: true }),
-    supabase.from("achievements").select("achievement_id, unlocked_at").eq("user_id", user.id)
+    questyClient.from("profiles").select("*").eq("id", user.id).maybeSingle(),
+    questyClient.from("quests").select("*").eq("user_id", user.id).neq("status", "deleted").order("quest_number", { ascending: true }),
+    questyClient.from("achievements").select("achievement_id, unlocked_at").eq("user_id", user.id)
   ]);
 
   if (profileResult.error) throw profileResult.error;
@@ -3142,8 +3159,9 @@ async function loadQuestyFromCloud() {
 }
 
 async function initializeQuestyAccount() {
+  if (!questyClient) return;
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await questyClient.auth.getSession();
     if (session?.user) {
       await loadQuestyFromCloud();
     }
@@ -3186,6 +3204,7 @@ document.getElementById("questyShowLogin").addEventListener("click", () => {
 });
 
 document.getElementById("questyRegisterButton").addEventListener("click", async () => {
+  if (!questyClient) return accountMessage("Account-Funktion konnte nicht geladen werden. Bitte Internetverbindung prüfen und Questy neu laden.");
   const username = document.getElementById("questyRegisterUsername").value.trim();
   const email = document.getElementById("questyRegisterEmail").value.trim();
   const password = document.getElementById("questyRegisterPassword").value;
@@ -3196,7 +3215,7 @@ document.getElementById("questyRegisterButton").addEventListener("click", async 
 
   accountMessage("Account wird erstellt...");
 
-  const { data: signupData, error } = await supabase.auth.signUp({
+  const { data: signupData, error } = await questyClient.auth.signUp({
     email,
     password,
     options: { data: { username } }
@@ -3224,6 +3243,7 @@ document.getElementById("questyRegisterButton").addEventListener("click", async 
 });
 
 document.getElementById("questyLoginButton").addEventListener("click", async () => {
+  if (!questyClient) return accountMessage("Account-Funktion konnte nicht geladen werden. Bitte Internetverbindung prüfen und Questy neu laden.");
   const email = document.getElementById("questyLoginEmail").value.trim();
   const password = document.getElementById("questyLoginPassword").value;
 
@@ -3231,7 +3251,7 @@ document.getElementById("questyLoginButton").addEventListener("click", async () 
 
   accountMessage("Einloggen...");
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { error } = await questyClient.auth.signInWithPassword({ email, password });
   if (error) {
     console.error(error);
     return accountMessage(error.message);
@@ -3249,7 +3269,8 @@ document.getElementById("questyLoginButton").addEventListener("click", async () 
 });
 
 document.getElementById("questyLogoutButton").addEventListener("click", async () => {
-  const { error } = await supabase.auth.signOut();
+  if (!questyClient) return accountMessage("Account-Funktion konnte nicht geladen werden. Bitte Internetverbindung prüfen und Questy neu laden.");
+  const { error } = await questyClient.auth.signOut();
   if (error) return accountMessage(error.message);
   questyCloudLoaded = false;
   accountButton.textContent = "ACCOUNT";
@@ -3257,9 +3278,11 @@ document.getElementById("questyLogoutButton").addEventListener("click", async ()
   setTimeout(() => accountModal.classList.remove("show"), 500);
 });
 
-supabase.auth.onAuthStateChange((_event, session) => {
-  accountButton.textContent = session?.user ? "ACCOUNT ✓" : "ACCOUNT";
-});
+if (questyClient) {
+  questyClient.auth.onAuthStateChange((_event, session) => {
+    accountButton.textContent = session?.user ? "ACCOUNT ✓" : "ACCOUNT";
+  });
+}
 
 initializeQuestyAccount();
 
