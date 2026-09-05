@@ -109,16 +109,43 @@ body.theme-rose {
   --bg: #fff4f8;
   --card: #ffffff;
   --card2: #fff8fb;
-  --border: #f0bfd2;
-  --text: #592640;
-  --muted: #98727f;
-  --primary: #e85d91;
-  --primary-dark: #c74374;
-  --yellow: #d99624;
-  --red: #d9536f;
-  --green: #55b98a;
-  --purple: #a875d6;
+  --border: #e9a8c2;
+  --text: #7d2850;
+  --muted: #a34f73;
+  --primary: #d94f88;
+  --primary-dark: #b9386d;
+  --yellow: #c99524;
+  --red: #c94368;
+  --green: #4c9b78;
+  --purple: #9863c4;
   --shadow: 0 8px 25px rgba(140,70,100,.14);
+}
+
+body.theme-rose .logo,
+body.theme-rose h1,
+body.theme-rose h2,
+body.theme-rose h3,
+body.theme-rose label,
+body.theme-rose .stat-number,
+body.theme-rose .quest-name,
+body.theme-rose .section-title,
+body.theme-rose .random-result,
+body.theme-rose strong {
+  color: #7d2850;
+}
+
+body.theme-rose .yellow-button,
+body.theme-rose .level-number,
+body.theme-rose .xp-bar,
+body.theme-rose .history-xp,
+body.theme-rose .random-label,
+body.theme-rose .quick-button strong,
+body.theme-rose .section-icon {
+  color: #c99524;
+}
+
+body.theme-rose .yellow-button {
+  border-color: #c99524;
 }
 
 
@@ -2756,6 +2783,7 @@ function openPrintPreview(quest) {
           xp: quest.xp,
           difficulty: quest.difficulty,
           type: quest.type,
+          category: quest.category || "Allgemein",
           id: quest.id,
           created: quest.created
         })
