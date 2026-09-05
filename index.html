@@ -3215,11 +3215,14 @@ document.getElementById("questyRegisterButton").addEventListener("click", async 
 
   accountMessage("Account wird erstellt...");
 
-  const { data: signupData, error } = await questyClient.auth.signUp({
-    email,
-    password,
-    options: { data: { username } }
-  });
+  const { data: signupData, error } = await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    data: { username },
+    emailRedirectTo: "https://p6mbfzj75b-pixel.github.io/Questy/"
+  }
+});
 
   if (error) {
     console.error(error);
