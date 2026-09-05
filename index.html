@@ -2883,6 +2883,618 @@ document.addEventListener("DOMContentLoaded", () => {
   save();
   render();
 });
+
+/* =========================================================
+   QUESTY ACCOUNT SYSTEM
+========================================================= */
+
+(function () {
+
+  const authStyle = document.createElement("style");
+
+  authStyle.textContent = `
+    #questyAccountButton {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      z-index: 1000;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+
+    #questyAccountButton:hover {
+      transform: translateY(-1px);
+    }
+
+    #questyAuthModal {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0,0,0,.65);
+    }
+
+    #questyAuthModal.show {
+      display: flex;
+    }
+
+    .questy-auth-box {
+      width: min(420px, 100%);
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+
+    .questy-auth-box h2 {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+
+    .questy-auth-subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 22px;
+    }
+
+    .questy-auth-box label {
+      display: block;
+      margin: 14px 0 6px;
+      font-weight: 700;
+    }
+
+    .questy-auth-box input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card2);
+      color: var(--text);
+      font-size: 16px;
+    }
+
+    .questy-auth-main-button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      background: var(--primary);
+      color: white;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .questy-auth-secondary {
+      width: 100%;
+      margin-top: 10px;
+      padding: 11px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: transparent;
+      color: var(--text);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .questy-auth-close {
+      float: right;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    #questyAuthMessage {
+      margin-top: 15px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .questy-account-email {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 20px;
+      word-break: break-word;
+    }
+  `;
+
+  document.head.appendChild(authStyle);
+
+
+  /* ---------------------------------------------------------
+     ACCOUNT BUTTON
+  --------------------------------------------------------- */
+
+  const accountButton = document.createElement("button");
+
+  accountButton.id = "questyAccountButton";
+  accountButton.textContent = "ACCOUNT";
+
+  document.body.appendChild(accountButton);
+
+
+  /* ---------------------------------------------------------
+     AUTH MODAL
+  --------------------------------------------------------- */
+
+  const modal = document.createElement("div");
+
+  modal.id = "questyAuthModal";
+
+  modal.innerHTML = `
+    <div class="questy-auth-box">
+
+      <button
+        type="button"
+        class="questy-auth-close"
+        id="questyAuthClose"
+      >×</button>
+
+      <h2 id="questyAuthTitle">QUESTY ACCOUNT</h2>
+
+      <div
+        class="questy-auth-subtitle"
+        id="questyAuthSubtitle"
+      >
+        Speichere deinen Spielstand dauerhaft.
+      </div>
+
+      <div id="questyLoginForm">
+
+        <label for="questyLoginEmail">
+          E-Mail
+        </label>
+
+        <input
+          id="questyLoginEmail"
+          type="email"
+          autocomplete="email"
+          placeholder="deine@email.de"
+        >
+
+        <label for="questyLoginPassword">
+          Passwort
+        </label>
+
+        <input
+          id="questyLoginPassword"
+          type="password"
+          autocomplete="current-password"
+          placeholder="••••••••"
+        >
+
+        <button
+          type="button"
+          class="questy-auth-main-button"
+          id="questyLoginButton"
+        >
+          EINLOGGEN
+        </button>
+
+        <button
+          type="button"
+          class="questy-auth-secondary"
+          id="questyShowRegister"
+        >
+          NEUEN ACCOUNT ERSTELLEN
+        </button>
+
+      </div>
+
+
+      <div
+        id="questyRegisterForm"
+        style="display:none;"
+      >
+
+        <label for="questyRegisterUsername">
+          Spielername
+        </label>
+
+        <input
+          id="questyRegisterUsername"
+          type="text"
+          maxlength="30"
+          autocomplete="username"
+          placeholder="z.B. QuestMaster"
+        >
+
+        <label for="questyRegisterEmail">
+          E-Mail
+        </label>
+
+        <input
+          id="questyRegisterEmail"
+          type="email"
+          autocomplete="email"
+          placeholder="deine@email.de"
+        >
+
+        <label for="questyRegisterPassword">
+          Passwort
+        </label>
+
+        <input
+          id="questyRegisterPassword"
+          type="password"
+          autocomplete="new-password"
+          placeholder="Mindestens 6 Zeichen"
+        >
+
+        <button
+          type="button"
+          class="questy-auth-main-button"
+          id="questyRegisterButton"
+        >
+          ACCOUNT ERSTELLEN
+        </button>
+
+        <button
+          type="button"
+          class="questy-auth-secondary"
+          id="questyShowLogin"
+        >
+          ZURÜCK ZUM LOGIN
+        </button>
+
+      </div>
+
+
+      <div
+        id="questyLoggedIn"
+        style="display:none;"
+      >
+
+        <div class="questy-account-email" id="questyLoggedInEmail"></div>
+
+        <button
+          type="button"
+          class="questy-auth-main-button"
+          id="questyLogoutButton"
+        >
+          AUSLOGGEN
+        </button>
+
+      </div>
+
+
+      <div id="questyAuthMessage"></div>
+
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+
+  /* ---------------------------------------------------------
+     ELEMENTE
+  --------------------------------------------------------- */
+
+  const loginForm = document.getElementById("questyLoginForm");
+  const registerForm = document.getElementById("questyRegisterForm");
+  const loggedIn = document.getElementById("questyLoggedIn");
+
+  const title = document.getElementById("questyAuthTitle");
+  const subtitle = document.getElementById("questyAuthSubtitle");
+
+  const message = document.getElementById("questyAuthMessage");
+
+
+  function showMessage(text, success = false) {
+    message.textContent = text;
+    message.style.color = success
+      ? "var(--green)"
+      : "var(--red)";
+  }
+
+
+  function openModal() {
+    modal.classList.add("show");
+    showCurrentAuthState();
+  }
+
+
+  function closeModal() {
+    modal.classList.remove("show");
+    message.textContent = "";
+  }
+
+
+  async function showCurrentAuthState() {
+
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (user) {
+
+      loginForm.style.display = "none";
+      registerForm.style.display = "none";
+      loggedIn.style.display = "block";
+
+      title.textContent = "QUESTY ACCOUNT";
+
+      subtitle.textContent =
+        "Dein Spielstand ist mit deinem Account verbunden.";
+
+      document.getElementById("questyLoggedInEmail")
+        .textContent = user.email || "";
+
+      accountButton.textContent = "ACCOUNT ✓";
+
+    } else {
+
+      loginForm.style.display = "block";
+      registerForm.style.display = "none";
+      loggedIn.style.display = "none";
+
+      title.textContent = "QUESTY ACCOUNT";
+
+      subtitle.textContent =
+        "Speichere deinen Spielstand dauerhaft.";
+
+      accountButton.textContent = "ACCOUNT";
+
+    }
+  }
+
+
+  /* ---------------------------------------------------------
+     LOGIN
+  --------------------------------------------------------- */
+
+  document
+    .getElementById("questyLoginButton")
+    .addEventListener("click", async () => {
+
+      const email =
+        document.getElementById("questyLoginEmail")
+          .value
+          .trim();
+
+      const password =
+        document.getElementById("questyLoginPassword")
+          .value;
+
+      if (!email || !password) {
+        showMessage("Bitte E-Mail und Passwort eingeben.");
+        return;
+      }
+
+      showMessage("Einloggen...");
+
+      const { error } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+
+      if (error) {
+        console.error(error);
+        showMessage(error.message);
+        return;
+      }
+
+      showMessage(
+        "Erfolgreich eingeloggt!",
+        true
+      );
+
+      await showCurrentAuthState();
+
+      setTimeout(closeModal, 800);
+    });
+
+
+  /* ---------------------------------------------------------
+     REGISTRIERUNG
+  --------------------------------------------------------- */
+
+  document
+    .getElementById("questyRegisterButton")
+    .addEventListener("click", async () => {
+
+      const username =
+        document.getElementById("questyRegisterUsername")
+          .value
+          .trim();
+
+      const email =
+        document.getElementById("questyRegisterEmail")
+          .value
+          .trim();
+
+      const password =
+        document.getElementById("questyRegisterPassword")
+          .value;
+
+      if (!username) {
+        showMessage("Bitte einen Spielernamen eingeben.");
+        return;
+      }
+
+      if (!email) {
+        showMessage("Bitte eine E-Mail eingeben.");
+        return;
+      }
+
+      if (password.length < 6) {
+        showMessage(
+          "Das Passwort muss mindestens 6 Zeichen haben."
+        );
+        return;
+      }
+
+      showMessage("Account wird erstellt...");
+
+      const { data, error } =
+        await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              username: username
+            }
+          }
+        });
+
+      if (error) {
+        console.error(error);
+        showMessage(error.message);
+        return;
+      }
+
+      if (data.session) {
+
+        showMessage(
+          "Account erstellt und eingeloggt!",
+          true
+        );
+
+        await showCurrentAuthState();
+
+        setTimeout(closeModal, 800);
+
+      } else {
+
+        showMessage(
+          "Account erstellt! Prüfe jetzt deine E-Mails und bestätige deine E-Mail-Adresse.",
+          true
+        );
+      }
+    });
+
+
+  /* ---------------------------------------------------------
+     LOGOUT
+  --------------------------------------------------------- */
+
+  document
+    .getElementById("questyLogoutButton")
+    .addEventListener("click", async () => {
+
+      const { error } =
+        await supabase.auth.signOut();
+
+      if (error) {
+        showMessage(error.message);
+        return;
+      }
+
+      showMessage(
+        "Du wurdest ausgeloggt.",
+        true
+      );
+
+      accountButton.textContent = "ACCOUNT";
+
+      setTimeout(closeModal, 500);
+    });
+
+
+  /* ---------------------------------------------------------
+     FORMULAR WECHSELN
+  --------------------------------------------------------- */
+
+  document
+    .getElementById("questyShowRegister")
+    .addEventListener("click", () => {
+
+      loginForm.style.display = "none";
+      registerForm.style.display = "block";
+      loggedIn.style.display = "none";
+
+      title.textContent = "NEUER ACCOUNT";
+
+      subtitle.textContent =
+        "Erstelle deinen persönlichen Questy-Spieler.";
+
+      message.textContent = "";
+    });
+
+
+  document
+    .getElementById("questyShowLogin")
+    .addEventListener("click", () => {
+
+      loginForm.style.display = "block";
+      registerForm.style.display = "none";
+      loggedIn.style.display = "none";
+
+      title.textContent = "QUESTY ACCOUNT";
+
+      subtitle.textContent =
+        "Speichere deinen Spielstand dauerhaft.";
+
+      message.textContent = "";
+    });
+
+
+  /* ---------------------------------------------------------
+     BUTTONS
+  --------------------------------------------------------- */
+
+  accountButton.addEventListener(
+    "click",
+    openModal
+  );
+
+  document
+    .getElementById("questyAuthClose")
+    .addEventListener(
+      "click",
+      closeModal
+    );
+
+  modal.addEventListener("click", event => {
+
+    if (event.target === modal) {
+      closeModal();
+    }
+
+  });
+
+
+  /* ---------------------------------------------------------
+     AUTH STATUS ÜBERWACHEN
+  --------------------------------------------------------- */
+
+  supabase.auth.onAuthStateChange(
+    async (_event, session) => {
+
+      if (session && session.user) {
+        accountButton.textContent = "ACCOUNT ✓";
+      } else {
+        accountButton.textContent = "ACCOUNT";
+      }
+
+    }
+  );
+
+
+  /* ---------------------------------------------------------
+     STARTSTATUS
+  --------------------------------------------------------- */
+
+  showCurrentAuthState();
+
+})();
+   
 </script>
 </body>
 </html>
