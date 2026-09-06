@@ -622,6 +622,21 @@ button:active {
 
 }
 
+.account-link-button {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: underline;
+  margin-top: 10px;
+  padding: 5px;
+}
+
+.account-link-button:hover {
+  opacity: 0.75;
+}
+
 
 /* =========================================================
    QUEST
@@ -2976,6 +2991,15 @@ accountModal.innerHTML = `
       <label for="questyLoginPassword">Passwort</label>
       <input id="questyLoginPassword" type="password" autocomplete="current-password" placeholder="••••••••">
       <button type="button" class="questy-auth-main" id="questyLoginButton">EINLOGGEN</button>
+
+      <button
+        type="button"
+        id="forgotPasswordButton"
+        class="account-link-button"
+      >
+        Passwort vergessen?
+      </button>
+
       <button type="button" class="questy-auth-secondary" id="questyShowRegister">NEUEN ACCOUNT ERSTELLEN</button>
     </div>
 
@@ -3398,6 +3422,49 @@ document.addEventListener("DOMContentLoaded", () => {
   render();
   if (!questyCloudLoaded) save();
 });
+
+<div id="passwordResetModal" class="account-modal">
+  <div class="account-modal-content">
+
+    <button
+      type="button"
+      id="closePasswordReset"
+      class="account-close"
+    >
+      ×
+    </button>
+
+    <h2>PASSWORT VERGESSEN?</h2>
+
+    <p class="quest-meta">
+      Gib deine E-Mail-Adresse ein.
+      Du bekommst einen Link, mit dem du dein Passwort zurücksetzen kannst.
+    </p>
+
+    <input
+      type="email"
+      id="resetEmail"
+      placeholder="E-Mail-Adresse"
+      autocomplete="email"
+    >
+
+    <button
+      type="button"
+      id="sendResetButton"
+      class="primary-button"
+    >
+      RESET-LINK SENDEN
+    </button>
+
+    <p
+      id="resetMessage"
+      class="quest-meta"
+      style="margin-top:15px;"
+    ></p>
+
+  </div>
+</div>
+   
 </script>
 </body>
 </html>
