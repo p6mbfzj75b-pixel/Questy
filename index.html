@@ -2321,12 +2321,7 @@ try {
 } catch (error) {
   console.error("Questy: Supabase konnte nicht initialisiert werden.", error);
 }
-
-console.log(
-  "Questy Supabase:",
-  questyClient ? "VERBUNDEN" : "OFFLINE"
-);
-   
+console.log("Questy Supabase:", questyClient ? "VERBUNDEN" : "OFFLINE");
 /* =========================================================
    QUESTY — STABILE VERSION
 ========================================================= */
@@ -2363,7 +2358,8 @@ let data = {
   achievements: {},
   redeemedRewards: 0,
   lastActiveDate: null,
-  streak: 0
+  streak: 0,
+  nextQuestNumber: 0
 };
 
 let currentRandomQuest = null;
@@ -2469,7 +2465,7 @@ function makeQuest(text, difficulty, type = "normal") {
 /* =========================================================
    NORMAL QUEST
 ========================================================= */
-function addQuest(shouldPrint = false) {
+async function addQuest(shouldPrint = false) {
   const input = document.getElementById("questInput");
   if (!input) return;
   const text = input.value.trim();
@@ -2486,9 +2482,23 @@ function addQuest(shouldPrint = false) {
 
   data.quests.push(quest);
   input.value = "";
+  render();
+
+  if (questyCloudLoaded) {
+    try {
+      const { data: { user } } = await questyClient.auth.getUser();
+      if (user) {
+        await insertQuestToCloud(quest, user.id);
+      }
+    } catch (error) {
+      console.error("Questy: Quest-Nummer konnte nicht aus der Cloud geladen werden.", error);
+      toast("Quest lokal erstellt. Cloud-Synchronisierung folgt später.");
+    }
+  }
+
   save();
   render();
-  toast("Quest angenommen.");
+  toast(quest.questNumber !== undefined ? `Quest #${String(quest.questNumber).padStart(4, "0")} angenommen.` : "Quest angenommen.");
 
   if (shouldPrint) openPrintPreview(quest);
 }
@@ -2515,7 +2525,7 @@ function randomQuest() {
     </div>`;
 }
 
-function acceptRandomQuest(shouldPrint = false) {
+async function acceptRandomQuest(shouldPrint = false) {
   if (!currentRandomQuest) {
     toast("Würfle zuerst eine Random Quest.");
     return;
@@ -2527,9 +2537,20 @@ function acceptRandomQuest(shouldPrint = false) {
   currentRandomQuest = null;
   document.getElementById("randomResult").innerHTML = `
     <div><div class="random-label">QUEST ANGENOMMEN</div>Bereit zum Angriff.</div>`;
+  render();
+
+  if (questyCloudLoaded) {
+    try {
+      const { data: { user } } = await questyClient.auth.getUser();
+      if (user) await insertQuestToCloud(quest, user.id);
+    } catch (error) {
+      console.error("Questy: Random-Quest konnte nicht sofort synchronisiert werden.", error);
+    }
+  }
+
   save();
   render();
-  toast("Random Quest angenommen.");
+  toast(quest.questNumber !== undefined ? `Random Quest #${String(quest.questNumber).padStart(4, "0")} angenommen.` : "Random Quest angenommen.");
   if (shouldPrint) openPrintPreview(quest);
 }
 
@@ -2588,7 +2609,7 @@ function createQuickQuest(minutes) {
   document.getElementById("acceptQuickPrintButton").onclick = () => acceptQuickQuest(true);
 }
 
-function acceptQuickQuest(shouldPrint = false) {
+async function acceptQuickQuest(shouldPrint = false) {
   if (!currentQuickQuest) {
     toast("Wähle zuerst eine Quick Quest.");
     return;
@@ -2603,9 +2624,20 @@ function acceptQuickQuest(shouldPrint = false) {
     card.innerHTML = `<div class="random-label">QUEST ANGENOMMEN</div><strong>${escapeHTML(quest.text)}</strong>`;
   }
 
+  render();
+
+  if (questyCloudLoaded) {
+    try {
+      const { data: { user } } = await questyClient.auth.getUser();
+      if (user) await insertQuestToCloud(quest, user.id);
+    } catch (error) {
+      console.error("Questy: Quick-Quest konnte nicht sofort synchronisiert werden.", error);
+    }
+  }
+
   save();
   render();
-  toast("Quick Quest angenommen.");
+  toast(quest.questNumber !== undefined ? `Quick Quest #${String(quest.questNumber).padStart(4, "0")} angenommen.` : "Quick Quest angenommen.");
   if (shouldPrint) openPrintPreview(quest);
 }
 
@@ -2715,7 +2747,7 @@ function renderQuests() {
     <div class="quest">
       <div class="quest-info">
         <div class="quest-name">${icon("quest")} ${escapeHTML(quest.text)}</div>
-        <div class="quest-meta">${typeName(quest.type)} · ${"★".repeat(Number(quest.difficulty) || 1)} · +${quest.xp} XP</div>
+        <div class="quest-meta">${quest.questNumber !== undefined ? `#${String(quest.questNumber).padStart(4, "0")} · ` : ""}${typeName(quest.type)} · ${"★".repeat(Number(quest.difficulty) || 1)} · +${quest.xp} XP</div>
       </div>
       <div class="quest-buttons">
         <button class="quest-btn complete" data-complete="${quest.id}" title="Quest abschließen">${icon("check")}</button>
@@ -2758,7 +2790,7 @@ function renderHistory() {
 
   container.innerHTML = data.history.slice(0, 30).map(q => `
     <div class="history-item">
-      ${icon("check")} ${escapeHTML(q.text)}
+      ${icon("check")} ${q.questNumber !== undefined ? `<strong>#${String(q.questNumber).padStart(4, "0")}</strong> · ` : ""}${escapeHTML(q.text)}
       <span class="history-xp">+${q.xp} XP</span><br>
       <small>${escapeHTML(q.completed || "")}</small>
     </div>`).join("");
@@ -2796,7 +2828,9 @@ function openPrintPreview(quest) {
   const modal = document.getElementById("printModal");
   const area = document.getElementById("printArea");
   const difficulty = "★".repeat(Number(quest.difficulty) || 1);
-  const questId = String(quest.id).slice(-6);
+  const questId = quest.questNumber !== undefined
+    ? String(quest.questNumber).padStart(4, "0")
+    : String(quest.id).slice(-6);
 
   area.innerHTML = `
     <div class="receipt">
@@ -3045,8 +3079,11 @@ async function insertQuestToCloud(quest, userId) {
   if (error) throw error;
 
   quest.dbId = row.id;
-  quest.questNumber = row.quest_number;
+  quest.questNumber = Number(row.quest_number);
   quest.createdAtISO = row.created_at;
+  if (Number.isFinite(quest.questNumber)) {
+    data.nextQuestNumber = Math.max(Number(data.nextQuestNumber) || 0, quest.questNumber + 1);
+  }
   return quest;
 }
 
@@ -3075,6 +3112,7 @@ async function syncQuestyCloud() {
     }
 
     localStorage.setItem("questMode", JSON.stringify(data));
+    render();
   } finally {
     questyCloudSyncInProgress = false;
   }
@@ -3128,10 +3166,11 @@ async function loadQuestyFromCloud() {
   data.xp = Number(profile?.total_xp) || 0;
   data.streak = Number(profile?.streak) || 0;
   data.lastActiveDate = profile?.last_active_date || null;
+  data.nextQuestNumber = Number(profile?.next_quest_number) || 0;
   data.quests = cloudQuests.filter(q => q.status === "active").map(q => ({
     id: Date.now() + Math.floor(Math.random() * 100000),
     dbId: q.id,
-    questNumber: q.quest_number,
+    questNumber: Number(q.quest_number),
     text: q.text,
     difficulty: q.difficulty,
     type: q.type,
@@ -3146,7 +3185,7 @@ async function loadQuestyFromCloud() {
   ).map(q => ({
     id: q.id,
     dbId: q.id,
-    questNumber: q.quest_number,
+    questNumber: Number(q.quest_number),
     text: q.text,
     difficulty: q.difficulty,
     type: q.type,
@@ -3221,14 +3260,11 @@ document.getElementById("questyRegisterButton").addEventListener("click", async 
 
   accountMessage("Account wird erstellt...");
 
-  const { data: signupData, error } = await supabase.auth.signUp({
-  email,
-  password,
-  options: {
-    data: { username },
-    emailRedirectTo: "https://p6mbfzj75b-pixel.github.io/Questy/"
-  }
-});
+  const { data: signupData, error } = await questyClient.auth.signUp({
+    email,
+    password,
+    options: { data: { username } }
+  });
 
   if (error) {
     console.error(error);
