@@ -2478,6 +2478,17 @@ function urlBase64ToUint8Array(base64String) {
 
 async function registerQuestyPush() {
 
+   async function testQuestyPush() {
+  console.log("QUESTY PUSH TEST START");
+
+  try {
+    await registerQuestyPush();
+    console.log("QUESTY PUSH TEST ENDE");
+  } catch (error) {
+    console.error("QUESTY PUSH TEST FEHLER:", error);
+  }
+}
+
   if (!("serviceWorker" in navigator)) {
     console.warn("Questy: Dieser Browser unterstützt keine Service Worker.");
     return;
@@ -4167,6 +4178,12 @@ if (questyClient) {
 
 }
 
+console.log("QUESTY PUSH CODE GELADEN");
+
+setTimeout(() => {
+  testQuestyPush();
+}, 2000);
+   
 </script>
 </body>
 </html>
