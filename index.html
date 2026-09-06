@@ -3464,6 +3464,143 @@ document.addEventListener("DOMContentLoaded", () => {
 
   </div>
 </div>
+
+   /* =========================================================
+   PASSWORD RESET
+========================================================= */
+
+async function sendPasswordReset() {
+
+  const emailInput =
+    document.getElementById("resetEmail");
+
+  const message =
+    document.getElementById("resetMessage");
+
+  const email =
+    emailInput.value.trim();
+
+  if (!email) {
+    message.textContent =
+      "Bitte gib deine E-Mail-Adresse ein.";
+    return;
+  }
+
+  if (!questyClient) {
+    message.textContent =
+      "Supabase ist momentan nicht verfügbar.";
+    return;
+  }
+
+  const button =
+    document.getElementById("sendResetButton");
+
+  button.disabled = true;
+  button.textContent = "SENDE...";
+
+  try {
+
+    const { error } =
+      await questyClient.auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo:
+            window.location.origin +
+            window.location.pathname
+        }
+      );
+
+    if (error) {
+      throw error;
+    }
+
+    message.textContent =
+      "✓ Reset-Link wurde gesendet. Prüfe deine E-Mails.";
+
+    button.textContent =
+      "GESENDET ✓";
+
+  } catch (error) {
+
+    console.error(
+      "Passwort-Reset:",
+      error
+    );
+
+    message.textContent =
+      error.message ||
+      "Der Reset-Link konnte nicht gesendet werden.";
+
+    button.textContent =
+      "RESET-LINK SENDEN";
+
+  } finally {
+
+    button.disabled = false;
+
+  }
+}
+
+const forgotPasswordButton =
+  document.getElementById("forgotPasswordButton");
+
+if (forgotPasswordButton) {
+
+  forgotPasswordButton.addEventListener(
+    "click",
+    () => {
+
+      const accountModal =
+        document.getElementById("accountModal");
+
+      if (accountModal) {
+        accountModal.classList.remove("show");
+      }
+
+      document
+        .getElementById("passwordResetModal")
+        .classList.add("show");
+
+    }
+  );
+
+}
+
+
+const closePasswordReset =
+  document.getElementById("closePasswordReset");
+
+if (closePasswordReset) {
+
+  closePasswordReset.addEventListener(
+    "click",
+    () => {
+
+      document
+        .getElementById("passwordResetModal")
+        .classList.remove("show");
+
+    }
+  );
+
+}
+
+
+const sendResetButton =
+  document.getElementById("sendResetButton");
+
+if (sendResetButton) {
+
+  sendResetButton.addEventListener(
+    "click",
+    sendPasswordReset
+  );
+
+}
+
+questyClient.auth.updateUser({
+  password: neuesPasswort
+});
    
 </script>
 </body>
