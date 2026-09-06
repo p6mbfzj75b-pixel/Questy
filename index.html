@@ -3648,5 +3648,20 @@ if (questyClient) {
 }
 
 </script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js")
+        .then(registration => {
+          console.log("Questy Service Worker registriert:", registration.scope);
+        })
+        .catch(error => {
+          console.error("Questy Service Worker Fehler:", error);
+        });
+    });
+  }
+</script>
+   
 </body>
 </html>
