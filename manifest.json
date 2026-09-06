@@ -1,7 +1,7 @@
 {
-  "name": "QuestMode",
-  "short_name": "QuestMode",
-  "description": "Dein Leben. Deine Quests.",
+  "name": "Questy",
+  "short_name": "Questy",
+  "description": "Gamificate your life.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
