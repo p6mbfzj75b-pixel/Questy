@@ -2321,6 +2321,12 @@ try {
 } catch (error) {
   console.error("Questy: Supabase konnte nicht initialisiert werden.", error);
 }
+
+console.log(
+  "Questy Supabase:",
+  questyClient ? "VERBUNDEN" : "OFFLINE"
+);
+   
 /* =========================================================
    QUESTY — STABILE VERSION
 ========================================================= */
