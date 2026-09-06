@@ -2268,6 +2268,30 @@ button:active {
 </div>
 
 
+<!-- PASSWORD RESET MODAL -->
+<div id="passwordResetModal" class="modal">
+  <div class="modal-box">
+    <button class="close" id="closePasswordReset" type="button">×</button>
+    <h2>PASSWORT ZURÜCKSETZEN</h2>
+    <p class="quest-meta">Gib deine E-Mail-Adresse ein. Du bekommst einen Link, mit dem du dein Passwort zurücksetzen kannst.</p>
+    <input type="email" id="resetEmail" placeholder="E-Mail-Adresse" autocomplete="email">
+    <button type="button" id="sendResetButton" class="primary" style="margin-top:12px">RESET-LINK SENDEN</button>
+    <p id="resetMessage" class="quest-meta" style="margin-top:15px"></p>
+  </div>
+</div>
+
+<!-- SET NEW PASSWORD MODAL -->
+<div id="newPasswordModal" class="modal">
+  <div class="modal-box">
+    <h2>NEUES PASSWORT</h2>
+    <p class="quest-meta">Dein Reset-Link wurde erkannt. Vergib jetzt ein neues Passwort.</p>
+    <input type="password" id="newPassword" placeholder="Neues Passwort" autocomplete="new-password">
+    <input type="password" id="newPasswordConfirm" placeholder="Neues Passwort wiederholen" autocomplete="new-password" style="margin-top:10px">
+    <button type="button" id="saveNewPasswordButton" class="primary" style="margin-top:12px">PASSWORT SPEICHERN</button>
+    <p id="newPasswordMessage" class="quest-meta" style="margin-top:15px"></p>
+  </div>
+</div>
+
 <!-- =======================================================
      PRINT MODAL
 ======================================================= -->
@@ -3347,12 +3371,6 @@ document.getElementById("questyLogoutButton").addEventListener("click", async ()
   setTimeout(() => accountModal.classList.remove("show"), 500);
 });
 
-if (questyClient) {
-  questyClient.auth.onAuthStateChange((_event, session) => {
-    accountButton.textContent = session?.user ? "ACCOUNT ✓" : "ACCOUNT";
-  });
-}
-
 initializeQuestyAccount();
 
 /* =========================================================
@@ -3423,185 +3441,176 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!questyCloudLoaded) save();
 });
 
-<div id="passwordResetModal" class="account-modal">
-  <div class="account-modal-content">
 
-    <button
-      type="button"
-      id="closePasswordReset"
-      class="account-close"
-    >
-      ×
-    </button>
 
-    <h2>PASSWORT VERGESSEN?</h2>
-
-    <p class="quest-meta">
-      Gib deine E-Mail-Adresse ein.
-      Du bekommst einen Link, mit dem du dein Passwort zurücksetzen kannst.
-    </p>
-
-    <input
-      type="email"
-      id="resetEmail"
-      placeholder="E-Mail-Adresse"
-      autocomplete="email"
-    >
-
-    <button
-      type="button"
-      id="sendResetButton"
-      class="primary-button"
-    >
-      RESET-LINK SENDEN
-    </button>
-
-    <p
-      id="resetMessage"
-      class="quest-meta"
-      style="margin-top:15px;"
-    ></p>
-
-  </div>
-</div>
-
-   /* =========================================================
+/* =========================================================
    PASSWORD RESET
 ========================================================= */
 
+function openPasswordResetModal() {
+  const modal = document.getElementById("passwordResetModal");
+  const accountModal = document.getElementById("questyAuthModal");
+
+  if (accountModal) accountModal.classList.remove("show");
+
+  if (modal) {
+    modal.classList.add("show");
+
+    const loginEmail = document.getElementById("questyLoginEmail");
+    const resetEmail = document.getElementById("resetEmail");
+
+    if (resetEmail && loginEmail && loginEmail.value.trim()) {
+      resetEmail.value = loginEmail.value.trim();
+    }
+  }
+}
+
 async function sendPasswordReset() {
+  const emailInput = document.getElementById("resetEmail");
+  const message = document.getElementById("resetMessage");
+  const button = document.getElementById("sendResetButton");
 
-  const emailInput =
-    document.getElementById("resetEmail");
+  if (!emailInput || !message || !button) return;
 
-  const message =
-    document.getElementById("resetMessage");
-
-  const email =
-    emailInput.value.trim();
+  const email = emailInput.value.trim();
 
   if (!email) {
-    message.textContent =
-      "Bitte gib deine E-Mail-Adresse ein.";
+    message.textContent = "Bitte gib deine E-Mail-Adresse ein.";
+    message.style.color = "var(--red)";
     return;
   }
 
   if (!questyClient) {
-    message.textContent =
-      "Supabase ist momentan nicht verfügbar.";
+    message.textContent = "Supabase ist momentan nicht verfügbar.";
+    message.style.color = "var(--red)";
     return;
   }
-
-  const button =
-    document.getElementById("sendResetButton");
 
   button.disabled = true;
   button.textContent = "SENDE...";
 
   try {
+    const redirectTo = window.location.origin + window.location.pathname;
 
-    const { error } =
-      await questyClient.auth.resetPasswordForEmail(
-        email,
-        {
-          redirectTo:
-            window.location.origin +
-            window.location.pathname
-        }
-      );
+    const { error } = await questyClient.auth.resetPasswordForEmail(email, {
+      redirectTo
+    });
 
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
 
-    message.textContent =
-      "✓ Reset-Link wurde gesendet. Prüfe deine E-Mails.";
-
-    button.textContent =
-      "GESENDET ✓";
-
+    message.textContent = "✓ Reset-Link wurde gesendet. Prüfe deine E-Mails.";
+    message.style.color = "var(--green)";
+    button.textContent = "GESENDET ✓";
   } catch (error) {
-
-    console.error(
-      "Passwort-Reset:",
-      error
-    );
-
-    message.textContent =
-      error.message ||
-      "Der Reset-Link konnte nicht gesendet werden.";
-
-    button.textContent =
-      "RESET-LINK SENDEN";
-
+    console.error("Questy: Passwort-Reset fehlgeschlagen.", error);
+    message.textContent = error.message || "Der Reset-Link konnte nicht gesendet werden.";
+    message.style.color = "var(--red)";
+    button.textContent = "RESET-LINK SENDEN";
   } finally {
-
     button.disabled = false;
-
   }
 }
 
-const forgotPasswordButton =
-  document.getElementById("forgotPasswordButton");
+async function saveNewPassword() {
+  const passwordInput = document.getElementById("newPassword");
+  const confirmInput = document.getElementById("newPasswordConfirm");
+  const message = document.getElementById("newPasswordMessage");
+  const button = document.getElementById("saveNewPasswordButton");
 
+  if (!passwordInput || !confirmInput || !message || !button) return;
+
+  const password = passwordInput.value;
+  const confirm = confirmInput.value;
+
+  if (password.length < 6) {
+    message.textContent = "Das Passwort muss mindestens 6 Zeichen haben.";
+    message.style.color = "var(--red)";
+    return;
+  }
+
+  if (password !== confirm) {
+    message.textContent = "Die Passwörter stimmen nicht überein.";
+    message.style.color = "var(--red)";
+    return;
+  }
+
+  if (!questyClient) {
+    message.textContent = "Supabase ist momentan nicht verfügbar.";
+    message.style.color = "var(--red)";
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "SPEICHERE...";
+
+  try {
+    const { error } = await questyClient.auth.updateUser({ password });
+
+    if (error) throw error;
+
+    message.textContent = "✓ Passwort geändert.";
+    message.style.color = "var(--green)";
+    passwordInput.value = "";
+    confirmInput.value = "";
+    button.textContent = "GESPEICHERT ✓";
+
+    setTimeout(() => {
+      document.getElementById("newPasswordModal")?.classList.remove("show");
+    }, 1000);
+  } catch (error) {
+    console.error("Questy: Passwort konnte nicht geändert werden.", error);
+    message.textContent = error.message || "Das Passwort konnte nicht geändert werden.";
+    message.style.color = "var(--red)";
+    button.textContent = "PASSWORT SPEICHERN";
+  } finally {
+    button.disabled = false;
+  }
+}
+
+const forgotPasswordButton = document.getElementById("forgotPasswordButton");
 if (forgotPasswordButton) {
-
-  forgotPasswordButton.addEventListener(
-    "click",
-    () => {
-
-      const accountModal =
-        document.getElementById("accountModal");
-
-      if (accountModal) {
-        accountModal.classList.remove("show");
-      }
-
-      document
-        .getElementById("passwordResetModal")
-        .classList.add("show");
-
-    }
-  );
-
+  forgotPasswordButton.addEventListener("click", openPasswordResetModal);
 }
 
-
-const closePasswordReset =
-  document.getElementById("closePasswordReset");
-
+const closePasswordReset = document.getElementById("closePasswordReset");
 if (closePasswordReset) {
-
-  closePasswordReset.addEventListener(
-    "click",
-    () => {
-
-      document
-        .getElementById("passwordResetModal")
-        .classList.remove("show");
-
-    }
-  );
-
+  closePasswordReset.addEventListener("click", () => {
+    document.getElementById("passwordResetModal")?.classList.remove("show");
+  });
 }
 
-
-const sendResetButton =
-  document.getElementById("sendResetButton");
-
+const sendResetButton = document.getElementById("sendResetButton");
 if (sendResetButton) {
-
-  sendResetButton.addEventListener(
-    "click",
-    sendPasswordReset
-  );
-
+  sendResetButton.addEventListener("click", sendPasswordReset);
 }
 
-questyClient.auth.updateUser({
-  password: neuesPasswort
+const saveNewPasswordButton = document.getElementById("saveNewPasswordButton");
+if (saveNewPasswordButton) {
+  saveNewPasswordButton.addEventListener("click", saveNewPassword);
+}
+
+document.getElementById("passwordResetModal")?.addEventListener("click", event => {
+  if (event.target.id === "passwordResetModal") {
+    event.currentTarget.classList.remove("show");
+  }
 });
-   
+
+document.getElementById("newPasswordModal")?.addEventListener("click", event => {
+  if (event.target.id === "newPasswordModal") {
+    event.currentTarget.classList.remove("show");
+  }
+});
+
+if (questyClient) {
+  questyClient.auth.onAuthStateChange((event, session) => {
+    accountButton.textContent = session?.user ? "ACCOUNT ✓" : "ACCOUNT";
+
+    if (event === "PASSWORD_RECOVERY") {
+      document.getElementById("newPasswordModal")?.classList.add("show");
+    }
+  });
+}
+
 </script>
 </body>
 </html>
