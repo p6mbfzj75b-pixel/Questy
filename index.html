@@ -2295,7 +2295,57 @@ button:active {
 <!-- =======================================================
      PRINT MODAL
 ======================================================= -->
+<!-- =======================================================
+     REMINDER MODAL
+======================================================= -->
 
+<div id="reminderModal" class="modal">
+
+  <div class="modal-box">
+
+    <h2>QUEST ERINNERUNG</h2>
+
+    <p id="reminderQuestText" class="quest-meta"></p>
+
+    <label for="reminderDateTime">
+      Wann soll Questy dich erinnern?
+    </label>
+
+    <input
+      type="datetime-local"
+      id="reminderDateTime"
+    >
+
+    <div style="display:flex; gap:10px; margin-top:20px;">
+
+      <button
+        id="saveReminderButton"
+        class="primary"
+      >
+        ERINNERUNG SPEICHERN
+      </button>
+
+      <button
+        id="removeReminderButton"
+        class="secondary"
+      >
+        ERINNERUNG ENTFERNEN
+      </button>
+
+    </div>
+
+    <button
+      id="closeReminderModal"
+      class="secondary"
+      style="margin-top:10px;"
+    >
+      ABBRECHEN
+    </button>
+
+  </div>
+
+</div>
+   
 <div
   id="printModal"
   class="modal"
@@ -2497,7 +2547,11 @@ function makeQuest(text, difficulty, type = "normal") {
     xp: getXP(difficulty),
     category: "Allgemein",
     created: new Date().toLocaleString("de-DE"),
-    createdAtISO: new Date().toISOString()
+    createdAtISO: new Date().toISOString(),
+
+    // Optionale Erinnerung
+    reminderAt: null,
+    reminderSentAt: null
   };
 }
 
@@ -2807,6 +2861,181 @@ async function checkAchievements() {
 }
 
 /* =========================================================
+   QUEST REMINDERS
+========================================================= */
+
+let reminderQuestId = null;
+
+function openReminderModal(quest) {
+
+  const modal = document.getElementById("reminderModal");
+  const text = document.getElementById("reminderQuestText");
+  const input = document.getElementById("reminderDateTime");
+
+  if (!modal || !text || !input || !quest) return;
+
+  reminderQuestId = quest.id;
+
+  text.textContent = quest.text;
+
+  if (quest.reminderAt) {
+
+    const date = new Date(quest.reminderAt);
+
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000
+    );
+
+    input.value = localDate
+      .toISOString()
+      .slice(0, 16);
+
+  } else {
+
+    // Standardmäßig 1 Stunde ab jetzt
+    const date = new Date(
+      Date.now() + 60 * 60 * 1000
+    );
+
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000
+    );
+
+    input.value = localDate
+      .toISOString()
+      .slice(0, 16);
+  }
+
+  modal.classList.add("show");
+}
+
+
+function closeReminderModal() {
+
+  const modal = document.getElementById("reminderModal");
+
+  if (modal) {
+    modal.classList.remove("show");
+  }
+
+  reminderQuestId = null;
+}
+
+
+async function saveQuestReminder() {
+
+  if (reminderQuestId === null) return;
+
+  const quest = findQuest(reminderQuestId);
+
+  if (!quest) return;
+
+  const input = document.getElementById("reminderDateTime");
+
+  if (!input || !input.value) {
+    toast("Bitte Datum und Uhrzeit auswählen.");
+    return;
+  }
+
+  const reminderDate = new Date(input.value);
+
+  if (Number.isNaN(reminderDate.getTime())) {
+    toast("Ungültiges Datum.");
+    return;
+  }
+
+  if (reminderDate <= new Date()) {
+    toast("Die Erinnerung muss in der Zukunft liegen.");
+    return;
+  }
+
+  quest.reminderAt = reminderDate.toISOString();
+  quest.reminderSentAt = null;
+
+  save();
+  render();
+
+  if (questyCloudLoaded && quest.dbId) {
+
+    try {
+
+      const { error } = await questyClient
+        .from("quests")
+        .update({
+          reminder_at: quest.reminderAt,
+          reminder_sent_at: null
+        })
+        .eq("id", quest.dbId);
+
+      if (error) throw error;
+
+    } catch (error) {
+
+      console.error(
+        "Questy: Erinnerung konnte nicht gespeichert werden.",
+        error
+      );
+
+      toast("Erinnerung lokal gespeichert, Cloud-Speicherung fehlgeschlagen.");
+      closeReminderModal();
+      return;
+    }
+  }
+
+  closeReminderModal();
+
+  toast("🔔 Erinnerung gespeichert.");
+}
+
+
+async function removeQuestReminder() {
+
+  if (reminderQuestId === null) return;
+
+  const quest = findQuest(reminderQuestId);
+
+  if (!quest) return;
+
+  quest.reminderAt = null;
+  quest.reminderSentAt = null;
+
+  save();
+  render();
+
+  if (questyCloudLoaded && quest.dbId) {
+
+    try {
+
+      const { error } = await questyClient
+        .from("quests")
+        .update({
+          reminder_at: null,
+          reminder_sent_at: null
+        })
+        .eq("id", quest.dbId);
+
+      if (error) throw error;
+
+    } catch (error) {
+
+      console.error(
+        "Questy: Erinnerung konnte nicht entfernt werden.",
+        error
+      );
+
+      toast("Erinnerung lokal entfernt, Cloud-Speicherung fehlgeschlagen.");
+      closeReminderModal();
+      return;
+    }
+  }
+
+  closeReminderModal();
+
+  toast("Erinnerung entfernt.");
+}
+
+   
+/* =========================================================
    RENDER
 ========================================================= */
 function renderQuests() {
@@ -2825,10 +3054,30 @@ function renderQuests() {
         <div class="quest-meta">${quest.questNumber !== undefined ? `#${String(quest.questNumber).padStart(4, "0")} · ` : ""}${typeName(quest.type)} · ${"★".repeat(Number(quest.difficulty) || 1)} · +${quest.xp} XP</div>
       </div>
       <div class="quest-buttons">
-        <button class="quest-btn complete" data-complete="${quest.id}" title="Quest abschließen">${icon("check")}</button>
-        <button class="quest-btn print" data-print="${quest.id}" title="Quest drucken">${icon("printer")}</button>
-        <button class="quest-btn delete" data-delete="${quest.id}" title="Quest löschen">${icon("trash")}</button>
-      </div>
+  <button
+    class="quest-btn complete"
+    data-complete="${quest.id}"
+    title="Quest abschließen"
+  >${icon("check")}</button>
+
+  <button
+    class="quest-btn print"
+    data-print="${quest.id}"
+    title="Quest drucken"
+  >${icon("printer")}</button>
+
+  <button
+    class="quest-btn reminder ${quest.reminderAt ? "active" : ""}"
+    data-reminder="${quest.id}"
+    title="${quest.reminderAt ? "Erinnerung bearbeiten" : "Erinnerung hinzufügen"}"
+  >🔔</button>
+
+  <button
+    class="quest-btn delete"
+    data-delete="${quest.id}"
+    title="Quest löschen"
+  >${icon("trash")}</button>
+</div>
     </div>
   `).join("");
 }
@@ -3139,17 +3388,20 @@ async function syncProfileToCloud(user) {
 
 function cloudQuestPayload(quest, userId, status = "active") {
   return {
-    user_id: userId,
-    text: String(quest.text || "Neue Quest"),
-    difficulty: Number(quest.difficulty) || 1,
-    type: quest.type || "normal",
-    xp: Number(quest.xp) || 0,
-    category: quest.category || "Allgemein",
-    status,
-    created_at: quest.createdAtISO || new Date().toISOString(),
-    completed_at: status === "completed" ? new Date().toISOString() : null
-  };
-}
+  user_id: userId,
+  text: String(quest.text || "Neue Quest"),
+  difficulty: Number(quest.difficulty) || 1,
+  type: quest.type || "normal",
+  xp: Number(quest.xp) || 0,
+  category: quest.category || "Allgemein",
+
+  reminder_at: quest.reminderAt || null,
+  reminder_sent_at: quest.reminderSentAt || null,
+
+  status,
+  created_at: quest.createdAtISO || new Date().toISOString(),
+  completed_at: status === "completed" ? new Date().toISOString() : null
+};
 
 async function insertQuestToCloud(quest, userId) {
   if (quest.dbId) return quest;
@@ -3260,6 +3512,8 @@ async function loadQuestyFromCloud() {
     type: q.type,
     xp: q.xp,
     category: q.category,
+    reminderAt: q.reminder_at || null,
+    reminderSentAt: q.reminder_sent_at || null,
     created: q.created_at ? new Date(q.created_at).toLocaleString("de-DE") : "",
     createdAtISO: q.created_at
   }));
@@ -3454,12 +3708,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (complete) { completeQuest(Number(complete.dataset.complete)); return; }
 
     const print = event.target.closest("[data-print]");
-    if (print) {
-      const quest = findQuest(Number(print.dataset.print));
-      if (quest) openPrintPreview(quest);
-      return;
+      if (print) {
+    const quest = findQuest(Number(print.dataset.print));
+    if (quest) openPrintPreview(quest);
+    return;
+  }
+
+  const reminder = event.target.closest("[data-reminder]");
+  if (reminder) {
+    const quest = findQuest(Number(reminder.dataset.reminder));
+
+    if (quest) {
+      openReminderModal(quest);
     }
 
+    return;
+  }
+     
     const del = event.target.closest("[data-delete]");
     if (del) deleteQuest(Number(del.dataset.delete));
   });
@@ -3470,6 +3735,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("printModal").addEventListener("click", event => {
     if (event.target.id === "printModal") event.currentTarget.classList.remove("show");
+  });
+
+   document
+  .getElementById("saveReminderButton")
+  .addEventListener("click", saveQuestReminder);
+
+document
+  .getElementById("removeReminderButton")
+  .addEventListener("click", removeQuestReminder);
+
+document
+  .getElementById("closeReminderModal")
+  .addEventListener("click", closeReminderModal);
+
+document
+  .getElementById("reminderModal")
+  .addEventListener("click", event => {
+    if (event.target.id === "reminderModal") {
+      closeReminderModal();
+    }
   });
 
   checkAchievements();
