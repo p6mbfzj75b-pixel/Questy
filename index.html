@@ -2458,12 +2458,13 @@ try {
 }
 console.log("Questy Supabase:", questyClient ? "VERBUNDEN" : "OFFLINE");
 
-/* =========================================================
-   PUSH-BENACHRICHTIGUNGEN
-========================================================= */
+console.log("QUESTY PUSH CODE GELADEN");
 
 function urlBase64ToUint8Array(base64String) {
-  const padding = "=".repeat((4 - base64String.length % 4) % 4);
+  const padding = "=".repeat(
+    (4 - (base64String.length % 4)) % 4
+  );
+
   const base64 = (base64String + padding)
     .replace(/-/g, "+")
     .replace(/_/g, "/");
@@ -2475,96 +2476,86 @@ function urlBase64ToUint8Array(base64String) {
   );
 }
 
-
 async function registerQuestyPush() {
 
-   async function testQuestyPush() {
-  console.log("QUESTY PUSH TEST START");
-
-  try {
-    await registerQuestyPush();
-    console.log("QUESTY PUSH TEST ENDE");
-  } catch (error) {
-    console.error("QUESTY PUSH TEST FEHLER:", error);
-  }
-}
+  console.log("QUESTY PUSH: Registrierung gestartet");
 
   if (!("serviceWorker" in navigator)) {
-    console.warn("Questy: Dieser Browser unterstützt keine Service Worker.");
+    console.error("QUESTY PUSH: Service Worker nicht unterstützt");
     return;
   }
 
   if (!("PushManager" in window)) {
-    console.warn("Questy: Dieser Browser unterstützt keine Push-Nachrichten.");
+    console.error("QUESTY PUSH: Push wird nicht unterstützt");
     return;
   }
 
   if (!questyClient) {
-    console.warn("Questy: Supabase ist nicht verfügbar.");
+    console.error("QUESTY PUSH: Supabase nicht verfügbar");
     return;
   }
 
   try {
 
-    /* -------------------------------------------------------
-       1. Service Worker registrieren
-    ------------------------------------------------------- */
-
-    const registration = await navigator.serviceWorker.register("./sw.js");
+    const registration =
+      await navigator.serviceWorker.register("./sw.js");
 
     console.log(
-      "Questy: Service Worker registriert:",
+      "QUESTY PUSH: Service Worker registriert",
       registration.scope
     );
-
-
-    /* -------------------------------------------------------
-       2. Eingeloggten Benutzer holen
-    ------------------------------------------------------- */
 
     const {
       data: { user },
       error: userError
     } = await questyClient.auth.getUser();
 
-    if (userError) throw userError;
+    if (userError) {
+      throw userError;
+    }
 
     if (!user) {
-      console.log("Questy: Kein eingeloggter Benutzer für Push.");
+      console.warn(
+        "QUESTY PUSH: Kein eingeloggter Benutzer"
+      );
       return;
     }
 
+    console.log(
+      "QUESTY PUSH: Benutzer gefunden:",
+      user.id
+    );
 
-    /* -------------------------------------------------------
-       3. Benachrichtigungsberechtigung prüfen
-    ------------------------------------------------------- */
+    if (Notification.permission === "default") {
 
-    let permission = Notification.permission;
+      console.log(
+        "QUESTY PUSH: Frage nach Benachrichtigungs-Berechtigung"
+      );
 
-    if (permission === "default") {
-
-      permission = await Notification.requestPermission();
-
+      await Notification.requestPermission();
     }
 
-    if (permission !== "granted") {
+    if (Notification.permission !== "granted") {
 
       console.warn(
-        "Questy: Benachrichtigungen wurden nicht erlaubt."
+        "QUESTY PUSH: Benachrichtigungen nicht erlaubt"
       );
 
       return;
     }
 
-
-    /* -------------------------------------------------------
-       4. Push-Subscription holen oder erstellen
-    ------------------------------------------------------- */
+    console.log(
+      "QUESTY PUSH: Benachrichtigungen erlaubt"
+    );
 
     let subscription =
       await registration.pushManager.getSubscription();
 
     if (!subscription) {
+
+      console.log(
+        "QUESTY PUSH: Erstelle neue Subscription"
+      );
 
       subscription =
         await registration.pushManager.subscribe({
@@ -2572,21 +2563,36 @@ async function registerQuestyPush() {
           userVisibleOnly: true,
 
           applicationServerKey:
-            urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+            urlBase64ToUint8Array(
+              VAPID_PUBLIC_KEY
+            )
 
         });
 
+    } else {
+
+      console.log(
+        "QUESTY PUSH: Subscription bereits vorhanden"
+      );
+
     }
 
+    const subscriptionJSON =
+      subscription.toJSON();
 
-    const subscriptionJSON = subscription.toJSON();
+    const endpoint =
+      subscriptionJSON.endpoint;
 
-    const endpoint = subscriptionJSON.endpoint;
+    const p256dh =
+      subscriptionJSON.keys?.p256dh;
 
-    const p256dh = subscriptionJSON.keys?.p256dh;
+    const auth =
+      subscriptionJSON.keys?.auth;
 
-    const auth = subscriptionJSON.keys?.auth;
-
+    console.log(
+      "QUESTY PUSH: Subscription erhalten",
+      subscriptionJSON
+    );
 
     if (!endpoint || !p256dh || !auth) {
 
@@ -2595,11 +2601,6 @@ async function registerQuestyPush() {
       );
 
     }
-
-
-    /* -------------------------------------------------------
-       5. Subscription in Supabase speichern
-    ------------------------------------------------------- */
 
     const {
       data: existingSubscription,
@@ -2611,33 +2612,41 @@ async function registerQuestyPush() {
       .eq("endpoint", endpoint)
       .maybeSingle();
 
-    if (existingError) throw existingError;
-
+    if (existingError) {
+      throw existingError;
+    }
 
     if (!existingSubscription) {
 
-      const { error: insertError } =
-        await questyClient
-          .from("push_subscriptions")
-          .insert({
+      console.log(
+        "QUESTY PUSH: Speichere Subscription in Supabase..."
+      );
 
-            user_id: user.id,
-            endpoint: endpoint,
-            p256dh: p256dh,
-            auth: auth
+      const {
+        error: insertError
+      } = await questyClient
+        .from("push_subscriptions")
+        .insert({
 
-          });
+          user_id: user.id,
+          endpoint: endpoint,
+          p256dh: p256dh,
+          auth: auth
 
-      if (insertError) throw insertError;
+        });
+
+      if (insertError) {
+        throw insertError;
+      }
 
       console.log(
-        "Questy: Push-Subscription erfolgreich gespeichert."
+        "QUESTY PUSH: ✅ Subscription in Supabase gespeichert"
       );
 
     } else {
 
       console.log(
-        "Questy: Push-Subscription bereits vorhanden."
+        "QUESTY PUSH: Subscription war bereits in Supabase"
       );
 
     }
@@ -2645,14 +2654,14 @@ async function registerQuestyPush() {
   } catch (error) {
 
     console.error(
-      "Questy: Push-Registrierung fehlgeschlagen:",
+      "QUESTY PUSH: ❌ FEHLER",
       error
     );
 
   }
 
 }
-   
+
 /* =========================================================
    QUESTY — STABILE VERSION
 ========================================================= */
@@ -4138,25 +4147,16 @@ document.getElementById("newPasswordModal")?.addEventListener("click", event => 
 });
 
 if (questyClient) {
-
   questyClient.auth.onAuthStateChange((event, session) => {
 
     accountButton.textContent =
       session?.user ? "ACCOUNT ✓" : "ACCOUNT";
 
-
     if (event === "PASSWORD_RECOVERY") {
-
       document
         .getElementById("newPasswordModal")
         ?.classList.add("show");
-
     }
-
-
-    /* -------------------------------------------------------
-       PUSH FÜR EINGELOGGTEN BENUTZER EINRICHTEN
-    ------------------------------------------------------- */
 
     if (
       session?.user &&
@@ -4165,25 +4165,12 @@ if (questyClient) {
         event === "INITIAL_SESSION"
       )
     ) {
-
-      setTimeout(() => {
-
-        registerQuestyPush();
-
-      }, 500);
-
+      registerQuestyPush();
     }
 
   });
-
 }
 
-console.log("QUESTY PUSH CODE GELADEN");
-
-setTimeout(() => {
-  testQuestyPush();
-}, 2000);
-   
 </script>
 </body>
 </html>
