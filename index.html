@@ -2439,6 +2439,10 @@ button:active {
 <script>
 const SUPABASE_URL = "https://ujuikqupxyiwoedgwthj.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_PP1dig04mTfN8YpzoZqUgw_ryQaK2Zy";
+
+const VAPID_PUBLIC_KEY =
+  "BMWgTAY49RyXbTpk3Zs7vOlDzqrevsC4KcQkDQOhB9TQeCxE6SjIl67iR6T6HETgQ7JjqWNHQphWiWtyeM6osX0";
+   
 let questyClient = null;
 try {
   if (window.supabase && typeof window.supabase.createClient === "function") {
