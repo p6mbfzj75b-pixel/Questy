@@ -786,6 +786,29 @@ button:active {
 
 }
 
+.reminder {
+
+  background:
+    var(--card2);
+
+  color:
+    var(--muted);
+
+  border:
+    1px solid var(--border);
+
+}
+
+.reminder.active {
+
+  background:
+    var(--primary);
+
+  color:
+    white;
+
+}
+
 
 /* =========================================================
    RANDOM
@@ -2293,19 +2316,31 @@ button:active {
 </div>
 
 <!-- =======================================================
-     PRINT MODAL
-======================================================= -->
-<!-- =======================================================
      REMINDER MODAL
 ======================================================= -->
 
-<div id="reminderModal" class="modal">
+<div
+  id="reminderModal"
+  class="modal"
+>
 
   <div class="modal-box">
 
-    <h2>QUEST ERINNERUNG</h2>
+    <button
+      class="close"
+      id="closeReminderModal"
+    >
+      ×
+    </button>
 
-    <p id="reminderQuestText" class="quest-meta"></p>
+    <h2>
+      QUEST ERINNERUNG
+    </h2>
+
+    <p
+      id="reminderQuestText"
+      class="quest-meta"
+    ></p>
 
     <label for="reminderDateTime">
       Wann soll Questy dich erinnern?
@@ -2316,7 +2351,9 @@ button:active {
       id="reminderDateTime"
     >
 
-    <div style="display:flex; gap:10px; margin-top:20px;">
+    <div
+      style="display:flex; gap:10px; margin-top:20px;"
+    >
 
       <button
         id="saveReminderButton"
@@ -2345,7 +2382,12 @@ button:active {
   </div>
 
 </div>
-   
+
+
+<!-- =======================================================
+     PRINT MODAL
+======================================================= -->
+
 <div
   id="printModal"
   class="modal"
@@ -2548,8 +2590,6 @@ function makeQuest(text, difficulty, type = "normal") {
     category: "Allgemein",
     created: new Date().toLocaleString("de-DE"),
     createdAtISO: new Date().toISOString(),
-
-    // Optionale Erinnerung
     reminderAt: null,
     reminderSentAt: null
   };
@@ -2892,7 +2932,6 @@ function openReminderModal(quest) {
 
   } else {
 
-    // Standardmäßig 1 Stunde ab jetzt
     const date = new Date(
       Date.now() + 60 * 60 * 1000
     );
@@ -2909,7 +2948,6 @@ function openReminderModal(quest) {
   modal.classList.add("show");
 }
 
-
 function closeReminderModal() {
 
   const modal = document.getElementById("reminderModal");
@@ -2920,7 +2958,6 @@ function closeReminderModal() {
 
   reminderQuestId = null;
 }
-
 
 async function saveQuestReminder() {
 
@@ -2987,7 +3024,6 @@ async function saveQuestReminder() {
   toast("🔔 Erinnerung gespeichert.");
 }
 
-
 async function removeQuestReminder() {
 
   if (reminderQuestId === null) return;
@@ -3034,7 +3070,6 @@ async function removeQuestReminder() {
   toast("Erinnerung entfernt.");
 }
 
-   
 /* =========================================================
    RENDER
 ========================================================= */
@@ -3054,30 +3089,11 @@ function renderQuests() {
         <div class="quest-meta">${quest.questNumber !== undefined ? `#${String(quest.questNumber).padStart(4, "0")} · ` : ""}${typeName(quest.type)} · ${"★".repeat(Number(quest.difficulty) || 1)} · +${quest.xp} XP</div>
       </div>
       <div class="quest-buttons">
-  <button
-    class="quest-btn complete"
-    data-complete="${quest.id}"
-    title="Quest abschließen"
-  >${icon("check")}</button>
-
-  <button
-    class="quest-btn print"
-    data-print="${quest.id}"
-    title="Quest drucken"
-  >${icon("printer")}</button>
-
-  <button
-    class="quest-btn reminder ${quest.reminderAt ? "active" : ""}"
-    data-reminder="${quest.id}"
-    title="${quest.reminderAt ? "Erinnerung bearbeiten" : "Erinnerung hinzufügen"}"
-  >🔔</button>
-
-  <button
-    class="quest-btn delete"
-    data-delete="${quest.id}"
-    title="Quest löschen"
-  >${icon("trash")}</button>
-</div>
+        <button class="quest-btn complete" data-complete="${quest.id}" title="Quest abschließen">${icon("check")}</button>
+        <button class="quest-btn print" data-print="${quest.id}" title="Quest drucken">${icon("printer")}</button>
+        <button class="quest-btn reminder ${quest.reminderAt ? "active" : ""}" data-reminder="${quest.id}" title="${quest.reminderAt ? "Erinnerung bearbeiten" : "Erinnerung hinzufügen"}">🔔</button>
+        <button class="quest-btn delete" data-delete="${quest.id}" title="Quest löschen">${icon("trash")}</button>
+      </div>
     </div>
   `).join("");
 }
@@ -3388,20 +3404,19 @@ async function syncProfileToCloud(user) {
 
 function cloudQuestPayload(quest, userId, status = "active") {
   return {
-  user_id: userId,
-  text: String(quest.text || "Neue Quest"),
-  difficulty: Number(quest.difficulty) || 1,
-  type: quest.type || "normal",
-  xp: Number(quest.xp) || 0,
-  category: quest.category || "Allgemein",
-
-  reminder_at: quest.reminderAt || null,
-  reminder_sent_at: quest.reminderSentAt || null,
-
-  status,
-  created_at: quest.createdAtISO || new Date().toISOString(),
-  completed_at: status === "completed" ? new Date().toISOString() : null
-};
+    user_id: userId,
+    text: String(quest.text || "Neue Quest"),
+    difficulty: Number(quest.difficulty) || 1,
+    type: quest.type || "normal",
+    xp: Number(quest.xp) || 0,
+    category: quest.category || "Allgemein",
+    status,
+    created_at: quest.createdAtISO || new Date().toISOString(),
+    completed_at: status === "completed" ? new Date().toISOString() : null,
+    reminder_at: quest.reminderAt || null,
+    reminder_sent_at: quest.reminderSentAt || null
+  };
+}
 
 async function insertQuestToCloud(quest, userId) {
   if (quest.dbId) return quest;
@@ -3512,10 +3527,10 @@ async function loadQuestyFromCloud() {
     type: q.type,
     xp: q.xp,
     category: q.category,
-    reminderAt: q.reminder_at || null,
-    reminderSentAt: q.reminder_sent_at || null,
     created: q.created_at ? new Date(q.created_at).toLocaleString("de-DE") : "",
-    createdAtISO: q.created_at
+    createdAtISO: q.created_at,
+    reminderAt: q.reminder_at || null,
+    reminderSentAt: q.reminder_sent_at || null
   }));
 
   data.history = cloudQuests.filter(q => q.status === "completed").sort((a,b) =>
@@ -3708,23 +3723,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (complete) { completeQuest(Number(complete.dataset.complete)); return; }
 
     const print = event.target.closest("[data-print]");
-      if (print) {
-    const quest = findQuest(Number(print.dataset.print));
-    if (quest) openPrintPreview(quest);
-    return;
-  }
-
-  const reminder = event.target.closest("[data-reminder]");
-  if (reminder) {
-    const quest = findQuest(Number(reminder.dataset.reminder));
-
-    if (quest) {
-      openReminderModal(quest);
+    if (print) {
+      const quest = findQuest(Number(print.dataset.print));
+      if (quest) openPrintPreview(quest);
+      return;
     }
 
-    return;
-  }
-     
+    const reminder = event.target.closest("[data-reminder]");
+    if (reminder) {
+      const quest = findQuest(Number(reminder.dataset.reminder));
+
+      if (quest) {
+        openReminderModal(quest);
+      }
+
+      return;
+    }
+
     const del = event.target.closest("[data-delete]");
     if (del) deleteQuest(Number(del.dataset.delete));
   });
@@ -3737,25 +3752,25 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.target.id === "printModal") event.currentTarget.classList.remove("show");
   });
 
-   document
-  .getElementById("saveReminderButton")
-  .addEventListener("click", saveQuestReminder);
+  document
+    .getElementById("saveReminderButton")
+    .addEventListener("click", saveQuestReminder);
 
-document
-  .getElementById("removeReminderButton")
-  .addEventListener("click", removeQuestReminder);
+  document
+    .getElementById("removeReminderButton")
+    .addEventListener("click", removeQuestReminder);
 
-document
-  .getElementById("closeReminderModal")
-  .addEventListener("click", closeReminderModal);
+  document
+    .getElementById("closeReminderModal")
+    .addEventListener("click", closeReminderModal);
 
-document
-  .getElementById("reminderModal")
-  .addEventListener("click", event => {
-    if (event.target.id === "reminderModal") {
-      closeReminderModal();
-    }
-  });
+  document
+    .getElementById("reminderModal")
+    .addEventListener("click", event => {
+      if (event.target.id === "reminderModal") {
+        closeReminderModal();
+      }
+    });
 
   checkAchievements();
   render();
@@ -3933,20 +3948,5 @@ if (questyClient) {
 }
 
 </script>
-
-<script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js")
-        .then(registration => {
-          console.log("Questy Service Worker registriert:", registration.scope);
-        })
-        .catch(error => {
-          console.error("Questy Service Worker Fehler:", error);
-        });
-    });
-  }
-</script>
-   
 </body>
 </html>
