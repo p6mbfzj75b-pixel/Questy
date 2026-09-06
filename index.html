@@ -2683,7 +2683,7 @@ async function acceptQuickQuest(shouldPrint = false) {
 /* =========================================================
    COMPLETE / DELETE
 ========================================================= */
-function completeQuest(id) {
+async function completeQuest(id) {
   const index = data.quests.findIndex(q => q.id === id);
   if (index === -1) return;
 
@@ -2695,15 +2695,19 @@ function completeQuest(id) {
   });
   data.quests.splice(index, 1);
   updateStreak();
-  checkAchievements();
-  save();
 
-  if (questyCloudLoaded) {
-    syncCompletedQuestToCloud(quest).catch(error =>
-      console.error("Questy: Abschluss konnte nicht synchronisiert werden.", error)
-    );
+  try {
+    await checkAchievements();
+
+    if (questyCloudLoaded) {
+      await syncCompletedQuestToCloud(quest);
+    }
+  } catch (error) {
+    console.error("Questy: Abschluss/Cloud-Synchronisierung fehlgeschlagen.", error);
+    toast("Quest abgeschlossen. Cloud-Synchronisierung wird erneut versucht.");
   }
 
+  save();
   render();
   toast(`QUEST ABGESCHLOSSEN · +${quest.xp} XP`);
 }
@@ -2761,13 +2765,45 @@ const achievements = [
   { id: "speed", name: "Keine Zeit zu verlieren", description: "Erstelle und erledige eine Quest.", check: () => data.history.length >= 1 }
 ];
 
-function checkAchievements() {
-  achievements.forEach(achievement => {
+async function syncAchievementToCloud(achievementId) {
+  if (!questyCloudLoaded || !questyClient) return;
+
+  const { data: { user } } = await questyClient.auth.getUser();
+  if (!user) return;
+
+  const { error } = await questyClient
+    .from("achievements")
+    .upsert({
+      user_id: user.id,
+      achievement_id: achievementId,
+      unlocked_at: new Date().toISOString()
+    }, {
+      onConflict: "user_id,achievement_id"
+    });
+
+  if (error) throw error;
+}
+
+async function checkAchievements() {
+  for (const achievement of achievements) {
     if (achievement.check() && !data.achievements[achievement.id]) {
       data.achievements[achievement.id] = true;
-      setTimeout(() => toast("ACHIEVEMENT FREIGESCHALTET: " + achievement.name), 200);
+
+      try {
+        await syncAchievementToCloud(achievement.id);
+      } catch (error) {
+        console.error(
+          "Questy: Achievement konnte nicht in der Cloud gespeichert werden.",
+          error
+        );
+      }
+
+      setTimeout(
+        () => toast("ACHIEVEMENT FREIGESCHALTET: " + achievement.name),
+        200
+      );
     }
-  });
+  }
 }
 
 /* =========================================================
@@ -3214,7 +3250,7 @@ async function loadQuestyFromCloud() {
   data.xp = Number(profile?.total_xp) || 0;
   data.streak = Number(profile?.streak) || 0;
   data.lastActiveDate = profile?.last_active_date || null;
-  data.nextQuestNumber = Number(profile?.next_quest_number) || 0;
+  data.nextQuestNumber = Math.max(1, Number(profile?.next_quest_number) || 1);
   data.quests = cloudQuests.filter(q => q.status === "active").map(q => ({
     id: Date.now() + Math.floor(Math.random() * 100000),
     dbId: q.id,
@@ -3415,7 +3451,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("questList").addEventListener("click", event => {
     const complete = event.target.closest("[data-complete]");
-    if (complete) return completeQuest(Number(complete.dataset.complete));
+    if (complete) { completeQuest(Number(complete.dataset.complete)); return; }
 
     const print = event.target.closest("[data-print]");
     if (print) {
