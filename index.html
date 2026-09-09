@@ -2384,10 +2384,17 @@ button:active {
     <div id="socialActionsMessage" class="quest-meta" style="margin-top:12px"></div>
   </div>
   <div class="card">
-    <h2>👤 Freunde</h2>
-    <p class="quest-meta">Freunde werden über ihren Questy-Spielernamen verbunden.</p>
-    <div style="display:flex;gap:8px"><input id="friendUsernameInput" type="text" placeholder="Spielername"><button id="addFriendButton" class="primary" type="button" style="width:auto;white-space:nowrap">HINZUFÜGEN</button></div>
-    <div id="friendList" style="margin-top:12px"></div>
+    <h2>🔎 Freunde finden</h2>
+    <p class="quest-meta">Suche einen Freund über seinen eindeutigen Questy-Spielernamen.</p>
+    <div style="display:flex;gap:8px;align-items:stretch">
+      <input id="friendUsernameInput" type="text" maxlength="30" autocomplete="off" placeholder="Spielername">
+      <button id="findFriendButton" class="primary" type="button" style="width:auto;white-space:nowrap">SUCHEN</button>
+    </div>
+    <div id="friendSearchResult" style="margin-top:12px"></div>
+  </div>
+  <div class="card">
+    <h2>👤 Meine Freunde</h2>
+    <div id="friendList"></div>
   </div>
 </section>
 
@@ -3849,21 +3856,79 @@ function initQuestyTabs() {
   document.getElementById("createRaidButton")?.addEventListener("click", () => {
     document.getElementById("socialActionsMessage").textContent = "Raid-System ist vorbereitet: gemeinsames Quest-Ziel, Boss-HP und Fortschritt werden im nächsten Social-Backend-Schritt gespeichert.";
   });
-  document.getElementById("addFriendButton")?.addEventListener("click", async () => {
+  async function findQuestyFriend() {
     const input = document.getElementById("friendUsernameInput");
-    const username = input.value.trim();
-    if (!username) return toast("Bitte einen Spielernamen eingeben.");
-    if (!questyCloudLoaded || !questyClient) return toast("Für echte Freundschaften musst du eingeloggt sein.");
+    const result = document.getElementById("friendSearchResult");
+    const username = input?.value.trim() || "";
+
+    if (!questyCloudLoaded || !questyClient) {
+      if (result) result.innerHTML = `<div class="empty-social">Für die Freundesuche musst du eingeloggt sein.</div>`;
+      return;
+    }
+    if (!username) {
+      if (result) result.innerHTML = `<div class="empty-social">Bitte einen Spielernamen eingeben.</div>`;
+      return;
+    }
+
+    if (result) result.innerHTML = `<div class="quest-meta">Suche läuft …</div>`;
+
+    try {
+      const { data: rows, error } = await questyClient.rpc("questy_find_player", { target_username: username });
+      if (error) throw error;
+
+      const player = Array.isArray(rows) ? rows[0] : null;
+      if (!player) {
+        result.innerHTML = `<div class="empty-social">Kein Spieler mit diesem Namen gefunden.</div>`;
+        return;
+      }
+
+      if (player.user_id === questyCurrentUserId) {
+        result.innerHTML = `<div class="empty-social">Das bist du selbst. 😄</div>`;
+        return;
+      }
+
+      result.innerHTML = `
+        <div class="friend-card" style="margin-top:8px">
+          <strong>${escapeHTML(player.username || "Questy Player")}</strong>
+          <div class="quest-meta" style="margin-top:4px">Spieler gefunden</div>
+          <button class="primary" type="button" data-send-friend="${escapeHTML(player.username || "")}" style="margin-top:10px">FREUNDSCHAFTSANFRAGE SENDEN</button>
+        </div>`;
+    } catch (error) {
+      console.error("Questy: Spielersuche fehlgeschlagen.", error);
+      result.innerHTML = `<div class="empty-social">Suche fehlgeschlagen.<br><small>${escapeHTML(error.message || "Bitte Social-SQL prüfen.")}</small></div>`;
+    }
+  }
+
+  document.getElementById("findFriendButton")?.addEventListener("click", findQuestyFriend);
+  document.getElementById("friendUsernameInput")?.addEventListener("keydown", event => {
+    if (event.key === "Enter") findQuestyFriend();
+  });
+
+  document.getElementById("friendSearchResult")?.addEventListener("click", async event => {
+    const button = event.target.closest("[data-send-friend]");
+    if (!button) return;
+
+    const username = button.dataset.sendFriend || "";
+    if (!username || !questyCloudLoaded || !questyClient) return;
+
+    button.disabled = true;
+    button.textContent = "WIRD GESENDET …";
+
     try {
       const { data: rpcData, error } = await questyClient.rpc("questy_send_friend_request", { target_username: username });
       if (error) throw error;
-      input.value = "";
+      document.getElementById("friendUsernameInput").value = "";
+      document.getElementById("friendSearchResult").innerHTML = `<div class="empty-social">${escapeHTML(rpcData?.message || "Freundschaftsanfrage gesendet.")}</div>`;
       toast(rpcData?.message || "Freundschaftsanfrage gesendet.");
+      await loadSocialData();
     } catch (error) {
       console.error("Questy: Freundschaftsanfrage fehlgeschlagen.", error);
+      button.disabled = false;
+      button.textContent = "FREUNDSCHAFTSANFRAGE SENDEN";
       toast(error.message || "Freundschaftsanfrage konnte nicht gesendet werden.");
     }
   });
+
   document.getElementById("friendList")?.addEventListener("click", event => {
     const button = event.target.closest("[data-accept-friend]");
     if (button) acceptFriendRequest(button.dataset.acceptFriend);
@@ -4394,16 +4459,29 @@ document.getElementById("questyRegisterButton").addEventListener("click", async 
   const password = document.getElementById("questyRegisterPassword").value;
 
   if (!username) return accountMessage("Bitte einen Spielernamen eingeben.");
+  if (username.length < 3) return accountMessage("Der Spielername muss mindestens 3 Zeichen haben.");
+  if (username.length > 30) return accountMessage("Der Spielername darf höchstens 30 Zeichen haben.");
   if (!email) return accountMessage("Bitte eine E-Mail eingeben.");
   if (password.length < 6) return accountMessage("Das Passwort muss mindestens 6 Zeichen haben.");
 
-  accountMessage("Account wird erstellt...");
+  accountMessage("Prüfe Spielernamen...");
 
   try {
+    const { data: availability, error: availabilityError } = await questyClient.rpc(
+      "questy_username_available",
+      { target_username: username }
+    );
+    if (availabilityError) throw availabilityError;
+    if (!availability?.available) {
+      return accountMessage(availability?.message || "Dieser Spielername ist bereits vergeben.");
+    }
+
+    accountMessage("Account wird erstellt...");
+
     const { data: signupData, error } = await questyClient.auth.signUp({
       email,
       password,
-      options: { data: { username } }
+      options: { data: { username: username.trim() } }
     });
 
     if (error) throw error;
