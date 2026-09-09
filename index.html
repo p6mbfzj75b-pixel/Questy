@@ -1635,6 +1635,132 @@ button:active {
 
 }
 
+
+/* =========================================================
+   QUESTY — TAB NAVIGATION + SOCIAL / INSIGHTS
+========================================================= */
+.tab-nav {
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  margin:0 0 20px;
+  position:sticky;
+  top:10px;
+  z-index:100;
+  padding:8px;
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:blur(12px);
+  border:1px solid var(--border);
+  border-radius:16px;
+}
+.tab-button {
+  border:1px solid transparent;
+  background:transparent;
+  color:var(--muted);
+  padding:11px 7px;
+  font-size:11px;
+  border-radius:11px;
+  min-width:0;
+}
+.tab-button.active {
+  background:var(--card2);
+  border-color:var(--border);
+  color:var(--text);
+  box-shadow:0 3px 10px rgba(0,0,0,.14);
+}
+.tab-icon { display:block; font-size:17px; margin-bottom:3px; }
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+.tab-panel > .card:last-child { margin-bottom:18px; }
+.dashboard-hero {
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  gap:12px;
+}
+.hero-stat {
+  padding:18px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:linear-gradient(145deg,var(--card),var(--card2));
+}
+.hero-number { font-size:32px; font-weight:900; color:var(--yellow); }
+.hero-label { color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:1px; }
+.insight {
+  border:1px solid var(--border);
+  border-left:4px solid var(--yellow);
+  background:var(--card2);
+  border-radius:12px;
+  padding:14px;
+  margin:10px 0;
+  line-height:1.45;
+}
+.insight strong { display:block; margin-bottom:5px; }
+.insight-action { margin-top:10px; }
+.social-score-grid, .social-grid {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+.social-score {
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:var(--bg);
+}
+.social-score .big { font-size:23px; font-weight:900; color:var(--yellow); }
+.rank-row {
+  display:grid;
+  grid-template-columns:36px 1fr auto;
+  gap:10px;
+  align-items:center;
+  padding:11px 0;
+  border-bottom:1px solid var(--border);
+}
+.rank-row:last-child { border-bottom:0; }
+.rank-place { font-weight:900; color:var(--yellow); }
+.rank-name { font-weight:800; }
+.rank-meta { color:var(--muted); font-size:11px; }
+.friend-card {
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:13px;
+  background:var(--card2);
+}
+.friend-card h3 { margin:0 0 5px; }
+.badge-pill {
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  color:var(--muted);
+  font-size:10px;
+  margin-top:7px;
+}
+.empty-social { text-align:center; padding:22px 10px; color:var(--muted); }
+.month-control { display:flex; gap:8px; align-items:center; }
+.month-control input { flex:1; }
+.split-preview {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:10px;
+}
+.split-part {
+  border:1px dashed var(--border);
+  border-radius:10px;
+  padding:10px;
+  color:var(--muted);
+  font-size:12px;
+}
+.profile-note { color:var(--muted); font-size:12px; line-height:1.45; }
+@media (max-width:600px) {
+  .tab-nav { grid-template-columns:repeat(5, minmax(0,1fr)); top:4px; }
+  .tab-button { font-size:9px; padding:9px 3px; }
+  .tab-icon { font-size:15px; }
+  .dashboard-hero, .social-grid, .social-score-grid { grid-template-columns:1fr; }
+  .month-control { flex-direction:column; align-items:stretch; }
+}
+
 </style>
 
 </head>
@@ -1713,7 +1839,21 @@ button:active {
 </header>
 
 
-<!-- =======================================================
+<!-- QUESTY TAB NAVIGATION -->
+<nav class="tab-nav" aria-label="Questy Bereiche">
+  <button class="tab-button active" data-tab="dashboard"><span class="tab-icon">🏠</span>Übersicht</button>
+  <button class="tab-button" data-tab="quests"><span class="tab-icon">⚔️</span>Eigene Quests</button>
+  <button class="tab-button" data-tab="social"><span class="tab-icon">👥</span>Socials</button>
+  <button class="tab-button" data-tab="achievements"><span class="tab-icon">🏆</span>Achievements</button>
+  <button class="tab-button" data-tab="profile"><span class="tab-icon">👤</span>Profil</button>
+</nav>
+
+<section class="tab-panel active" data-panel="dashboard">
+  <div class="dashboard-hero">
+    <div class="hero-stat"><div class="hero-label">Diesen Monat erledigt</div><div class="hero-number" id="monthCompleted">0</div><div class="quest-meta" id="monthCompletionText">Noch keine Monatsdaten.</div></div>
+    <div class="hero-stat"><div class="hero-label">Zuverlässigkeit</div><div class="hero-number" id="monthCompletionRate">0%</div><div class="quest-meta">deiner angelegten Quests</div></div>
+  </div>
+  <!-- =======================================================
      PLAYER PROFILE
 ======================================================= -->
 
@@ -1808,7 +1948,8 @@ button:active {
 </div>
 
 
-<!-- =======================================================
+
+  <!-- =======================================================
      MOMENTUM
 ======================================================= -->
 
@@ -1854,7 +1995,16 @@ button:active {
 </div>
 
 
-<!-- =======================================================
+
+  <div class="card">
+    <h2 class="section-title">💡 Questy Insights</h2>
+    <p class="quest-meta">Questy schaut nicht nur darauf, wie viel du machst, sondern auch darauf, welche Quests du tatsächlich abschließt.</p>
+    <div id="questInsights"></div>
+  </div>
+</section>
+
+<section class="tab-panel" data-panel="quests">
+  <!-- =======================================================
      QUEST ERSTELLEN
 ======================================================= -->
 
@@ -1955,7 +2105,8 @@ button:active {
 </div>
 
 
-<!-- =======================================================
+
+  <!-- =======================================================
      QUICK QUEST
 ======================================================= -->
 
@@ -2035,7 +2186,9 @@ button:active {
 
   <div id="quickResult" class="quick-preview" style="display:none"></div>
 
-<!-- =======================================================
+
+  <div id="quickResult" class="quick-preview" style="display:none"></div>
+  <!-- =======================================================
      RANDOM QUEST
 ======================================================= -->
 
@@ -2161,7 +2314,8 @@ button:active {
 </div>
 
 
-<!-- =======================================================
+
+  <!-- =======================================================
      ACTIVE QUESTS
 ======================================================= -->
 
@@ -2187,7 +2341,58 @@ button:active {
 
 
 
-<!-- =======================================================
+
+  <!-- =======================================================
+     HISTORY
+======================================================= -->
+
+<div class="card">
+
+  <h2>
+    Quest-Historie
+  </h2>
+
+  <div id="history"></div>
+
+</div>
+
+
+
+</section>
+
+<section class="tab-panel" data-panel="social">
+  <div class="card">
+    <h2 class="section-title">👥 Socials</h2>
+    <p class="quest-meta">Vergleiche dich mit Freunden – nicht nur nach XP, sondern danach, wie zuverlässig ihr eure eigenen Quests erledigt.</p>
+    <div class="social-score-grid">
+      <div class="social-score"><div class="hero-label">Deine Completion Rate</div><div class="big" id="socialMyRate">0%</div><div class="quest-meta">diesen Monat</div></div>
+      <div class="social-score"><div class="hero-label">Quests erledigt</div><div class="big" id="socialMyCompleted">0</div><div class="quest-meta">diesen Monat</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>🏆 Monats-Ranking</h2>
+    <p class="quest-meta">Das Ranking gewichtet Zuverlässigkeit und Aktivität. XP bleiben eine eigene Statistik.</p>
+    <div id="socialRanking"></div>
+  </div>
+  <div class="card">
+    <h2>⚔️ Quest Battles</h2>
+    <p class="quest-meta">Fordere Freunde heraus: Wer erledigt in einem festgelegten Zeitraum mehr seiner eigenen Quests? Der Verlierer verliert nichts.</p>
+    <div class="social-grid">
+      <div class="friend-card"><h3>1 gegen 1</h3><div class="quest-meta">7 Tage · eigene Quests · keine XP-Verluste</div><button class="primary" type="button" id="createBattleButton" style="margin-top:12px">BATTLE STARTEN</button></div>
+      <div class="friend-card"><h3>👹 Boss Raid</h3><div class="quest-meta">Gemeinsam Quests erledigen und einen Boss besiegen.</div><button class="secondary" type="button" id="createRaidButton" style="margin-top:12px">RAID ERSTELLEN</button></div>
+    </div>
+    <div id="socialActionsMessage" class="quest-meta" style="margin-top:12px"></div>
+  </div>
+  <div class="card">
+    <h2>👤 Freunde</h2>
+    <p class="quest-meta">Freunde werden über ihren Questy-Spielernamen verbunden.</p>
+    <div style="display:flex;gap:8px"><input id="friendUsernameInput" type="text" placeholder="Spielername"><button id="addFriendButton" class="primary" type="button" style="width:auto;white-space:nowrap">HINZUFÜGEN</button></div>
+    <div id="friendList" style="margin-top:12px"></div>
+  </div>
+</section>
+
+<section class="tab-panel" data-panel="achievements">
+  <!-- =======================================================
      ACHIEVEMENTS
 ======================================================= -->
 
@@ -2223,7 +2428,11 @@ button:active {
 </div>
 
 
-<!-- =======================================================
+
+</section>
+
+<section class="tab-panel" data-panel="profile">
+  <!-- =======================================================
      THEME
 ======================================================= -->
 
@@ -2273,24 +2482,18 @@ button:active {
 </div>
 
 
-<!-- =======================================================
-     HISTORY
-======================================================= -->
 
-<div class="card">
-
-  <h2>
-    Quest-Historie
-  </h2>
-
-  <div id="history"></div>
-
-</div>
-
-
-</div>
-
-
+  <div class="card">
+    <h2>📊 Persönliche Auswertung</h2>
+    <div class="profile-grid">
+      <div class="stat"><div class="stat-number" id="profileCompletionRate">0%</div><div class="stat-label">Completion Rate</div></div>
+      <div class="stat"><div class="stat-number" id="profileHardCompletion">0%</div><div class="stat-label">Schwere Quests</div></div>
+      <div class="stat"><div class="stat-number" id="profileLongCompletion">0%</div><div class="stat-label">Große Quests</div></div>
+      <div class="stat"><div class="stat-number" id="profileTotalCreated">0</div><div class="stat-label">Quests angelegt</div></div>
+    </div>
+    <p class="profile-note" style="margin-top:12px">Questy nutzt diese Werte später auch für persönliche Insights. Es geht nicht darum, möglichst viele XP zu erzeugen, sondern die eigenen Vorhaben zuverlässig umzusetzen.</p>
+  </div>
+</section>
 <!-- PASSWORD RESET MODAL -->
 <div id="passwordResetModal" class="modal">
   <div class="modal-box">
@@ -2476,191 +2679,154 @@ function urlBase64ToUint8Array(base64String) {
   );
 }
 
+async function getCurrentPushEndpoint() {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) return null;
+
+  const registration = await navigator.serviceWorker.getRegistration("./");
+  if (!registration) return null;
+
+  const subscription = await registration.pushManager.getSubscription();
+  return subscription?.toJSON()?.endpoint || null;
+}
+
+async function removeCurrentPushSubscriptionForUser(userId) {
+  if (!questyClient || !userId) return;
+
+  try {
+    const registration = await navigator.serviceWorker.getRegistration("./");
+    const subscription = registration
+      ? await registration.pushManager.getSubscription()
+      : null;
+    const endpoint = subscription?.toJSON()?.endpoint || null;
+
+    if (endpoint) {
+      const { error } = await questyClient
+        .from("push_subscriptions")
+        .delete()
+        .eq("user_id", userId)
+        .eq("endpoint", endpoint);
+
+      if (error) {
+        console.warn("QUESTY PUSH: Datenbank-Eintrag konnte nicht gelöscht werden.", error);
+      }
+    }
+
+    // Zusätzlich die lokale Browser-Subscription beenden. Beim nächsten Login
+    // wird für den dann aktiven Account eine neue Subscription erzeugt.
+    if (subscription) {
+      await subscription.unsubscribe();
+    }
+
+    console.log("QUESTY PUSH: Subscription vom alten Account getrennt.");
+  } catch (error) {
+    // Logout darf nicht daran scheitern, dass Push nicht bereinigt werden konnte.
+    console.warn("QUESTY PUSH: Alte Subscription konnte nicht vollständig bereinigt werden.", error);
+  }
+}
+
 async function registerQuestyPush() {
 
   console.log("QUESTY PUSH: Registrierung gestartet");
 
-  if (!("serviceWorker" in navigator)) {
-    console.error("QUESTY PUSH: Service Worker nicht unterstützt");
-    return;
-  }
-
-  if (!("PushManager" in window)) {
-    console.error("QUESTY PUSH: Push wird nicht unterstützt");
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    console.warn("QUESTY PUSH: Push wird auf diesem Gerät nicht unterstützt.");
     return;
   }
 
   if (!questyClient) {
-    console.error("QUESTY PUSH: Supabase nicht verfügbar");
+    console.warn("QUESTY PUSH: Supabase nicht verfügbar.");
     return;
   }
 
   try {
+    const registration = await navigator.serviceWorker.register("./sw.js");
 
-    const registration =
-      await navigator.serviceWorker.register("./sw.js");
+    const { data: { user }, error: userError } =
+      await questyClient.auth.getUser();
 
-    console.log(
-      "QUESTY PUSH: Service Worker registriert",
-      registration.scope
-    );
-
-    const {
-      data: { user },
-      error: userError
-    } = await questyClient.auth.getUser();
-
-    if (userError) {
-      throw userError;
-    }
-
-    if (!user) {
-      console.warn(
-        "QUESTY PUSH: Kein eingeloggter Benutzer"
-      );
-      return;
-    }
-
-    console.log(
-      "QUESTY PUSH: Benutzer gefunden:",
-      user.id
-    );
+    if (userError) throw userError;
+    if (!user) return;
 
     if (Notification.permission === "default") {
-
-      console.log(
-        "QUESTY PUSH: Frage nach Benachrichtigungs-Berechtigung"
-      );
-
       await Notification.requestPermission();
     }
 
     if (Notification.permission !== "granted") {
-
-      console.warn(
-        "QUESTY PUSH: Benachrichtigungen nicht erlaubt"
-      );
-
+      console.warn("QUESTY PUSH: Benachrichtigungen nicht erlaubt.");
       return;
     }
 
-    console.log(
-      "QUESTY PUSH: Benachrichtigungen erlaubt"
-    );
-
-    let subscription =
-      await registration.pushManager.getSubscription();
+    let subscription = await registration.pushManager.getSubscription();
 
     if (!subscription) {
-
-      console.log(
-        "QUESTY PUSH: Erstelle neue Subscription"
-      );
-
-      subscription =
-        await registration.pushManager.subscribe({
-
-          userVisibleOnly: true,
-
-          applicationServerKey:
-            urlBase64ToUint8Array(
-              VAPID_PUBLIC_KEY
-            )
-
-        });
-
-    } else {
-
-      console.log(
-        "QUESTY PUSH: Subscription bereits vorhanden"
-      );
-
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      });
     }
 
-    const subscriptionJSON =
-      subscription.toJSON();
-
-    const endpoint =
-      subscriptionJSON.endpoint;
-
-    const p256dh =
-      subscriptionJSON.keys?.p256dh;
-
-    const auth =
-      subscriptionJSON.keys?.auth;
-
-    console.log(
-      "QUESTY PUSH: Subscription erhalten",
-      subscriptionJSON
-    );
+    const subscriptionJSON = subscription.toJSON();
+    const endpoint = subscriptionJSON.endpoint;
+    const p256dh = subscriptionJSON.keys?.p256dh;
+    const auth = subscriptionJSON.keys?.auth;
 
     if (!endpoint || !p256dh || !auth) {
-
-      throw new Error(
-        "Push-Subscription enthält keine gültigen Schlüssel."
-      );
-
+      throw new Error("Push-Subscription enthält keine gültigen Schlüssel.");
     }
 
-    const {
-      data: existingSubscription,
-      error: existingError
-    } = await questyClient
+    // Derselbe Browser-Endpunkt darf immer nur einem Questy-Account gehören.
+    // So kann ein später eingeloggter Account nicht versehentlich Benachrichtigungen
+    // für den vorherigen Account erhalten.
+    const { data: endpointRows, error: endpointError } = await questyClient
       .from("push_subscriptions")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("endpoint", endpoint)
-      .maybeSingle();
+      .select("id, user_id")
+      .eq("endpoint", endpoint);
 
-    if (existingError) {
-      throw existingError;
+    if (endpointError) throw endpointError;
+
+    const foreignRows = (endpointRows || []).filter(row => row.user_id !== user.id);
+
+    if (foreignRows.length) {
+      const { error: cleanupError } = await questyClient
+        .from("push_subscriptions")
+        .delete()
+        .eq("endpoint", endpoint)
+        .neq("user_id", user.id);
+
+      if (cleanupError) throw cleanupError;
     }
 
-    if (!existingSubscription) {
+    const ownRow = (endpointRows || []).find(row => row.user_id === user.id);
 
-      console.log(
-        "QUESTY PUSH: Speichere Subscription in Supabase..."
-      );
-
-      const {
-        error: insertError
-      } = await questyClient
+    if (!ownRow) {
+      const { error: insertError } = await questyClient
         .from("push_subscriptions")
         .insert({
-
           user_id: user.id,
-          endpoint: endpoint,
-          p256dh: p256dh,
-          auth: auth
-
+          endpoint,
+          p256dh,
+          auth
         });
 
-      if (insertError) {
-        throw insertError;
-      }
-
-      console.log(
-        "QUESTY PUSH: ✅ Subscription in Supabase gespeichert"
-      );
-
+      if (insertError) throw insertError;
     } else {
+      // Schlüssel können sich bei einer erneuerten Subscription ändern.
+      const { error: updateError } = await questyClient
+        .from("push_subscriptions")
+        .update({ p256dh, auth })
+        .eq("id", ownRow.id)
+        .eq("user_id", user.id);
 
-      console.log(
-        "QUESTY PUSH: Subscription war bereits in Supabase"
-      );
-
+      if (updateError) throw updateError;
     }
 
+    console.log("QUESTY PUSH: Subscription ist dem aktuellen Account zugeordnet.");
+
   } catch (error) {
-
-    console.error(
-      "QUESTY PUSH: ❌ FEHLER",
-      error
-    );
-
+    console.error("QUESTY PUSH: ❌ FEHLER", error);
   }
-
 }
+
 
 /* =========================================================
    QUESTY — STABILE VERSION
@@ -2690,18 +2856,6 @@ const quickQuests = {
   30: ["30 Minuten Haushalt", "30 Minuten Sport", "Eine größere Aufgabe beginnen", "30 Minuten Organisation", "Einen lange aufgeschobenen Punkt erledigen"]
 };
 
-let data = {
-  xp: 0,
-  quests: [],
-  history: [],
-  randomQuests: defaultRandomQuests.map(q => ({...q})),
-  achievements: {},
-  redeemedRewards: 0,
-  lastActiveDate: null,
-  streak: 0,
-  nextQuestNumber: 1
-};
-
 let currentRandomQuest = null;
 let currentQuickQuest = null;
 let questyCloudLoaded = false;
@@ -2710,35 +2864,103 @@ let questyCloudSyncInProgress = false;
 /* =========================================================
    LOAD + NORMALIZE DATA
 ========================================================= */
-try {
-  const raw = localStorage.getItem("questMode");
-  if (raw) {
-    const saved = JSON.parse(raw);
-    if (saved && typeof saved === "object") {
-      data = { ...data, ...saved };
-    }
+
+const QUESTY_STORAGE_PREFIX = "questy:";
+const QUESTY_GUEST_KEY = QUESTY_STORAGE_PREFIX + "guest";
+const QUESTY_LEGACY_KEY = "questMode";
+let questyCurrentUserId = null;
+
+function getQuestyStorageKey(userId = questyCurrentUserId) {
+  return userId
+    ? QUESTY_STORAGE_PREFIX + "user:" + String(userId)
+    : QUESTY_GUEST_KEY;
+}
+
+function normalizeQuestyData(saved) {
+  const normalized = {
+    xp: 0,
+    quests: [],
+    history: [],
+    randomQuests: defaultRandomQuests.map(q => ({ ...q })),
+    achievements: {},
+    redeemedRewards: 0,
+    lastActiveDate: null,
+    streak: 0,
+    nextQuestNumber: 1,
+    social: { friends: [], username: null, pending: [] }
+  };
+
+  if (saved && typeof saved === "object") {
+    Object.assign(normalized, saved);
   }
-} catch (error) {
-  console.warn("Questy: gespeicherte Daten konnten nicht gelesen werden.", error);
+
+  normalized.xp = Math.max(0, Number(normalized.xp) || 0);
+  normalized.streak = Math.max(0, Number(normalized.streak) || 0);
+  normalized.nextQuestNumber = Math.max(1, Number(normalized.nextQuestNumber) || 1);
+
+  if (!Array.isArray(normalized.quests)) normalized.quests = [];
+  if (!Array.isArray(normalized.history)) normalized.history = [];
+  if (!normalized.achievements || typeof normalized.achievements !== "object") normalized.achievements = {};
+
+  if (!Array.isArray(normalized.randomQuests) || normalized.randomQuests.length === 0) {
+    normalized.randomQuests = defaultRandomQuests.map(q => ({ ...q }));
+  }
+
+  normalized.randomQuests = normalized.randomQuests.map(q => {
+    if (typeof q === "string") return { text: q, category: "chaos" };
+    return {
+      text: String(q.text || "Neue Quest"),
+      category: q.category || "chaos"
+    };
+  });
+
+  return normalized;
 }
 
-if (!Array.isArray(data.quests)) data.quests = [];
-if (!Array.isArray(data.history)) data.history = [];
-if (!data.achievements || typeof data.achievements !== "object") data.achievements = {};
-if (!Array.isArray(data.randomQuests) || data.randomQuests.length === 0) {
-  data.randomQuests = defaultRandomQuests.map(q => ({...q}));
-}
-data.randomQuests = data.randomQuests.map(q => {
-  if (typeof q === "string") return { text: q, category: "chaos" };
-  return { text: String(q.text || "Neue Quest"), category: q.category || "chaos" };
-});
-
-function save() {
+function migrateLegacyLocalData() {
   try {
-    localStorage.setItem("questMode", JSON.stringify(data));
+    const guestKeyExists = localStorage.getItem(QUESTY_GUEST_KEY) !== null;
+    const legacy = localStorage.getItem(QUESTY_LEGACY_KEY);
+
+    // Alte Versionen speicherten alles unter questMode. Wir übernehmen
+    // diesen Stand einmalig in den gerätebezogenen Gast-Spielstand.
+    if (!guestKeyExists && legacy) {
+      localStorage.setItem(QUESTY_GUEST_KEY, legacy);
+    }
+
+    // Ab jetzt darf questMode nicht mehr als gemeinsamer Speicher
+    // für alle Accounts verwendet werden.
+    localStorage.removeItem(QUESTY_LEGACY_KEY);
+  } catch (error) {
+    console.warn("Questy: Lokale Datenmigration fehlgeschlagen.", error);
+  }
+}
+
+function loadLocalData(storageKey = getQuestyStorageKey()) {
+  try {
+    const raw = localStorage.getItem(storageKey);
+    if (!raw) return normalizeQuestyData(null);
+    return normalizeQuestyData(JSON.parse(raw));
+  } catch (error) {
+    console.warn("Questy: gespeicherte Daten konnten nicht gelesen werden.", error);
+    return normalizeQuestyData(null);
+  }
+}
+
+function saveLocalData(storageKey = getQuestyStorageKey()) {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(data));
   } catch (error) {
     console.error("Questy: Speichern fehlgeschlagen.", error);
   }
+}
+
+migrateLegacyLocalData();
+
+let data = loadLocalData(QUESTY_GUEST_KEY);
+
+function save() {
+  saveLocalData();
 
   if (questyCloudLoaded) {
     syncQuestyCloud().catch(error => {
@@ -2992,9 +3214,11 @@ async function completeQuest(id) {
 
   const quest = data.quests[index];
   data.xp += Number(quest.xp) || 0;
+  const completedAtISO = new Date().toISOString();
   data.history.unshift({
     ...quest,
-    completed: new Date().toLocaleString("de-DE")
+    completed: new Date(completedAtISO).toLocaleString("de-DE"),
+    completedAtISO
   });
   data.quests.splice(index, 1);
   updateStreak();
@@ -3211,7 +3435,8 @@ async function saveQuestReminder() {
           reminder_at: quest.reminderAt,
           reminder_sent_at: null
         })
-        .eq("id", quest.dbId);
+        .eq("id", quest.dbId)
+        .eq("user_id", questyCurrentUserId);
 
       if (error) throw error;
 
@@ -3257,7 +3482,8 @@ async function removeQuestReminder() {
           reminder_at: null,
           reminder_sent_at: null
         })
-        .eq("id", quest.dbId);
+        .eq("id", quest.dbId)
+        .eq("user_id", questyCurrentUserId);
 
       if (error) throw error;
 
@@ -3368,6 +3594,9 @@ function render() {
   renderAchievements();
   renderHistory();
   updateBuff();
+  renderMonthlyDashboard();
+  renderQuestInsights();
+  renderSocials();
 }
 
 /* =========================================================
@@ -3435,6 +3664,211 @@ function openPrintPreview(quest) {
       }, 2000);
     }
   };
+}
+
+
+/* =========================================================
+   TABS + MONTHLY STATS + QUEST INSIGHTS
+========================================================= */
+function parseQuestDate(quest, completed = false) {
+  const raw = completed ? (quest.completedAtISO || quest.completed || quest.createdAtISO || quest.created) : (quest.createdAtISO || quest.created);
+  if (!raw) return null;
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function monthKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}`;
+}
+
+function getMonthlyStats(date = new Date()) {
+  const key = monthKey(date);
+  const created = data.quests.filter(q => {
+    const d = parseQuestDate(q);
+    return d && monthKey(d) === key;
+  });
+  const completed = data.history.filter(q => {
+    const d = parseQuestDate(q, true);
+    return d && monthKey(d) === key;
+  });
+  const createdTotal = created.length + completed.length;
+  const rate = createdTotal ? Math.round((completed.length / createdTotal) * 100) : 0;
+  return { created, completed, createdTotal, rate };
+}
+
+function isLargeQuest(quest) {
+  const text = String(quest.text || "");
+  return Number(quest.difficulty) >= 3 || text.length >= 70 || /\b(komplett|gesamt|ganze|große|gr[oö]ßere|wohnung|keller|garage|steuer|projekt|lernen|umzug|aufr[aä]umen)\b/i.test(text);
+}
+
+function getCompletionRateForSet(created, completed) {
+  if (!created.length) return 0;
+  const completedIds = new Set(completed.map(q => String(q.id)));
+  const completedTexts = new Set(completed.map(q => String(q.text || "").trim().toLowerCase()));
+  let done = 0;
+  created.forEach(q => {
+    if (completedIds.has(String(q.id)) || completedTexts.has(String(q.text || "").trim().toLowerCase())) done++;
+  });
+  return Math.round((done / created.length) * 100);
+}
+
+function renderQuestInsights() {
+  const container = document.getElementById("questInsights");
+  if (!container) return;
+  const all = [...data.quests, ...data.history];
+  const largeCreated = all.filter(isLargeQuest);
+  const largeCompleted = data.history.filter(isLargeQuest);
+  const hardCreated = all.filter(q => Number(q.difficulty) >= 3);
+  const hardCompleted = data.history.filter(q => Number(q.difficulty) >= 3);
+  const largeRate = getCompletionRateForSet(largeCreated, largeCompleted);
+  const hardRate = getCompletionRateForSet(hardCreated, hardCompleted);
+  const smallCreated = all.filter(q => !isLargeQuest(q));
+  const smallCompleted = data.history.filter(q => !isLargeQuest(q));
+  const smallRate = getCompletionRateForSet(smallCreated, smallCompleted);
+  const insights = [];
+
+  if (largeCreated.length >= 4 && largeRate + 15 < smallRate) {
+    insights.push(`<div class="insight"><strong>🧩 Große Quests werden seltener erledigt</strong>Deine großen Quests liegen aktuell bei <b>${largeRate}%</b> Completion, kleinere bei <b>${smallRate}%</b>. Questy empfiehlt: Teile große Aufgaben in 2–4 konkrete Schritte auf.<div class="split-preview"><div class="split-part">1. Vorbereitung</div><div class="split-part">2. Erster konkreter Schritt</div><div class="split-part">3. Rest erledigen</div><div class="split-part">4. Abschluss</div></div></div>`);
+  } else if (largeCreated.length >= 3 && largeRate < 60) {
+    insights.push(`<div class="insight"><strong>🧩 Große Quest im Blick behalten</strong>Nur <b>${largeRate}%</b> deiner großen Quests werden aktuell abgeschlossen. Versuche, eine davon in kleinere Quests zu zerlegen.</div>`);
+  }
+  if (hardCreated.length >= 4 && hardRate + 10 < smallRate) {
+    insights.push(`<div class="insight"><strong>⭐ Schwierigkeit könnte zu hoch sein</strong>Schwere Quests werden deutlich seltener abgeschlossen (${hardRate}% vs. ${smallRate}% bei kleineren Quests). Die Sterne sollen dich herausfordern – nicht dazu bringen, Aufgaben unnötig groß zu machen.</div>`);
+  }
+  if (data.quests.length >= 8) {
+    insights.push(`<div class="insight"><strong>📦 Viele offene Quests</strong>Du hast gerade <b>${data.quests.length}</b> offene Quests. Vielleicht lohnt es sich, 1–3 davon als Hauptquests zu markieren und den Rest als Side Quests zu behandeln.</div>`);
+  }
+  if (!insights.length) {
+    insights.push(`<div class="insight"><strong>🔎 Questy beobachtet dich noch</strong>Je mehr Quests du anlegst und abschließt, desto besser kann Questy erkennen, welche Aufgabentypen dir leichtfallen und wo Aufteilen sinnvoll wäre.</div>`);
+  }
+  container.innerHTML = insights.join("");
+
+  const profileCompletion = document.getElementById("profileCompletionRate");
+  if (profileCompletion) profileCompletion.textContent = `${getCompletionRateForSet(all, data.history)}%`;
+  const hard = document.getElementById("profileHardCompletion");
+  if (hard) hard.textContent = `${hardRate}%`;
+  const long = document.getElementById("profileLongCompletion");
+  if (long) long.textContent = `${largeRate}%`;
+  const totalCreated = document.getElementById("profileTotalCreated");
+  if (totalCreated) totalCreated.textContent = all.length;
+}
+
+function renderMonthlyDashboard() {
+  const stats = getMonthlyStats();
+  const completed = document.getElementById("monthCompleted");
+  const rate = document.getElementById("monthCompletionRate");
+  const text = document.getElementById("monthCompletionText");
+  if (completed) completed.textContent = stats.completed.length;
+  if (rate) rate.textContent = `${stats.rate}%`;
+  if (text) text.textContent = stats.createdTotal ? `${stats.completed.length} von ${stats.createdTotal} angelegten Quests erledigt.` : "Noch keine Monatsdaten.";
+  const socialCompleted = document.getElementById("socialMyCompleted");
+  const socialRate = document.getElementById("socialMyRate");
+  if (socialCompleted) socialCompleted.textContent = stats.completed.length;
+  if (socialRate) socialRate.textContent = `${stats.rate}%`;
+}
+
+function renderSocials() {
+  const ranking = document.getElementById("socialRanking");
+  if (!ranking) return;
+  const stats = getMonthlyStats();
+  const friends = Array.isArray(data.social?.friends) ? data.social.friends : [];
+  const me = { user_id: questyCurrentUserId || "local", username: data.social?.username || "Du", completion_rate: stats.rate, quests_completed: stats.completed.length, xp_earned: stats.completed.reduce((s,q)=>s+(Number(q.xp)||0),0) };
+  const entries = [me, ...friends].sort((a,b)=>Number(b.completion_rate||0)-Number(a.completion_rate||0) || Number(b.quests_completed||0)-Number(a.quests_completed||0));
+  ranking.innerHTML = entries.map((e,i)=>`<div class="rank-row"><div class="rank-place">#${i+1}</div><div><div class="rank-name">${escapeHTML(e.username||"Questy Player")}</div><div class="rank-meta">${Number(e.quests_completed||0)} Quests · ${Number(e.xp_earned||0)} XP</div></div><strong>${Number(e.completion_rate||0)}%</strong></div>`).join("");
+
+  const friendList = document.getElementById("friendList");
+  if (friendList) {
+    const pending = Array.isArray(data.social?.pending) ? data.social.pending : [];
+    const pendingHTML = pending.length ? `<div style="margin-bottom:12px"><div class="quest-meta" style="margin-bottom:7px">EINGEHENDE ANFRAGEN</div>${pending.map(r=>`<div class="friend-card" style="margin-top:8px"><strong>${escapeHTML(r.username||"Questy Player")}</strong><button class="secondary" type="button" data-accept-friend="${r.id}" style="margin-top:10px">ANNEHMEN</button></div>`).join("")}</div>` : "";
+    const friendsHTML = friends.length ? friends.map(f=>`<div class="friend-card" style="margin-top:8px"><strong>${escapeHTML(f.username||"Questy Player")}</strong><div class="quest-meta">${Number(f.quests_completed||0)} erledigt · ${Number(f.completion_rate||0)}% Completion · ${Number(f.xp_earned||0)} XP</div></div>`).join("") : `<div class="empty-social">Noch keine Freunde verbunden.<br>Füge jemanden über den Spielernamen hinzu.</div>`;
+    friendList.innerHTML = pendingHTML + friendsHTML;
+  }
+}
+
+async function loadSocialData() {
+  if (!questyClient || !questyCloudLoaded || !questyCurrentUserId) {
+    renderSocials();
+    return;
+  }
+  try {
+    const { data: userData, error: userError } = await questyClient.auth.getUser();
+    if (userError) throw userError;
+    if (!userData?.user || userData.user.id !== questyCurrentUserId) return;
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const { data: rows, error: statsError } = await questyClient.rpc("questy_monthly_social_stats", { month_start: monthStart });
+    if (statsError) throw statsError;
+    const mine = (rows || []).find(r => r.user_id === questyCurrentUserId);
+    if (mine) data.social.username = mine.username;
+    data.social.friends = (rows || []).filter(r => r.user_id !== questyCurrentUserId).map(r => ({
+      user_id: r.user_id, username: r.username, quests_created: Number(r.quests_created)||0,
+      quests_completed: Number(r.quests_completed)||0, completion_rate: Number(r.completion_rate)||0,
+      xp_earned: Number(r.xp_earned)||0, hard_quests_completed: Number(r.hard_quests_completed)||0
+    }));
+    const { data: pending, error: pendingError } = await questyClient.rpc("questy_pending_friend_requests");
+    if (pendingError) throw pendingError;
+    data.social.pending = pending || [];
+    renderSocials();
+  } catch (error) {
+    console.error("Questy: Social-Daten konnten nicht geladen werden.", error);
+    const ranking = document.getElementById("socialRanking");
+    if (ranking) ranking.innerHTML = `<div class="empty-social">Socials konnten gerade nicht geladen werden.<br><small>${escapeHTML(error.message || "Bitte Social-SQL prüfen.")}</small></div>`;
+  }
+}
+
+async function acceptFriendRequest(requestId) {
+  if (!questyClient || !questyCloudLoaded) return;
+  try {
+    const { data: result, error } = await questyClient.rpc("questy_accept_friend_request", { request_id: requestId });
+    if (error) throw error;
+    toast(result?.message || "Freundschaft angenommen.");
+    await loadSocialData();
+  } catch (error) {
+    console.error("Questy: Freundschaft konnte nicht angenommen werden.", error);
+    toast(error.message || "Anfrage konnte nicht angenommen werden.");
+  }
+}
+
+function initQuestyTabs() {
+  document.querySelectorAll(".tab-button").forEach(button => {
+    button.addEventListener("click", () => {
+      const target = button.dataset.tab;
+      document.querySelectorAll(".tab-button").forEach(b => b.classList.toggle("active", b === button));
+      document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.dataset.panel === target));
+      history.replaceState(null, "", `#${target}`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (target === "social") loadSocialData();
+    });
+  });
+  const initial = location.hash.replace("#", "");
+  const target = initial && document.querySelector(`.tab-button[data-tab="${CSS.escape(initial)}"]`);
+  if (target) target.click();
+  document.getElementById("createBattleButton")?.addEventListener("click", () => {
+    document.getElementById("socialActionsMessage").textContent = "Battle-System ist vorbereitet. Sobald dein Social-Backend aktiv ist, kannst du hier einen Freund auswählen und eine 7-Tage-Challenge starten.";
+  });
+  document.getElementById("createRaidButton")?.addEventListener("click", () => {
+    document.getElementById("socialActionsMessage").textContent = "Raid-System ist vorbereitet: gemeinsames Quest-Ziel, Boss-HP und Fortschritt werden im nächsten Social-Backend-Schritt gespeichert.";
+  });
+  document.getElementById("addFriendButton")?.addEventListener("click", async () => {
+    const input = document.getElementById("friendUsernameInput");
+    const username = input.value.trim();
+    if (!username) return toast("Bitte einen Spielernamen eingeben.");
+    if (!questyCloudLoaded || !questyClient) return toast("Für echte Freundschaften musst du eingeloggt sein.");
+    try {
+      const { data: rpcData, error } = await questyClient.rpc("questy_send_friend_request", { target_username: username });
+      if (error) throw error;
+      input.value = "";
+      toast(rpcData?.message || "Freundschaftsanfrage gesendet.");
+    } catch (error) {
+      console.error("Questy: Freundschaftsanfrage fehlgeschlagen.", error);
+      toast(error.message || "Freundschaftsanfrage konnte nicht gesendet werden.");
+    }
+  });
+  document.getElementById("friendList")?.addEventListener("click", event => {
+    const button = event.target.closest("[data-accept-friend]");
+    if (button) acceptFriendRequest(button.dataset.acceptFriend);
+  });
+
 }
 
 /* =========================================================
@@ -3599,16 +4033,58 @@ async function refreshAccountUI() {
   }
 }
 
+function calculateXPFromHistory() {
+  return data.history.reduce((sum, quest) => {
+    return sum + Math.max(0, Number(quest.xp) || 0);
+  }, 0);
+}
+
 async function syncProfileToCloud(user) {
-  const { error } = await questyClient.from("profiles").upsert({
+  if (!questyClient || !user) return;
+
+  // XP wird aus abgeschlossenen Quests abgeleitet und nicht mehr blind aus
+  // data.xp übernommen. Damit kann eine manipulierte lokale XP-Zahl nicht
+  // einfach als neuer Kontostand in profiles geschrieben werden.
+  data.xp = calculateXPFromHistory();
+
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  const profilePayload = {
     id: user.id,
     username: user.user_metadata?.username || null,
-    total_xp: Number(data.xp) || 0,
-    level: Math.floor((Number(data.xp) || 0) / 100) + 1,
-    streak: Number(data.streak) || 0,
-    last_active_date: data.lastActiveDate || null
-  }, { onConflict: "id" });
-  if (error) throw error;
+    total_xp: data.xp,
+    level: Math.floor(data.xp / 100) + 1,
+    streak: Math.max(0, Number(data.streak) || 0),
+    last_active_date: data.lastActiveDate || null,
+    timezone,
+    next_quest_number: Math.max(1, Number(data.nextQuestNumber) || 1)
+  };
+
+  // Normalerweise legt der auth.users-Trigger das Profil bereits beim Signup an.
+  // Danach aktualisieren wir nur die eigene Zeile. Falls sie aus irgendeinem
+  // Grund noch fehlt, versuchen wir einmalig ein Upsert.
+  const { data: existingProfile, error: readError } = await questyClient
+    .from("profiles")
+    .select("id")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (readError) throw readError;
+
+  if (existingProfile) {
+    const { error } = await questyClient
+      .from("profiles")
+      .update(profilePayload)
+      .eq("id", user.id);
+
+    if (error) throw error;
+    return;
+  }
+
+  const { error: insertError } = await questyClient
+    .from("profiles")
+    .insert(profilePayload);
+
+  if (insertError) throw insertError;
 }
 
 function cloudQuestPayload(quest, userId, status = "active") {
@@ -3617,7 +4093,7 @@ function cloudQuestPayload(quest, userId, status = "active") {
     text: String(quest.text || "Neue Quest"),
     difficulty: Number(quest.difficulty) || 1,
     type: quest.type || "normal",
-    xp: Number(quest.xp) || 0,
+    xp: Math.max(0, Number(quest.xp) || 0),
     category: quest.category || "Allgemein",
     status,
     created_at: quest.createdAtISO || new Date().toISOString(),
@@ -3641,17 +4117,23 @@ async function insertQuestToCloud(quest, userId) {
   quest.dbId = row.id;
   quest.questNumber = Number(row.quest_number);
   quest.createdAtISO = row.created_at;
+
   if (Number.isFinite(quest.questNumber)) {
-    data.nextQuestNumber = Math.max(Number(data.nextQuestNumber) || 0, quest.questNumber + 1);
+    data.nextQuestNumber = Math.max(
+      Number(data.nextQuestNumber) || 1,
+      quest.questNumber + 1
+    );
   }
+
   return quest;
 }
 
 async function syncQuestyCloud() {
-  if (!questyCloudLoaded || questyCloudSyncInProgress) return;
+  if (!questyCloudLoaded || questyCloudSyncInProgress || !questyCurrentUserId) return;
 
-  const { data: { user } } = await questyClient.auth.getUser();
-  if (!user) return;
+  const { data: { user }, error: userError } = await questyClient.auth.getUser();
+  if (userError) throw userError;
+  if (!user || user.id !== questyCurrentUserId) return;
 
   questyCloudSyncInProgress = true;
 
@@ -3667,11 +4149,16 @@ async function syncQuestyCloud() {
           .update(cloudQuestPayload(quest, user.id, "active"))
           .eq("id", quest.dbId)
           .eq("user_id", user.id);
+
         if (error) throw error;
       }
     }
 
-    localStorage.setItem("questMode", JSON.stringify(data));
+    // next_quest_number kann sich durch neue Inserts geändert haben. Deshalb
+    // das Profil danach noch einmal aktualisieren.
+    await syncProfileToCloud(user);
+
+    saveLocalData();
     render();
   } finally {
     questyCloudSyncInProgress = false;
@@ -3679,40 +4166,66 @@ async function syncQuestyCloud() {
 }
 
 async function syncCompletedQuestToCloud(quest) {
+  const { data: { user }, error: userError } = await questyClient.auth.getUser();
+  if (userError) throw userError;
+  if (!user || user.id !== questyCurrentUserId) return;
+
   if (!quest.dbId) {
-    const { data: { user } } = await questyClient.auth.getUser();
-    if (!user) return;
     await insertQuestToCloud(quest, user.id);
   }
 
+  const completedAt = new Date().toISOString();
   const { error } = await questyClient
     .from("quests")
-    .update({ status: "completed", completed_at: new Date().toISOString() })
-    .eq("id", quest.dbId);
+    .update({
+      status: "completed",
+      completed_at: completedAt,
+      reminder_at: null,
+      reminder_sent_at: null
+    })
+    .eq("id", quest.dbId)
+    .eq("user_id", user.id);
+
   if (error) throw error;
 
-  const { data: { user } } = await questyClient.auth.getUser();
-  if (user) await syncProfileToCloud(user);
+  await syncProfileToCloud(user);
 }
 
 async function syncDeletedQuestToCloud(quest) {
-  if (!quest.dbId) return;
+  if (!quest?.dbId || !questyCurrentUserId) return;
 
   const { error } = await questyClient
     .from("quests")
-    .update({ status: "deleted" })
-    .eq("id", quest.dbId);
+    .update({ status: "deleted", reminder_at: null, reminder_sent_at: null })
+    .eq("id", quest.dbId)
+    .eq("user_id", questyCurrentUserId);
+
   if (error) throw error;
 }
 
 async function loadQuestyFromCloud() {
-  const { data: { user } } = await questyClient.auth.getUser();
+  const { data: { user }, error: userError } = await questyClient.auth.getUser();
+  if (userError) throw userError;
   if (!user) return;
+
+  questyCurrentUserId = user.id;
+
+  // Jeder Account hat seinen eigenen lokalen Cache. Dadurch kann ein Logout
+  // niemals versehentlich den Spielstand des nächsten Accounts anzeigen.
+  data = loadLocalData(getQuestyStorageKey(user.id));
 
   const [profileResult, questResult, achievementResult] = await Promise.all([
     questyClient.from("profiles").select("*").eq("id", user.id).maybeSingle(),
-    questyClient.from("quests").select("*").eq("user_id", user.id).neq("status", "deleted").order("quest_number", { ascending: true }),
-    questyClient.from("achievements").select("achievement_id, unlocked_at").eq("user_id", user.id)
+    questyClient
+      .from("quests")
+      .select("*")
+      .eq("user_id", user.id)
+      .neq("status", "deleted")
+      .order("quest_number", { ascending: true }),
+    questyClient
+      .from("achievements")
+      .select("achievement_id, unlocked_at")
+      .eq("user_id", user.id)
   ]);
 
   if (profileResult.error) throw profileResult.error;
@@ -3723,60 +4236,92 @@ async function loadQuestyFromCloud() {
   const cloudQuests = questResult.data || [];
   const cloudAchievements = achievementResult.data || [];
 
-  data.xp = Number(profile?.total_xp) || 0;
-  data.streak = Number(profile?.streak) || 0;
-  data.lastActiveDate = profile?.last_active_date || null;
-  data.nextQuestNumber = Math.max(1, Number(profile?.next_quest_number) || 1);
-  data.quests = cloudQuests.filter(q => q.status === "active").map(q => ({
-    id: Date.now() + Math.floor(Math.random() * 100000),
-    dbId: q.id,
-    questNumber: Number(q.quest_number),
-    text: q.text,
-    difficulty: q.difficulty,
-    type: q.type,
-    xp: q.xp,
-    category: q.category,
-    created: q.created_at ? new Date(q.created_at).toLocaleString("de-DE") : "",
-    createdAtISO: q.created_at,
-    reminderAt: q.reminder_at || null,
-    reminderSentAt: q.reminder_sent_at || null
-  }));
+  if (profile) {
+    // XP wird aus den abgeschlossenen Quests berechnet. total_xp im Profil
+    // ist nur ein Cache und niemals die alleinige Quelle für den Spielstand.
+    data.streak = Math.max(0, Number(profile.streak) || 0);
+    data.lastActiveDate = profile.last_active_date || null;
+    data.nextQuestNumber = Math.max(1, Number(profile.next_quest_number) || 1);
+  }
 
-  data.history = cloudQuests.filter(q => q.status === "completed").sort((a,b) =>
-    new Date(b.completed_at || b.created_at) - new Date(a.completed_at || a.created_at)
-  ).map(q => ({
-    id: q.id,
-    dbId: q.id,
-    questNumber: Number(q.quest_number),
-    text: q.text,
-    difficulty: q.difficulty,
-    type: q.type,
-    xp: q.xp,
-    category: q.category,
-    created: q.created_at ? new Date(q.created_at).toLocaleString("de-DE") : "",
-    completed: q.completed_at ? new Date(q.completed_at).toLocaleString("de-DE") : ""
-  }));
+  data.quests = cloudQuests
+    .filter(q => q.status === "active")
+    .map((q, index) => ({
+      id: Date.now() + index + Math.floor(Math.random() * 100000),
+      dbId: q.id,
+      questNumber: Number(q.quest_number),
+      text: q.text,
+      difficulty: q.difficulty,
+      type: q.type,
+      xp: q.xp,
+      category: q.category,
+      created: q.created_at ? new Date(q.created_at).toLocaleString("de-DE") : "",
+      createdAtISO: q.created_at,
+      reminderAt: q.reminder_at || null,
+      reminderSentAt: q.reminder_sent_at || null
+    }));
+
+  data.history = cloudQuests
+    .filter(q => q.status === "completed")
+    .sort((a, b) =>
+      new Date(b.completed_at || b.created_at) -
+      new Date(a.completed_at || a.created_at)
+    )
+    .map(q => ({
+      id: q.id,
+      dbId: q.id,
+      questNumber: Number(q.quest_number),
+      text: q.text,
+      difficulty: q.difficulty,
+      type: q.type,
+      xp: q.xp,
+      category: q.category,
+      created: q.created_at ? new Date(q.created_at).toLocaleString("de-DE") : "",
+      completed: q.completed_at ? new Date(q.completed_at).toLocaleString("de-DE") : ""
+    }));
+
+  // Einziger autoritativer XP-Wert im Client: die Summe der aus der Cloud
+  // geladenen abgeschlossenen Quests.
+  data.xp = calculateXPFromHistory();
 
   data.achievements = {};
-  cloudAchievements.forEach(a => data.achievements[a.achievement_id] = true);
+  cloudAchievements.forEach(a => {
+    data.achievements[a.achievement_id] = true;
+  });
 
   questyCloudLoaded = true;
-  localStorage.setItem("questMode", JSON.stringify(data));
+  saveLocalData();
   render();
 }
 
 async function initializeQuestyAccount() {
   if (!questyClient) return;
+
   try {
-    const { data: { session } } = await questyClient.auth.getSession();
+    const { data: { session }, error } = await questyClient.auth.getSession();
+    if (error) throw error;
+
     if (session?.user) {
       await loadQuestyFromCloud();
+      loadSocialData();
+      // Push bewusst erst nach dem erfolgreichen Laden des richtigen Accounts registrieren.
+      registerQuestyPush();
+    } else {
+      questyCurrentUserId = null;
+      questyCloudLoaded = false;
+      data = loadLocalData(QUESTY_GUEST_KEY);
+      render();
     }
   } catch (error) {
     console.error("Questy: Cloud-Spielstand konnte nicht geladen werden.", error);
+    questyCurrentUserId = null;
+    questyCloudLoaded = false;
+    data = loadLocalData(QUESTY_GUEST_KEY);
+    render();
     toast("Cloud-Spielstand konnte nicht geladen werden.");
   }
 }
+
 
 accountButton.addEventListener("click", async () => {
   accountModal.classList.add("show");
@@ -3810,8 +4355,40 @@ document.getElementById("questyShowLogin").addEventListener("click", () => {
   authMessage.textContent = "";
 });
 
+async function handleSignedInSession(session) {
+  const user = session?.user;
+  if (!user) return;
+
+  // Wenn dieser Account bereits geladen ist, nichts doppelt synchronisieren.
+  if (questyCurrentUserId === user.id && questyCloudLoaded) {
+    await refreshAccountUI();
+    return;
+  }
+
+  questyCurrentUserId = user.id;
+  questyCloudLoaded = false;
+  data = loadLocalData(getQuestyStorageKey(user.id));
+  render();
+
+  await loadQuestyFromCloud();
+  await refreshAccountUI();
+  registerQuestyPush();
+}
+
+function switchToGuestData() {
+  questyCurrentUserId = null;
+  questyCloudLoaded = false;
+  questyCloudSyncInProgress = false;
+  data = loadLocalData(QUESTY_GUEST_KEY);
+  render();
+  saveLocalData(QUESTY_GUEST_KEY);
+}
+
 document.getElementById("questyRegisterButton").addEventListener("click", async () => {
-  if (!questyClient) return accountMessage("Account-Funktion konnte nicht geladen werden. Bitte Internetverbindung prüfen und Questy neu laden.");
+  if (!questyClient) {
+    return accountMessage("Account-Funktion konnte nicht geladen werden. Bitte Internetverbindung prüfen und Questy neu laden.");
+  }
+
   const username = document.getElementById("questyRegisterUsername").value.trim();
   const email = document.getElementById("questyRegisterEmail").value.trim();
   const password = document.getElementById("questyRegisterPassword").value;
@@ -3822,35 +4399,45 @@ document.getElementById("questyRegisterButton").addEventListener("click", async 
 
   accountMessage("Account wird erstellt...");
 
-  const { data: signupData, error } = await questyClient.auth.signUp({
-    email,
-    password,
-    options: { data: { username } }
-  });
+  try {
+    const { data: signupData, error } = await questyClient.auth.signUp({
+      email,
+      password,
+      options: { data: { username } }
+    });
 
-  if (error) {
-    console.error(error);
-    return accountMessage(error.message);
-  }
+    if (error) throw error;
 
-  if (signupData.session) {
-    try {
+    if (signupData.session?.user) {
+      // Beim Signup darf der bisherige Gast-Spielstand bewusst in den neuen
+      // Account übernommen werden. Danach ist er nicht mehr global geteilt.
+      data = loadLocalData(QUESTY_GUEST_KEY);
+      questyCurrentUserId = signupData.session.user.id;
+      saveLocalData(getQuestyStorageKey(questyCurrentUserId));
       questyCloudLoaded = true;
+
       await syncQuestyCloud();
       await refreshAccountUI();
+      registerQuestyPush();
       accountMessage("Account erstellt und Spielstand gespeichert.", true);
       setTimeout(() => accountModal.classList.remove("show"), 900);
-    } catch (syncError) {
-      console.error(syncError);
-      accountMessage("Account erstellt, aber der Spielstand konnte noch nicht gespeichert werden.");
+    } else {
+      accountMessage(
+        "Account erstellt! Bitte bestätige zuerst deine E-Mail-Adresse. Danach kannst du dich einloggen.",
+        true
+      );
     }
-  } else {
-    accountMessage("Account erstellt! Bitte bestätige zuerst deine E-Mail-Adresse. Danach kannst du dich einloggen.", true);
+  } catch (error) {
+    console.error("Questy: Registrierung fehlgeschlagen.", error);
+    accountMessage(error.message || "Account konnte nicht erstellt werden.");
   }
 });
 
 document.getElementById("questyLoginButton").addEventListener("click", async () => {
-  if (!questyClient) return accountMessage("Account-Funktion konnte nicht geladen werden. Bitte Internetverbindung prüfen und Questy neu laden.");
+  if (!questyClient) {
+    return accountMessage("Account-Funktion konnte nicht geladen werden. Bitte Internetverbindung prüfen und Questy neu laden.");
+  }
+
   const email = document.getElementById("questyLoginEmail").value.trim();
   const password = document.getElementById("questyLoginPassword").value;
 
@@ -3858,31 +4445,50 @@ document.getElementById("questyLoginButton").addEventListener("click", async () 
 
   accountMessage("Einloggen...");
 
-  const { error } = await questyClient.auth.signInWithPassword({ email, password });
-  if (error) {
-    console.error(error);
-    return accountMessage(error.message);
-  }
-
   try {
-    await loadQuestyFromCloud();
-    await refreshAccountUI();
+    const { data: loginData, error } = await questyClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) throw error;
+
+    await handleSignedInSession(loginData.session);
+    loadSocialData();
     accountMessage("Erfolgreich eingeloggt!", true);
     setTimeout(() => accountModal.classList.remove("show"), 800);
-  } catch (loadError) {
-    console.error(loadError);
-    accountMessage("Login erfolgreich, aber der Spielstand konnte nicht geladen werden.");
+  } catch (error) {
+    console.error("Questy: Login fehlgeschlagen.", error);
+    accountMessage(error.message || "Login fehlgeschlagen.");
   }
 });
 
 document.getElementById("questyLogoutButton").addEventListener("click", async () => {
-  if (!questyClient) return accountMessage("Account-Funktion konnte nicht geladen werden. Bitte Internetverbindung prüfen und Questy neu laden.");
-  const { error } = await questyClient.auth.signOut();
-  if (error) return accountMessage(error.message);
-  questyCloudLoaded = false;
-  accountButton.textContent = "ACCOUNT";
-  accountMessage("Du wurdest ausgeloggt.", true);
-  setTimeout(() => accountModal.classList.remove("show"), 500);
+  if (!questyClient) {
+    return accountMessage("Account-Funktion konnte nicht geladen werden. Bitte Internetverbindung prüfen und Questy neu laden.");
+  }
+
+  try {
+    const { data: { user } } = await questyClient.auth.getUser();
+
+    if (user) {
+      // Letzten lokalen Stand unter der Benutzer-ID sichern, niemals unter einem
+      // gemeinsamen Schlüssel.
+      saveLocalData(getQuestyStorageKey(user.id));
+      await removeCurrentPushSubscriptionForUser(user.id);
+    }
+
+    const { error } = await questyClient.auth.signOut();
+    if (error) throw error;
+
+    switchToGuestData();
+    accountButton.textContent = "ACCOUNT";
+    accountMessage("Du wurdest ausgeloggt. Dein Account-Spielstand bleibt sicher gespeichert.", true);
+    setTimeout(() => accountModal.classList.remove("show"), 500);
+  } catch (error) {
+    console.error("Questy: Logout fehlgeschlagen.", error);
+    accountMessage(error.message || "Logout fehlgeschlagen.");
+  }
 });
 
 initializeQuestyAccount();
@@ -3904,6 +4510,7 @@ function changeTheme(theme) {
    EVENT LISTENERS — ERST NACH DEM LADEN ALLER ELEMENTE
 ========================================================= */
 document.addEventListener("DOMContentLoaded", () => {
+  initQuestyTabs();
   const themeSelect = document.getElementById("themeSelect");
   if (themeSelect) {
     themeSelect.addEventListener("change", event => changeTheme(event.target.value));
@@ -4148,26 +4755,35 @@ document.getElementById("newPasswordModal")?.addEventListener("click", event => 
 
 if (questyClient) {
   questyClient.auth.onAuthStateChange((event, session) => {
+    // Supabase empfiehlt, die eigentliche Async-Arbeit nicht direkt im
+    // Auth-Callback zu blockieren. Deshalb läuft der Account-Wechsel im nächsten Task.
+    setTimeout(async () => {
+      try {
+        accountButton.textContent = session?.user ? "ACCOUNT ✓" : "ACCOUNT";
 
-    accountButton.textContent =
-      session?.user ? "ACCOUNT ✓" : "ACCOUNT";
+        if (event === "PASSWORD_RECOVERY") {
+          document
+            .getElementById("newPasswordModal")
+            ?.classList.add("show");
+          return;
+        }
 
-    if (event === "PASSWORD_RECOVERY") {
-      document
-        .getElementById("newPasswordModal")
-        ?.classList.add("show");
-    }
+        if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session?.user) {
+          await handleSignedInSession(session);
+          return;
+        }
 
-    if (
-      session?.user &&
-      (
-        event === "SIGNED_IN" ||
-        event === "INITIAL_SESSION"
-      )
-    ) {
-      registerQuestyPush();
-    }
-
+        if (event === "SIGNED_OUT") {
+          switchToGuestData();
+          await refreshAccountUI();
+        }
+      } catch (error) {
+        console.error("Questy: Auth-State konnte nicht verarbeitet werden.", error);
+        if (event !== "SIGNED_OUT") {
+          toast("Account konnte nicht vollständig geladen werden.");
+        }
+      }
+    }, 0);
   });
 }
 
