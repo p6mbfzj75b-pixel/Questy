@@ -1853,21 +1853,6 @@ button:active {
     <div class="hero-stat"><div class="hero-label">Diesen Monat erledigt</div><div class="hero-number" id="monthCompleted">0</div><div class="quest-meta" id="monthCompletionText">Noch keine Monatsdaten.</div></div>
     <div class="hero-stat"><div class="hero-label">Zuverlässigkeit</div><div class="hero-number" id="monthCompletionRate">0%</div><div class="quest-meta">deiner angelegten Quests</div></div>
   </div>
-
-  <!-- =======================================================
-     ACTIVE QUESTS
-     Die aktuell offenen Quests gehören bewusst in die Übersicht:
-     Hier sieht der Nutzer direkt, was als Nächstes ansteht.
-  ======================================================= -->
-
-  <div class="card">
-    <h2>
-      ⚔️ Aktive Quests
-      <span id="questCount" class="quest-meta">0</span>
-    </h2>
-
-    <div id="questList"></div>
-  </div>
   <!-- =======================================================
      PLAYER PROFILE
 ======================================================= -->
@@ -2016,6 +2001,35 @@ button:active {
     <p class="quest-meta">Questy schaut nicht nur darauf, wie viel du machst, sondern auch darauf, welche Quests du tatsächlich abschließt.</p>
     <div id="questInsights"></div>
   </div>
+
+  <!-- =======================================================
+     ACTIVE QUESTS
+======================================================= -->
+
+<div>
+
+  <h2>
+
+    Aktive Quests
+
+    <span
+      id="questCount"
+      class="quest-meta"
+    >
+      0
+    </span>
+
+  </h2>
+
+
+  <div id="questList"></div>
+
+</div>
+
+
+
+
+
 </section>
 
 <section class="tab-panel" data-panel="quests">
@@ -2379,6 +2393,11 @@ button:active {
       <button id="findFriendButton" class="primary" type="button" style="width:auto;white-space:nowrap">SUCHEN</button>
     </div>
     <div id="friendSearchResult" style="margin-top:12px"></div>
+  </div>
+  <div class="card">
+    <h2>📨 Freundesanfragen</h2>
+    <p class="quest-meta">Hier siehst du alle offenen Freundschaftsanfragen, die andere Questy-Spieler an dich geschickt haben.</p>
+    <div id="pendingFriendRequests"></div>
   </div>
   <div class="card">
     <h2>👤 Meine Freunde</h2>
@@ -3771,12 +3790,26 @@ function renderSocials() {
   const entries = [me, ...friends].sort((a,b)=>Number(b.completion_rate||0)-Number(a.completion_rate||0) || Number(b.quests_completed||0)-Number(a.quests_completed||0));
   ranking.innerHTML = entries.map((e,i)=>`<div class="rank-row"><div class="rank-place">#${i+1}</div><div><div class="rank-name">${escapeHTML(e.username||"Questy Player")}</div><div class="rank-meta">${Number(e.quests_completed||0)} Quests · ${Number(e.xp_earned||0)} XP</div></div><strong>${Number(e.completion_rate||0)}%</strong></div>`).join("");
 
+  const pending = Array.isArray(data.social?.pending) ? data.social.pending : [];
+  const pendingRequests = document.getElementById("pendingFriendRequests");
+  if (pendingRequests) {
+    pendingRequests.innerHTML = pending.length
+      ? pending.map(r => `
+          <div class="friend-card" style="margin-top:8px">
+            <strong>${escapeHTML(r.username || "Questy Player")}</strong>
+            <div class="quest-meta" style="margin-top:4px">Freundschaftsanfrage</div>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+              <button class="primary" type="button" data-accept-friend="${escapeHTML(r.id)}">ANNEHMEN</button>
+              <button class="secondary" type="button" data-reject-friend="${escapeHTML(r.id)}">ABLEHNEN</button>
+            </div>
+          </div>`).join("")
+      : `<div class="empty-social">Aktuell will niemand mit dir befreundet sein</div>`;
+  }
+
   const friendList = document.getElementById("friendList");
   if (friendList) {
-    const pending = Array.isArray(data.social?.pending) ? data.social.pending : [];
-    const pendingHTML = pending.length ? `<div style="margin-bottom:12px"><div class="quest-meta" style="margin-bottom:7px">EINGEHENDE ANFRAGEN</div>${pending.map(r=>`<div class="friend-card" style="margin-top:8px"><strong>${escapeHTML(r.username||"Questy Player")}</strong><button class="secondary" type="button" data-accept-friend="${r.id}" style="margin-top:10px">ANNEHMEN</button></div>`).join("")}</div>` : "";
     const friendsHTML = friends.length ? friends.map(f=>`<div class="friend-card" style="margin-top:8px"><strong>${escapeHTML(f.username||"Questy Player")}</strong><div class="quest-meta">${Number(f.quests_completed||0)} erledigt · ${Number(f.completion_rate||0)}% Completion · ${Number(f.xp_earned||0)} XP</div></div>`).join("") : `<div class="empty-social">Noch keine Freunde verbunden.<br>Füge jemanden über den Spielernamen hinzu.</div>`;
-    friendList.innerHTML = pendingHTML + friendsHTML;
+    friendList.innerHTML = friendsHTML;
   }
 }
 
@@ -3821,6 +3854,19 @@ async function acceptFriendRequest(requestId) {
   } catch (error) {
     console.error("Questy: Freundschaft konnte nicht angenommen werden.", error);
     toast(error.message || "Anfrage konnte nicht angenommen werden.");
+  }
+}
+
+async function rejectFriendRequest(requestId) {
+  if (!questyClient || !questyCloudLoaded) return;
+  try {
+    const { data: result, error } = await questyClient.rpc("questy_reject_friend_request", { request_id: requestId });
+    if (error) throw error;
+    toast(result?.message || "Freundschaftsanfrage abgelehnt.");
+    await loadSocialData();
+  } catch (error) {
+    console.error("Questy: Freundschaftsanfrage konnte nicht abgelehnt werden.", error);
+    toast(error.message || "Anfrage konnte nicht abgelehnt werden.");
   }
 }
 
@@ -3917,9 +3963,21 @@ function initQuestyTabs() {
     }
   });
 
-  document.getElementById("friendList")?.addEventListener("click", event => {
-    const button = event.target.closest("[data-accept-friend]");
-    if (button) acceptFriendRequest(button.dataset.acceptFriend);
+  document.getElementById("pendingFriendRequests")?.addEventListener("click", event => {
+    const acceptButton = event.target.closest("[data-accept-friend]");
+    if (acceptButton) {
+      acceptButton.disabled = true;
+      acceptButton.textContent = "WIRD ANGENOMMEN …";
+      acceptFriendRequest(acceptButton.dataset.acceptFriend);
+      return;
+    }
+
+    const rejectButton = event.target.closest("[data-reject-friend]");
+    if (rejectButton) {
+      rejectButton.disabled = true;
+      rejectButton.textContent = "WIRD ABGELEHNT …";
+      rejectFriendRequest(rejectButton.dataset.rejectFriend);
+    }
   });
 
 }
