@@ -1853,6 +1853,21 @@ button:active {
     <div class="hero-stat"><div class="hero-label">Diesen Monat erledigt</div><div class="hero-number" id="monthCompleted">0</div><div class="quest-meta" id="monthCompletionText">Noch keine Monatsdaten.</div></div>
     <div class="hero-stat"><div class="hero-label">Zuverlässigkeit</div><div class="hero-number" id="monthCompletionRate">0%</div><div class="quest-meta">deiner angelegten Quests</div></div>
   </div>
+
+  <!-- =======================================================
+     ACTIVE QUESTS
+     Die aktuell offenen Quests gehören bewusst in die Übersicht:
+     Hier sieht der Nutzer direkt, was als Nächstes ansteht.
+  ======================================================= -->
+
+  <div class="card">
+    <h2>
+      ⚔️ Aktive Quests
+      <span id="questCount" class="quest-meta">0</span>
+    </h2>
+
+    <div id="questList"></div>
+  </div>
   <!-- =======================================================
      PLAYER PROFILE
 ======================================================= -->
@@ -2312,33 +2327,6 @@ button:active {
   </button>
 
 </div>
-
-
-
-  <!-- =======================================================
-     ACTIVE QUESTS
-======================================================= -->
-
-<div>
-
-  <h2>
-
-    Aktive Quests
-
-    <span
-      id="questCount"
-      class="quest-meta"
-    >
-      0
-    </span>
-
-  </h2>
-
-
-  <div id="questList"></div>
-
-</div>
-
 
 
 
